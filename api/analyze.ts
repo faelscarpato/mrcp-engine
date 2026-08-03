@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     `;
 
     return new Response(htmlIlluminati, {
-      status: 403,
+      status: 404,
       headers: { 'Content-Type': 'text/html' }
     });
   }
