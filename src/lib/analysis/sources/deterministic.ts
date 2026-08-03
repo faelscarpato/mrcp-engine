@@ -3,7 +3,7 @@ import type {
   PartialAnalysis,
   ProgressEvent,
   AnalysisContext,
-} from "../types";
+} from "../types.js";
 import type { GraphEdge, GraphNode, NodeKind } from "@/lib/graph-types";
 
 const MODULE_NAMES = ["core", "api", "auth", "ui", "utils", "graph", "hooks"];

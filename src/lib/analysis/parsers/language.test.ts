@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { detectLanguage } from './language';
+import { detectLanguage } from './language.js';
 
 describe('Módulo de Parsers: Detecção de Linguagem (language.ts)', () => {
-  
+
   it('deve detectar corretamente ficheiros da stack JavaScript/TypeScript', () => {
     expect(detectLanguage('src/components/GraphViewer.tsx')).toBe('TypeScript');
     expect(detectLanguage('src/lib/analyzer.ts')).toBe('TypeScript');
@@ -24,7 +24,7 @@ describe('Módulo de Parsers: Detecção de Linguagem (language.ts)', () => {
     expect(detectLanguage('server/main.go')).toBe('Go');
     expect(detectLanguage('system/core.cpp')).toBe('C++');
     expect(detectLanguage('system/legacy.c')).toBe('C');
-    expect(detectLanguage('include/header.h')).toBe('C'); 
+    expect(detectLanguage('include/header.h')).toBe('C');
   });
 
   it('deve detectar corretamente ficheiros Ruby, PHP e Java', () => {

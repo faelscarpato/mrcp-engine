@@ -1,8 +1,8 @@
 // Tree-sitter based function extraction using web-tree-sitter
 // This provides accurate AST-based function extraction for multiple languages
 
-import type { ExtractedFunction } from "./functions";
-import type { ImportRef } from "./imports";
+import type { ExtractedFunction } from "./functions.js";
+import type { ImportRef } from "./imports.js";
 
 /**
  * A detected call expression: caller → callee.

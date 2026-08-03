@@ -7,7 +7,7 @@ import type {
   AdvancedModuleMetrics,
   Cycle,
 } from "@/lib/graph-types";
-import type { MonorepoConfig } from "./parsers/language";
+import type { MonorepoConfig } from "./parsers/language.js";
 
 export interface AnalysisContext {
   owner: string;

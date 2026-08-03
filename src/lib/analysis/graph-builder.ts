@@ -6,14 +6,14 @@ import type {
   AdvancedModuleMetrics,
   Cycle,
 } from "@/lib/graph-types";
-import type { PartialAnalysis } from "./types";
+import type { PartialAnalysis } from "./types.js";
 import {
   detectLanguage,
   isConfigFile,
   detectMonorepoConfig,
   resolveMonorepoRoots,
   type MonorepoConfig,
-} from "./parsers/language";
+} from "./parsers/language.js";
 import {
   countLines,
   estimateComplexity,
@@ -22,17 +22,17 @@ import {
   buildAliasMap,
   resolveImportOrAlias,
   type TsAliasEntry,
-} from "./parsers/imports";
+} from "./parsers/imports.js";
 import {
   extractFunctionsFromCode,
   functionsToNodes,
   extractFunctionCalls,
   type ExtractedFunction,
-} from "./parsers/functions";
+} from "./parsers/functions.js";
 import {
   extractFunctionsWithTreeSitter,
   extractImportsWithTreeSitter,
-} from "./parsers/tree-sitter";
+} from "./parsers/tree-sitter.js";
 
 const ENTRYPOINT_PATTERNS = [
   /^src\/(main|index)\.(ts|tsx|js|jsx)$/,

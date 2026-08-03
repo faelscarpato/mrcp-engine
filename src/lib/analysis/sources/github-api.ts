@@ -3,9 +3,9 @@ import type {
   PartialAnalysis,
   ProgressEvent,
   AnalysisContext,
-} from "../types";
-import { buildGraph, type FileEntry } from "../graph-builder";
-import { isSourceFile, isConfigFile } from "../parsers/language";
+} from "../types.js";
+import { buildGraph, type FileEntry } from "../graph-builder.js";
+import { isSourceFile, isConfigFile } from "../parsers/language.js";
 
 const API = "https://api.github.com";
 

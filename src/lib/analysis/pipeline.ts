@@ -4,10 +4,10 @@ import type {
   AnalysisResult,
   AnalysisSource,
   ProgressEvent,
-} from "./types";
-import { githubApiSource } from "./sources/github-api";
-import { deterministicSource } from "./sources/deterministic";
-import { computeMetrics } from "./graph-builder";
+} from "./types.js";
+import { githubApiSource } from "./sources/github-api.js";
+import { deterministicSource } from "./sources/deterministic.js";
+import { computeMetrics } from "./graph-builder.js";
 
 export function parseRepoUrl(
   url: string,
@@ -47,7 +47,7 @@ export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
     maxFiles: opts.maxFiles ?? 300,
     maxBytesPerFile: opts.maxBytesPerFile ?? 200_000,
   };
-  const onProgress = opts.onProgress ?? (() => {});
+  const onProgress = opts.onProgress ?? (() => { });
   const attempted: Array<{
     id: AnalysisSourceId;
     ok: boolean;
