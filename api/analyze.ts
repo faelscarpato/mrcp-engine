@@ -46,7 +46,10 @@ export default async function handler(req: any, res: any) {
     }
 
     // REMOVIDO o segundo argumento do Token. Agora passamos apenas a URL exata que o seu pipeline original pedia!
-    const analysisResult = await runAnalysis(repoUrl);
+    const analysisResult = await runAnalysis({
+      repoUrl: repoUrl,
+      githubToken: process.env.GITHUB_TOKEN 
+    });
 
     return res.status(200).json({
       status: "success",
