@@ -1,0 +1,44 @@
+{
+  "name": "tanstack_start_ts",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "opencode-ai": "^1.18.5",
+    "the": "^1.0.2",
+    "tree-sitter-c": "^0.24.1",
+    "tree-sitter-cpp": "^0.23.4",
+    "tree-sitter-go": "^0.25.0",
+    "tree-sitter-java": "^0.23.5",
+    "tree-sitter-javascript": "^0.25.0",
+    "tree-sitter-php": "^0.24.2",
+    "tree-sitter-python": "^0.25.0",
+    "tree-sitter-ruby": "^0.23.1",
+    "tree-sitter-rust": "^0.24.0",
+    "tree-sitter-typescript": "^0.23.2",
+    "web-tree-sitter": "^0.26.11",
+    "without": "^1.2.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^22.16.5",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "globals": "^15.15.0",
+    "prettier": "^3.7.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^8.0.16"
+  }
+}
