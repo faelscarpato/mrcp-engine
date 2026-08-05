@@ -53,6 +53,7 @@ export default async function handler(req: any, res: any) {
     const analysisResult = await runAnalysis({
       repoUrl: repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
+      maxFiles: 2000,
     });
 
     return res.status(200).json({

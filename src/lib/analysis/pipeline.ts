@@ -44,7 +44,7 @@ export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
     branch: opts.branch?.trim() || "main",
     repoUrl: opts.repoUrl,
     githubToken: opts.githubToken,
-    maxFiles: opts.maxFiles ?? 300,
+    maxFiles: opts.maxFiles ?? 1900,
     maxBytesPerFile: opts.maxBytesPerFile ?? 200_000,
   };
   const onProgress = opts.onProgress ?? (() => { });
