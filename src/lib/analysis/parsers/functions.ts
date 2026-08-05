@@ -339,9 +339,9 @@ const FUNCTION_PATTERNS: Record<
         language: "Ruby",
         parameters: m[2]
           ? m[2]
-            .split(",")
-            .map((p) => p.trim())
-            .filter((p) => p)
+              .split(",")
+              .map((p) => p.trim())
+              .filter((p) => p)
           : [],
         isMethod: false,
       }),

@@ -56,6 +56,8 @@ const LANGUAGE_WASM_MAP: Record<string, string> = {
   c: "/tree-sitter/tree-sitter-c.wasm",
   php: "/tree-sitter/tree-sitter-php.wasm",
   ruby: "/tree-sitter/tree-sitter-ruby.wasm",
+  cobol: "/tree-sitter/tree-sitter-cobol.wasm",
+  pascal: "/tree-sitter/tree-sitter-pascal.wasm",
 };
 
 // Function node types by language
@@ -89,6 +91,8 @@ const FUNCTION_NODE_TYPES: Record<string, string[]> = {
   c: ["function_definition", "function_declaration"],
   php: ["function_definition", "method_declaration"],
   ruby: ["method", "def", "defs", "defp"],
+  cobol: ["paragraph", "section"],
+  pascal: ["function_declaration", "procedure_declaration"],
 };
 
 let parser: TreeSitterParser | null = null;
@@ -171,6 +175,12 @@ export async function extractFunctionsWithTreeSitter(
     hpp: "cpp",
     php: "php",
     rb: "ruby",
+    pas: "pascal", // Pascal
+    pp: "pascal",
+    inc: "pascal",
+    cob: "cobol", // COBOL
+    cbl: "cobol",
+    cpy: "cobol",
   };
 
   const treeSitterLang = langMap[ext] || language.toLowerCase();
@@ -322,6 +332,8 @@ const CALL_NODE_TYPES: Record<string, string[]> = {
   typescript: ["call_expression"],
   tsx: ["call_expression"],
   python: ["call", "call_expression"],
+  cobol: ["perform_statement", "call_statement"],
+  pascal: ["procedure_statement", "function_designator"],
 };
 
 // Keywords to skip when scanning call expressions (built-in / control flow)
@@ -450,6 +462,12 @@ export async function extractCallsWithTreeSitter(
     js: "javascript",
     jsx: "javascript",
     py: "python",
+    pas: "pascal",
+    cob: "cobol",
+    cbl: "cobol",
+    cpy: "cobol",
+    pp: "pascal",
+    inc: "pascal",
   };
   const treeSitterLang = langMap[ext] || language.toLowerCase();
   const nodeTypes = CALL_NODE_TYPES[treeSitterLang];
@@ -501,6 +519,8 @@ const IMPORT_NODE_TYPES: Record<string, string[]> = {
   go: ["import_declaration", "import_spec"],
   // tree-sitter-rust uses `use_declaration`
   rust: ["use_declaration"],
+  cobol: ["copy_statement"],
+  pascal: ["uses_clause"],
 };
 
 /**
@@ -604,6 +624,12 @@ export async function extractImportsWithTreeSitter(
     py: "python",
     go: "go",
     rs: "rust",
+    cbl: "cobol",
+    cob: "cobol",
+    cpy: "cobol",
+    pas: "pascal",
+    pp: "pascal",
+    inc: "pascal",
   };
   const treeSitterLang = langMap[ext] || language.toLowerCase();
   const nodeTypes = IMPORT_NODE_TYPES[treeSitterLang];

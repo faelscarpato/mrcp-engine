@@ -64,6 +64,12 @@ const EXT_LANG: Record<string, string> = {
   dockerfile: "Dockerfile",
   makefile: "Makefile",
   cmake: "CMake",
+  cbl: "COBOL",
+  cob: "COBOL",
+  cpy: "COBOL",
+  pas: "Pascal",
+  pp: "Pascal",
+  inc: "Pascal",
 };
 
 export const SOURCE_EXTS = new Set([
@@ -119,6 +125,12 @@ export const SOURCE_EXTS = new Set([
   "gql",
   "graphql",
   "proto",
+  "cbl",
+  "cob",
+  "cpy",
+  "pas",
+  "pp",
+  "inc",
 ]);
 
 export const CONFIG_FILES = new Set([

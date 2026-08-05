@@ -48,7 +48,7 @@ export const githubApiSource: AnalysisSource = {
     onProgress: (p: ProgressEvent) => void,
   ): Promise<PartialAnalysis> {
     const { owner, repo, githubToken } = ctx;
-    const maxFiles = ctx.maxFiles ?? 300;
+    const maxFiles = ctx.maxFiles ?? 1900;
     const maxBytes = ctx.maxBytesPerFile ?? 200_000;
 
     onProgress({ pct: 8, label: "Resolving branch", sourceId: "github-api" });

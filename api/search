@@ -1,0 +1,23 @@
+// Lógica para o novo endpoint: /api/search
+export async function handleSearch(req, res) {
+  const { repoUrl, query } = req.query;
+
+  if (!repoUrl || !query) {
+    return res.status(400).json({ error: "Faltam parâmetros: repoUrl ou query" });
+  }
+
+  try {
+    const analysis = await engine.analyzeRepository(repoUrl);
+    const searchResults = await engine.semanticSearch(query, analysis.id);
+
+    // 3. Devolve apenas a "resposta mastigada" para a IA (economizando tokens)
+    return res.json({
+      status: "success",
+      query_asked: query,
+      matches: searchResults // Retorna apenas os arquivos relevantes
+    });
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}

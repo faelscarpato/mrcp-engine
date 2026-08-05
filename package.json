@@ -16,6 +16,7 @@
     "opencode-ai": "^1.18.5",
     "the": "^1.0.2",
     "tree-sitter-c": "^0.24.1",
+    "tree-sitter-cobol": "^0.0.1",
     "tree-sitter-cpp": "^0.23.4",
     "tree-sitter-go": "^0.25.0",
     "tree-sitter-java": "^0.23.5",
