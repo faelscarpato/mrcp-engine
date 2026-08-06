@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRCP Engine - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #18181b;
+            --border: #27272a;
+            --primary: #ededed;
+            --muted: #a1a1aa;
+            --accent: #3b82f6;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 0%, #71717a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.05em;
+        }
+
+        p.subtitle {
+            color: var(--muted);
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: #000;
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: #000;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        button.action-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button.action-btn:hover {
+            opacity: 0.9;
+        }
+
+        button.action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px dashed var(--border);
+            color: var(--muted);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--accent);
+            color: var(--primary);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .secondary-btn:hover {
+            background: var(--border);
+        }
+
+        pre {
+            background: #000;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #a6accd;
+            max-height: 500px;
+            margin: 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-left-color: #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .string { color: #89ddff; }
+        .number { color: #f78c6c; }
+        .boolean { color: #ff5370; }
+        .null { color: #ff5370; }
+        .key { color: #c3e88d; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>MRCP Engine</h1>
+            <p class="subtitle">Análise arquitetural estruturada para Agentes IA</p>
+        </header>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" data-mode="github">GitHub</button>
+                <button class="tab" data-mode="web">Website</button>
+                <button class="tab" data-mode="local">Pasta Local</button>
+            </div>
+
+            <!-- Form para URL (Github/Web) -->
+            <div class="input-group" id="url-input-group">
+                <input type="text" id="url-input" placeholder="https://github.com/facebook/react" autocomplete="off">
+                <button class="action-btn" id="analyze-url-btn">Analisar</button>
+            </div>
+
+            <!-- Form para Pasta Local (File Picker) -->
+            <div class="input-group hidden" id="local-input-group">
+                <div class="file-upload-wrapper">
+                    <label for="folder-input" class="file-upload-label" id="folder-label">
+                        📁 Selecionar pasta do projeto...
+                    </label>
+                    <input type="file" id="folder-input" webkitdirectory directory multiple>
+                </div>
+                <button class="action-btn" id="analyze-local-btn" disabled style="opacity: 0.5;">Analisar Pasta</button>
+            </div>
+        </div>
+
+        <div class="card hidden" id="result-card">
+            <div class="result-header">
+                <h3 style="margin: 0; font-size: 1rem;">JSON Result (<span id="source-badge"></span>)</h3>
+                <div class="result-actions">
+                    <button class="secondary-btn" id="copy-btn">Copiar</button>
+                    <button class="secondary-btn" id="download-btn">Baixar .json</button>
+                </div>
+            </div>
+            <pre><code id="json-output"></code></pre>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'github';
+        let selectedFiles = [];
+        let lastJsonResult = null;
+
+        // UI Elements
+        const tabs = document.querySelectorAll('.tab');
+        const urlGroup = document.getElementById('url-input-group');
+        const localGroup = document.getElementById('local-input-group');
+        const urlInput = document.getElementById('url-input');
+        const analyzeUrlBtn = document.getElementById('analyze-url-btn');
+        const analyzeLocalBtn = document.getElementById('analyze-local-btn');
+        const folderInput = document.getElementById('folder-input');
+        const folderLabel = document.getElementById('folder-label');
+        const resultCard = document.getElementById('result-card');
+        const jsonOutput = document.getElementById('json-output');
+        const sourceBadge = document.getElementById('source-badge');
+
+        // Carregar do Storage (IndexDB / LocalStorage)
+        window.addEventListener('DOMContentLoaded', () => {
+            const cached = localStorage.getItem('mrcp_last_analysis');
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    showResult(data, 'cache');
+                } catch(e) {}
+            }
+        });
+
+        // Tab Switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMode = tab.dataset.mode;
+
+                if (currentMode === 'local') {
+                    urlGroup.classList.add('hidden');
+                    localGroup.classList.remove('hidden');
+                } else {
+                    urlGroup.classList.remove('hidden');
+                    localGroup.classList.add('hidden');
+                    urlInput.placeholder = currentMode === 'github' 
+                        ? 'https://github.com/facebook/react' 
+                        : 'https://seusite.com';
+                }
+            });
+        });
+
+        // Folder Selection
+        folderInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files).filter(f => {
+                // Ignore build folders, node_modules, .git, and large binary files
+                const path = f.webkitRelativePath;
+                if (path.includes('/node_modules/') || path.includes('/.git/') || path.includes('/dist/') || path.includes('/.next/')) return false;
+                
+                const ext = path.split('.').pop().toLowerCase();
+                const invalidExts = ['png', 'jpg', 'jpeg', 'gif', 'mp4', 'pdf', 'zip', 'exe', 'dll'];
+                if (invalidExts.includes(ext)) return false;
+
+                return true;
+            });
+
+            if (selectedFiles.length > 0) {
+                folderLabel.textContent = `📁 ${selectedFiles.length} arquivos selecionados`;
+                analyzeLocalBtn.disabled = false;
+                analyzeLocalBtn.style.opacity = '1';
+            } else {
+                folderLabel.textContent = '📁 Selecionar pasta do projeto...';
+                analyzeLocalBtn.disabled = true;
+                analyzeLocalBtn.style.opacity = '0.5';
+            }
+        });
+
+        // API Call (URL)
+        analyzeUrlBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            setLoading(analyzeUrlBtn, true);
+            try {
+                const res = await fetch(`/api/analyze?repo=${encodeURIComponent(url)}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                showResult(data, currentMode);
+            } catch (err) {
+                showResult({ error: err.message }, 'error');
+            }
+            setLoading(analyzeUrlBtn, false);
+        });
+
+        // API Call (Local Upload)
+        analyzeLocalBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+
+            setLoading(analyzeLocalBtn, true);
+            try {
+                // Read files to memory
+                const filePayloads = await Promise.all(selectedFiles.map(file => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            resolve({
+                                path: file.webkitRelativePath,
+                                content: e.target.result,
+                                size: file.size
+                            });
+                        };
+                        reader.readAsText(file);
+                    });
+                }));
+
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: filePayloads })
+                });
+
+                const data = await res.json();
+                showResult(data, 'local-upload');
+            } catch (err) {
+                showResult({ error: err.message }, 'error');
+            }
+            setLoading(analyzeLocalBtn, false);
+        });
+
+        // Helper: Show Result
+        function showResult(data, source) {
+            lastJsonResult = data;
+            localStorage.setItem('mrcp_last_analysis', JSON.stringify(data));
+            
+            resultCard.classList.remove('hidden');
+            sourceBadge.textContent = source;
+            
+            const jsonStr = JSON.stringify(data, null, 2);
+            jsonOutput.innerHTML = syntaxHighlight(jsonStr);
+        }
+
+        // Helper: Syntax Highlight JSON
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Helper: Loading State
+        function setLoading(btn, isLoading) {
+            if (isLoading) {
+                btn.dataset.text = btn.textContent;
+                btn.innerHTML = '<span class="loader"></span>';
+                btn.disabled = true;
+            } else {
+                btn.textContent = btn.dataset.text;
+                btn.disabled = false;
+            }
+        }
+
+        // Actions
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            if (!lastJsonResult) return;
+            navigator.clipboard.writeText(JSON.stringify(lastJsonResult, null, 2));
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = 'Copiado!';
+            setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            if (!lastJsonResult) return;
+            const blob = new Blob([JSON.stringify(lastJsonResult, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mrcp-analysis-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>

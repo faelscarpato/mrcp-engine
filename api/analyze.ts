@@ -18,6 +18,15 @@ export default async function handler(req: any, res: any) {
           p { font-size: 1.2rem; max-width: 600px; line-height: 1.5; }
           .eye { font-size: 5rem; margin-bottom: 20px; }
         </style>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-HSQM4Q77P6"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-HSQM4Q77P6');
+        </script>
       </head>
       <body>
         <div class="eye">👁️⃤</div>
@@ -38,6 +47,23 @@ export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   try {
+    if (req.method === "POST") {
+      const { files } = req.body;
+      if (!files || !Array.isArray(files)) {
+        return res.status(400).json({ error: "Missing files array in POST body" });
+      }
+      
+      const { buildGraph } = await import("../src/lib/analysis/graph-builder.js");
+      const analysisResult = await buildGraph(files);
+      analysisResult.quality = "full";
+      
+      return res.status(200).json({
+        status: "success",
+        analyzed_url: "local-upload",
+        architecture_summary: analysisResult,
+      });
+    }
+
     const repoUrl = req.query.repo;
 
     if (!repoUrl) {
