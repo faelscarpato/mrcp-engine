@@ -14,6 +14,7 @@ export interface AnalysisContext {
   repo: string;
   branch: string;
   repoUrl: string;
+  targetType?: "github" | "local" | "website";
   githubToken?: string;
   maxFiles?: number;
   maxBytesPerFile?: number;

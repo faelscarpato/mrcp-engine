@@ -7,23 +7,46 @@ import type {
 } from "./types.js";
 import { githubApiSource } from "./sources/github-api.js";
 import { deterministicSource } from "./sources/deterministic.js";
+import { localDirSource } from "./sources/local-dir.js";
+import { websiteSource } from "./sources/website.js";
 import { computeMetrics } from "./graph-builder.js";
 
-export function parseRepoUrl(
+export function parseTargetUrl(
   url: string,
-): { owner: string; repo: string } | null {
+): { owner: string; repo: string; targetType: "github" | "local" | "website" } | null {
+  const trimmed = url.trim();
+  
+  if (trimmed.match(/^[a-zA-Z]:\\/) || trimmed.match(/^[a-zA-Z]:\//) || trimmed.startsWith("/")) {
+    const parts = trimmed.replace(/\\/g, "/").split("/");
+    const repo = parts[parts.length - 1] || "local-project";
+    return { owner: "local", repo, targetType: "local" };
+  }
+  
   try {
-    const u = new URL(url.trim());
-    if (!/github\.com$/i.test(u.hostname)) return null;
-    const [owner, repoRaw] = u.pathname.replace(/^\//, "").split("/");
-    if (!owner || !repoRaw) return null;
-    return { owner, repo: repoRaw.replace(/\.git$/, "") };
+    const u = new URL(trimmed);
+    if (u.protocol === "file:") {
+      const parts = u.pathname.split("/");
+      const repo = parts[parts.length - 1] || "local-project";
+      return { owner: "local", repo, targetType: "local" };
+    }
+    
+    if (/github\.com$/i.test(u.hostname)) {
+      const [owner, repoRaw] = u.pathname.replace(/^\//, "").split("/");
+      if (!owner || !repoRaw) return null;
+      return { owner, repo: repoRaw.replace(/\.git$/, ""), targetType: "github" };
+    }
+    
+    if (u.protocol === "http:" || u.protocol === "https:") {
+      return { owner: "web", repo: u.hostname, targetType: "website" };
+    }
+    
+    return null;
   } catch {
     return null;
   }
 }
 
-const DEFAULT_ORDER: AnalysisSource[] = [githubApiSource, deterministicSource];
+const DEFAULT_ORDER: AnalysisSource[] = [githubApiSource, localDirSource, websiteSource, deterministicSource];
 
 export interface RunOptions {
   repoUrl: string;
@@ -36,13 +59,14 @@ export interface RunOptions {
 }
 
 export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
-  const parsed = parseRepoUrl(opts.repoUrl);
-  if (!parsed) throw new Error("Invalid GitHub repository URL.");
+  const parsed = parseTargetUrl(opts.repoUrl);
+  if (!parsed) throw new Error("Invalid target URL or path.");
   const ctx: AnalysisContext = {
     owner: parsed.owner,
     repo: parsed.repo,
     branch: opts.branch?.trim() || "main",
     repoUrl: opts.repoUrl,
+    targetType: parsed.targetType,
     githubToken: opts.githubToken,
     maxFiles: opts.maxFiles ?? 1900,
     maxBytesPerFile: opts.maxBytesPerFile ?? 200_000,

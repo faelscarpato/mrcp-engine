@@ -1,7 +1,7 @@
 export type NodeKind = "module" | "file" | "function" | "external" | "config";
 
 export type AnalysisQuality = "full" | "partial" | "degraded";
-export type AnalysisSourceId = "github-api" | "github-raw" | "deterministic";
+export type AnalysisSourceId = "github-api" | "github-raw" | "deterministic" | "local-dir" | "website";
 
 /** Monorepo tool detected during analysis, or "none" for single-package repos. */
 export type MonorepoTool =

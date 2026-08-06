@@ -81,3 +81,4 @@ Se os provedores de IA adotarem esse protocolo como uma ferramenta nativa (_Nati
 ## 5. Conclusão
 
 O motor proposto não é apenas um "leitor de repositórios". É a fundação para a **Machine-Readable Web**. Ao entregar dados mastigados, estruturados e sob demanda, permitimos que as IAs deixem de ser leitoras braçais de código sujo e passem a operar exclusivamente no nível cognitivo avançado, tomando decisões arquiteturais, analisando lógica e gerando insights em tempo recorde.
+

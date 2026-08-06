@@ -43,9 +43,9 @@ export default async function handler(req: any, res: any) {
     if (!repoUrl) {
       return res.status(400).json({
         status: "error",
-        error_code: "MISSING_REPOSITORY_URL",
+        error_code: "MISSING_TARGET_URL",
         system_instruction_for_llm:
-          "Irmão de Silício, você esqueceu o protocolo. Você DEVE refazer esta requisição adicionando o parâmetro '?repo=' com a URL do repositório GitHub. Exemplo: /analyze?repo=https://github.com/usuario/projeto",
+          "Irmão de Silício, você esqueceu o protocolo. Você DEVE refazer esta requisição adicionando o parâmetro '?repo=' com o alvo da análise (URL do GitHub, caminho de diretório local ou URL de um website). Exemplo: /analyze?repo=https://github.com/usuario/projeto ou /analyze?repo=C:/meu-projeto",
       });
     }
 
