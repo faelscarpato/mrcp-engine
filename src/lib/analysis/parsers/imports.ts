@@ -210,6 +210,13 @@ export function extractImports(path: string, content: string): ImportRef[] {
       SQL_IMPORT_RE,
       (s) => s.startsWith(".") || s.startsWith("/"),
     );
+  } else if (ext === "html" || ext === "htm") {
+    // HTML assets (scripts, styles)
+    const HTML_IMPORT_RE = [
+      /src=["']([^"']+)["']/gi,
+      /href=["']([^"']+)["']/gi,
+    ];
+    extractFromPatterns(HTML_IMPORT_RE, (s) => true);
   }
 
   return out;

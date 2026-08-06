@@ -26,6 +26,48 @@ export const websiteSource: AnalysisSource = {
         }
       ];
 
+      // 1-Level Spider: Extract JS and CSS links to map architecture
+      const { extractImports } = await import("../parsers/imports.js");
+      const imports = extractImports("index.html", html);
+      const uniqueUrls = new Set<string>();
+      
+      for (const imp of imports) {
+        if (imp.raw.endsWith(".js") || imp.raw.endsWith(".css") || imp.raw.endsWith(".jsx") || imp.raw.endsWith(".ts")) {
+          try {
+            const url = new URL(imp.raw, ctx.repoUrl).href;
+            uniqueUrls.add(url);
+          } catch {
+            // ignore invalid urls
+          }
+        }
+      }
+
+      if (uniqueUrls.size > 0) {
+        onProgress({ pct: 60, label: `Spidering ${uniqueUrls.size} assets`, sourceId: "website" });
+        const fetchPromises = Array.from(uniqueUrls).map(async (url) => {
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              const content = await res.text();
+              const urlObj = new URL(url);
+              // Clean the path to look like a normal file in the graph
+              const path = urlObj.pathname.startsWith("/") ? urlObj.pathname.slice(1) : urlObj.pathname;
+              return {
+                path: path || "unknown",
+                content,
+                size: content.length
+              };
+            }
+          } catch {
+            return null;
+          }
+          return null;
+        });
+
+        const fetchedFiles = (await Promise.all(fetchPromises)).filter((f): f is FileEntry => f !== null);
+        files.push(...fetchedFiles);
+      }
+
       onProgress({ pct: 88, label: "Building HTML graph", sourceId: "website" });
       const partial = await buildGraph(files);
       partial.quality = "full";
