@@ -133,11 +133,23 @@ async function loadLanguage(
   }
 
   try {
-    const response = await fetch(wasmPath);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch WASM: ${response.status}`);
+    let wasmBytes: Uint8Array;
+    
+    if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+      // Node.js env (Vercel backend)
+      const fs = await import('fs');
+      const path = await import('path');
+      const wasmPathAbsolute = path.join(process.cwd(), 'public', wasmPath);
+      wasmBytes = fs.readFileSync(wasmPathAbsolute);
+    } else {
+      // Browser env fallback
+      const response = await fetch(wasmPath);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch WASM: ${response.status}`);
+      }
+      wasmBytes = new Uint8Array(await response.arrayBuffer());
     }
-    const wasmBytes = new Uint8Array(await response.arrayBuffer());
+
     const language = await webTreeSitter.Language.load(wasmBytes);
     loadedLanguages.set(languageName, language);
     return language;

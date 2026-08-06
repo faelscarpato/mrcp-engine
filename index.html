@@ -457,7 +457,7 @@
             });
 
             if (selectedFiles.length > 0) {
-                folderLabel.textContent = \`📁 \${selectedFiles.length} arquivos selecionados\`;
+                folderLabel.textContent = `📁 ${selectedFiles.length} arquivos selecionados`;
                 analyzeLocalBtn.disabled = false;
             } else {
                 folderLabel.textContent = '📁 Selecionar pasta do projeto...';
@@ -471,7 +471,7 @@
             if (!url) return;
             setLoading(analyzeUrlBtn, true);
             try {
-                const res = await fetch(\`/api/analyze?repo=\${encodeURIComponent(url)}\`, { headers: { 'Accept': 'application/json' } });
+                const res = await fetch(`/api/analyze?repo=${encodeURIComponent(url)}`, { headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
                 showResult(data, currentMode);
             } catch (err) {
@@ -573,54 +573,54 @@
         // Actions: Baixar JSON
         document.getElementById('download-json-btn').addEventListener('click', () => {
             if (!lastJsonResult) return;
-            downloadFile(JSON.stringify(lastJsonResult, null, 2), \`mrcp-analysis-\${Date.now()}.json\`, 'application/json');
+            downloadFile(JSON.stringify(lastJsonResult, null, 2), `mrcp-analysis-${Date.now()}.json`, 'application/json');
         });
 
         // Actions: Baixar TXT
         document.getElementById('download-txt-btn').addEventListener('click', () => {
             if (!lastJsonResult || !lastJsonResult.metrics) return;
             const metrics = lastJsonResult.metrics;
-            let txt = \`MRCP Engine Analysis Report\\n===========================\\n\\n\`;
-            txt += \`Overview:\\n\`;
-            txt += \`- Nodes: \${metrics.nodes || 0}\\n\`;
-            txt += \`- Edges: \${metrics.edges || 0}\\n\`;
-            txt += \`- Modules: \${metrics.modules || 0}\\n\`;
-            txt += \`- Files: \${metrics.files || 0}\\n\`;
-            txt += \`- Max Complexity: \${metrics.maxComplexity || 0}\\n\\n\`;
+            let txt = `MRCP Engine Analysis Report\n===========================\n\n`;
+            txt += `Overview:\n`;
+            txt += `- Nodes: ${metrics.nodes || 0}\n`;
+            txt += `- Edges: ${metrics.edges || 0}\n`;
+            txt += `- Modules: ${metrics.modules || 0}\n`;
+            txt += `- Files: ${metrics.files || 0}\n`;
+            txt += `- Max Complexity: ${metrics.maxComplexity || 0}\n\n`;
             
             if (metrics.topByDegree) {
-                txt += \`Top Connections:\\n\`;
-                metrics.topByDegree.forEach(t => txt += \`- \${t.label}: \${t.degree}\\n\`);
+                txt += `Top Connections:\n`;
+                metrics.topByDegree.forEach(t => txt += `- ${t.label}: ${t.degree}\n`);
             }
             if (metrics.hotspots) {
-                txt += \`\\nHotspots:\\n\`;
-                metrics.hotspots.forEach(h => txt += \`- \${h.label}: Complexity \${h.complexity}\\n\`);
+                txt += `\nHotspots:\n`;
+                metrics.hotspots.forEach(h => txt += `- ${h.label}: Complexity ${h.complexity}\n`);
             }
-            downloadFile(txt, \`mrcp-report-\${Date.now()}.txt\`, 'text/plain');
+            downloadFile(txt, `mrcp-report-${Date.now()}.txt`, 'text/plain');
         });
 
         // Actions: Baixar MD
         document.getElementById('download-md-btn').addEventListener('click', () => {
             if (!lastJsonResult || !lastJsonResult.metrics) return;
             const metrics = lastJsonResult.metrics;
-            let md = \`# MRCP Engine Analysis Report\\n\\n\`;
-            md += \`## Overview\\n\\n\`;
-            md += \`| Metric | Value |\\n|---|---|\\n\`;
-            md += \`| Nodes | \${metrics.nodes || 0} |\\n\`;
-            md += \`| Edges | \${metrics.edges || 0} |\\n\`;
-            md += \`| Modules | \${metrics.modules || 0} |\\n\`;
-            md += \`| Files | \${metrics.files || 0} |\\n\`;
-            md += \`| Max Complexity | \${metrics.maxComplexity || 0} |\\n\\n\`;
+            let md = `# MRCP Engine Analysis Report\n\n`;
+            md += `## Overview\n\n`;
+            md += `| Metric | Value |\n|---|---|\n`;
+            md += `| Nodes | ${metrics.nodes || 0} |\n`;
+            md += `| Edges | ${metrics.edges || 0} |\n`;
+            md += `| Modules | ${metrics.modules || 0} |\n`;
+            md += `| Files | ${metrics.files || 0} |\n`;
+            md += `| Max Complexity | ${metrics.maxComplexity || 0} |\n\n`;
             
             if (metrics.topByDegree && metrics.topByDegree.length > 0) {
-                md += \`## Top Connections\\n\\n\`;
-                metrics.topByDegree.forEach(t => md += \`- **\${t.label}**: \${t.degree}\\n\`);
+                md += `## Top Connections\n\n`;
+                metrics.topByDegree.forEach(t => md += `- **${t.label}**: ${t.degree}\n`);
             }
             if (metrics.hotspots && metrics.hotspots.length > 0) {
-                md += \`\\n## Hotspots\\n\\n\`;
-                metrics.hotspots.forEach(h => md += \`- **\${h.label}**: Complexity \${h.complexity}\\n\`);
+                md += `\n## Hotspots\n\n`;
+                metrics.hotspots.forEach(h => md += `- **${h.label}**: Complexity ${h.complexity}\n`);
             }
-            downloadFile(md, \`mrcp-report-\${Date.now()}.md\`, 'text/markdown');
+            downloadFile(md, `mrcp-report-${Date.now()}.md`, 'text/markdown');
         });
 
         // Actions: Baixar Relatório HTML (Grafo Animado)
@@ -630,15 +630,15 @@
             const edgesArr = (lastJsonResult.edges || []).map(e => ({ from: e.source, to: e.target, title: e.kind }));
             const metrics = lastJsonResult.metrics || {};
             
-            const topsHtml = (metrics.topByDegree || []).map(t => \`<li>\${t.label} <span style="color:#3b82f6">(\${t.degree})</span></li>\`).join('');
-            const hotspotsHtml = (metrics.hotspots || []).map(h => \`<li>\${h.label} <span style="color:#ef4444">(\${h.complexity})</span></li>\`).join('');
+            const topsHtml = (metrics.topByDegree || []).map(t => `<li>${t.label} <span style="color:#3b82f6">(${t.degree})</span></li>`).join('');
+            const hotspotsHtml = (metrics.hotspots || []).map(h => `<li>${h.label} <span style="color:#ef4444">(${h.complexity})</span></li>`).join('');
 
-            const html = \`<!DOCTYPE html>
+            const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <title>MRCP Graph Report</title>
-  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"><\\/script>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"><\/script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     body { margin: 0; padding: 0; display: flex; height: 100vh; font-family: 'Inter', sans-serif; background: #09090b; color: #ededed; overflow: hidden; }
@@ -657,22 +657,22 @@
 <div id="mynetwork"></div>
 <div id="sidebar">
   <h2>Relatório Estrutural</h2>
-  <div class="stat"><span class="stat-label">Total de Nós</span><span class="stat-value">\${metrics.nodes || 0}</span></div>
-  <div class="stat"><span class="stat-label">Arestas</span><span class="stat-value">\${metrics.edges || 0}</span></div>
-  <div class="stat"><span class="stat-label">Módulos</span><span class="stat-value">\${metrics.modules || 0}</span></div>
-  <div class="stat"><span class="stat-label">Arquivos</span><span class="stat-value">\${metrics.files || 0}</span></div>
-  <div class="stat"><span class="stat-label">Grau Médio</span><span class="stat-value">\${metrics.avgDegree || 0}</span></div>
-  <div class="stat"><span class="stat-label">Complexidade Max</span><span class="stat-value">\${metrics.maxComplexity || 0}</span></div>
+  <div class="stat"><span class="stat-label">Total de Nós</span><span class="stat-value">${metrics.nodes || 0}</span></div>
+  <div class="stat"><span class="stat-label">Arestas</span><span class="stat-value">${metrics.edges || 0}</span></div>
+  <div class="stat"><span class="stat-label">Módulos</span><span class="stat-value">${metrics.modules || 0}</span></div>
+  <div class="stat"><span class="stat-label">Arquivos</span><span class="stat-value">${metrics.files || 0}</span></div>
+  <div class="stat"><span class="stat-label">Grau Médio</span><span class="stat-value">${metrics.avgDegree || 0}</span></div>
+  <div class="stat"><span class="stat-label">Complexidade Max</span><span class="stat-value">${metrics.maxComplexity || 0}</span></div>
   
   <h3>Nós Mais Conectados</h3>
-  <ul class="list">\${topsHtml || '<li>Nenhum dado</li>'}</ul>
+  <ul class="list">${topsHtml || '<li>Nenhum dado</li>'}</ul>
   
   <h3>Hotspots (Complexos)</h3>
-  <ul class="list">\${hotspotsHtml || '<li>Nenhum dado</li>'}</ul>
+  <ul class="list">${hotspotsHtml || '<li>Nenhum dado</li>'}</ul>
 </div>
 <script type="text/javascript">
-  const nodes = new vis.DataSet(\${JSON.stringify(nodesArr)});
-  const edges = new vis.DataSet(\${JSON.stringify(edgesArr)});
+  const nodes = new vis.DataSet(${JSON.stringify(nodesArr)});
+  const edges = new vis.DataSet(${JSON.stringify(edgesArr)});
   const container = document.getElementById('mynetwork');
   const data = { nodes: nodes, edges: edges };
   const options = {
@@ -697,10 +697,10 @@
     interaction: { hover: true, tooltipDelay: 200 }
   };
   new vis.Network(container, data, options);
-<\\/script>
+<\/script>
 </body>
-</html>\`;
-            downloadFile(html, \`mrcp-graph-\${Date.now()}.html\`, 'text/html');
+</html>`;
+            downloadFile(html, `mrcp-graph-${Date.now()}.html`, 'text/html');
         });
     </script>
 </body>
