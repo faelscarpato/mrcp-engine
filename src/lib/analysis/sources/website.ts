@@ -64,7 +64,7 @@ export const websiteSource: AnalysisSource = {
           return null;
         });
 
-        const fetchedFiles = (await Promise.all(fetchPromises)).filter((f): f is FileEntry => f !== null);
+        const fetchedFiles = (await Promise.all(fetchPromises)).filter((f) => f !== null) as FileEntry[];
         files.push(...fetchedFiles);
       }
 
