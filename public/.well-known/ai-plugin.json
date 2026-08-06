@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "MRCP Engine",
+  "name_for_model": "mrcp_engine",
+  "description_for_human": "Analise repositórios de código transformando-os em grafos estruturais para IAs.",
+  "description_for_model": "Middleware headless for structural intelligence. Use this tool to fetch ASTs and architectural graphs of repositories instead of reading raw code. Eliminates AI Tax.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://mrcp-engine.vercel.app/openapi.json"
+  },
+  "logo_url": "https://mrcp-engine.vercel.app/logo.png",
+  "contact_email": "suporte@seudominio.com",
+  "legal_info_url": "https://mrcp-engine.vercel.app/legal"
+}
