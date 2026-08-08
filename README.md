@@ -78,7 +78,33 @@ Se os provedores de IA adotarem esse protocolo como uma ferramenta nativa (_Nati
 2. **Aumento Absoluto de Precisão:** A IA passa a responder perguntas sobre bases de código complexas ou documentos jurídicos longos com exatidão matemática, pois está consultando um banco de dados estruturado, não lendo um pergaminho infinito.
 3. **Velocidade para o Usuário Final:** Como o motor devolve o contexto tático em segundos, a interface de chat do usuário final parece ter ganho um aumento absurdo de velocidade e inteligência.
 
-## 5. Conclusão
+## 5. Como conectar via MCP (Model Context Protocol)
+
+O MRCP-Engine possui suporte nativo ao padrão MCP (Model Context Protocol) para ser consumido instantaneamente por agentes como **Claude Desktop**, **Cursor**, **Gemini** e orquestradores de IA.
+
+### Opção A: Executando via NPX (Claude Desktop)
+Para adicionar o MRCP-Engine ao Claude Desktop, adicione o seguinte trecho no seu arquivo `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "mrcp-engine": {
+      "command": "npx",
+      "args": ["-y", "mrcp-engine"]
+    }
+  }
+}
+```
+
+### Opção B: Conectando via API HTTP (SSE)
+Para agentes em nuvem ou bibliotecas como LangChain e LlamaIndex, o motor expõe um endpoint oficial de comunicação:
+- **URL do Servidor MCP:** `https://mrcp-engine.vercel.app/api/mcp`
+
+### Opção C: Para o ChatGPT (OpenAI Custom Actions)
+Basta importar o Manifesto da OpenAPI no portal de criação de GPTs:
+- **Manifest URL:** `https://mrcp-engine.vercel.app/openapi.json`
+
+## 6. Conclusão
 
 O motor proposto não é apenas um "leitor de repositórios". É a fundação para a **Machine-Readable Web**. Ao entregar dados mastigados, estruturados e sob demanda, permitimos que as IAs deixem de ser leitoras braçais de código sujo e passem a operar exclusivamente no nível cognitivo avançado, tomando decisões arquiteturais, analisando lógica e gerando insights em tempo recorde.
 

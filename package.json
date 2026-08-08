@@ -1,8 +1,12 @@
 {
-  "name": "tanstack_start_ts",
-  "private": true,
+  "name": "mrcp-engine",
+  "version": "1.0.0",
+  "private": false,
   "sideEffects": false,
   "type": "module",
+  "bin": {
+    "mrcp-engine": "./mcp-bridge/mcp-server.mjs"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
