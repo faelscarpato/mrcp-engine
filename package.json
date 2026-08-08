@@ -12,6 +12,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "date-fns": "^4.1.0",
     "opencode-ai": "^1.18.5",
     "the": "^1.0.2",

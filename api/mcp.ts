@@ -1,9 +1,9 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { Server } from "@modelcontextprotocol/sdk/server/index";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+} from "@modelcontextprotocol/sdk/types";
 import { runAnalysis } from "../src/lib/analysis/pipeline.js";
 
 const server = new Server(
@@ -41,7 +41,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 // 2. Executar a ferramenta
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
   if (request.params.name === "analyze_repository") {
     const repoUrl = String(request.params.arguments?.repo);
 

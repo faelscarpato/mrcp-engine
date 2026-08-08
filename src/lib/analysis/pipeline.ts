@@ -11,8 +11,74 @@ import { localDirSource } from "./sources/local-dir.js";
 import { websiteSource } from "./sources/website.js";
 import { computeMetrics } from "./graph-builder.js";
 
+import { buildGraph as buildGraphFromSource } from './graph-builder.js';
+import { injectSkillAndContract, MRCPInjectedContract } from './mrcp-skill-injector.js';
+
+export interface PipelineAnalysisResult {
+  id: string;
+  repoUrl: string;
+  owner: string;
+  repo: string;
+  branch: string;
+  createdAt: number;
+  status: 'success' | 'error';
+  quality: string;
+  nodes: any[];
+  edges?: any[];
+  hotspots?: any[];
+  languages?: Record<string, number>;
+  mrcpInjectedContracts?: MRCPInjectedContract[]; // 🚀 O novo campo matador do orquestrador
+}
+
+/**
+ * Pipeline principal de execução do MRCP-Engine.
+ * Orquestra a extração AST e injeta automaticamente as Skills e Contratos de Blindagem
+ * para consumo instantâneo e determinístico por qualquer IA.
+ */
+export async function runAnalysisPipeline(repoUrl: string, rawFiles: Array<{ path: string; content: string }>): Promise<PipelineAnalysisResult> {
+  const timestamp = Date.now();
+  const urlParts = repoUrl.replace(/\.git$/, '').split('/');
+  const repo = urlParts.pop() || 'unknown-repo';
+  const owner = urlParts.pop() || 'unknown-owner';
+
+  // 1. Executa a construção do grafo padrão e cálculo de métricas ciclomáticas pelo motor
+  const baseGraph = await buildGraphFromSource(rawFiles);
+
+  // 2. Extrai os nós identificados pelo analisador para passarem pela varredura de contratos
+  const nodesForInspection = (baseGraph.nodes || []).map((node: any) => ({
+    id: node.id,
+    label: node.label,
+    path: node.path,
+    language: node.language || 'TypeScript',
+    complexity: node.complexity || 10,
+    degree: node.degree || 1
+  }));
+
+  // 3. Aplica a varredura e injeta as Skills e Contratos de Blindagem nos hotspots críticos
+  const injectedContracts = nodesForInspection
+    .filter((node: any) => node.complexity > 50 || node.degree > 25)
+    .map((node: any) => injectSkillAndContract(node));
+
+  // 4. Retorna o payload consolidado unindo a topologia matemática e as diretrizes de IA
+  return {
+    id: `${owner}-${repo}-${timestamp}`,
+    repoUrl,
+    owner,
+    repo,
+    branch: 'main',
+    createdAt: timestamp,
+    status: 'success',
+    quality: 'full',
+    nodes: baseGraph.nodes,
+    edges: baseGraph.edges || [],
+    hotspots: (baseGraph as any).hotspots || [],
+    languages: baseGraph.languages || {},
+    mrcpInjectedContracts: injectedContracts // Entrega mastigada para a IA não precisar supor nada
+  };
+}
+
 export function parseTargetUrl(
-  url: string,
+  url: string
 ): { owner: string; repo: string; targetType: "github" | "local" | "website" } | null {
   const trimmed = url.trim();
   
