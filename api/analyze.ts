@@ -3,9 +3,20 @@ import { runAnalysis } from "../src/lib/analysis/pipeline.js";
 
 // Tipamos req e res como 'any' para calar a boca do compilador estrito do TypeScript
 export default async function handler(req: any, res: any) {
-  const acceptHeader = req.headers["accept"] || "";
+  // Configurações de CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS, PATCH, DELETE, POST, PUT");
+  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization");
 
-  if (acceptHeader.includes("text/html")) {
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  const acceptHeader = req.headers["accept"] || "";
+  const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
+  const isAutomatedTool = userAgent.includes("curl") || userAgent.includes("postman") || userAgent.includes("insomnia") || userAgent.includes("axios") || userAgent.includes("fetch") || userAgent.includes("node") || userAgent.includes("gpt") || userAgent.includes("openai") || userAgent.includes("claude");
+
+  if (acceptHeader.includes("text/html") && !isAutomatedTool) {
     const htmlIlluminati = `
       <!DOCTYPE html>
       <html lang="pt-BR">
@@ -43,9 +54,6 @@ export default async function handler(req: any, res: any) {
       .setHeader("Content-Type", "text/html")
       .send(htmlIlluminati);
   }
-
-  res.setHeader("Access-Control-Allow-Origin", "*");
-
   try {
     if (req.method === "POST") {
       const { files } = req.body;

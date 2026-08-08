@@ -1,27 +1,27 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "MRCP-Engine API",
-    "description": "Headless middleware for structural intelligence. Converts raw repositories into semantic JSON graphs, eliminating AI Tax and reducing token usage by 99%.",
-    "version": "1.0.0"
+    "title": "MRCP Engine API",
+    "version": "1.0.0",
+    "description": "API para análise detalhada de repositórios GitHub. Converte repositórios em grafos JSON semânticos."
   },
   "servers": [
     {
-      "url": "https://mrcp-engine.vercel.app/api"
+      "url": "https://mrcp-engine.vercel.app"
     }
   ],
   "paths": {
-    "/analyze": {
+    "/api/analyze": {
       "get": {
-        "summary": "Analyze repository structure",
+        "summary": "Analisar Repositório",
         "operationId": "analyzeRepository",
-        "description": "Fetches the Abstract Syntax Tree (AST) and architectural graph of a given repository, returning a highly optimized semantic JSON payload.",
+        "description": "Fetches the Abstract Syntax Tree (AST) and architectural graph of a given repository.",
         "parameters": [
           {
             "name": "repo",
             "in": "query",
-            "description": "The URL of the repository to analyze (e.g., https://github.com/user/project)",
             "required": true,
+            "description": "URL do repositório no GitHub (ex: https://github.com/usuario/repositorio)",
             "schema": {
               "type": "string"
             }
@@ -29,27 +29,40 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful extraction of the architectural graph.",
+            "description": "Resultado da análise do repositório contendo a estrutura de diretórios e métricas de complexidade.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "topology": {
+                    "status": { "type": "string" },
+                    "analyzed_url": { "type": "string" },
+                    "architecture_summary": {
                       "type": "object",
-                      "description": "Directories and function signatures"
-                    },
-                    "metrics": {
-                      "type": "object",
-                      "description": "Complexity and coupling (Ca, Ce) metrics"
+                      "properties": {
+                        "topology": {
+                          "type": "object",
+                          "description": "Diretórios e assinaturas de funções"
+                        },
+                        "metrics": {
+                          "type": "object",
+                          "description": "Métricas de complexidade e acoplamento (Ca, Ce)"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           },
+          "400": {
+            "description": "Requisição inválida (falta a URL do repositório)"
+          },
           "403": {
-            "description": "Access denied for non-machine clients."
+            "description": "Acesso negado para clientes não-máquina (navegadores)"
+          },
+          "500": {
+            "description": "Erro interno ao processar o repositório"
           }
         }
       }
