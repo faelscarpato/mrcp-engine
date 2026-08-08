@@ -1,6 +1,3 @@
-// Adicionamos a extensão .js no final da importação local para satisfazer o Node.js ESM (type: module)
-import { runAnalysis } from "../src/lib/analysis/pipeline.js";
-
 // Tipamos req e res como 'any' para calar a boca do compilador estrito do TypeScript
 export default async function handler(req: any, res: any) {
   // Configurações de CORS
@@ -83,7 +80,8 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    // REMOVIDO o segundo argumento do Token. Agora passamos apenas a URL exata que o seu pipeline original pedia!
+    // Importação dinâmica para evitar crash na Vercel (se a árvore de dependências do tree-sitter falhar no load)
+    const { runAnalysis } = await import("../src/lib/analysis/pipeline.js");
     const analysisResult = await runAnalysis({
       repoUrl: repoUrl,
       githubToken: process.env.GITHUB_TOKEN,

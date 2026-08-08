@@ -4,7 +4,6 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types";
-import { runAnalysis } from "../src/lib/analysis/pipeline.js";
 
 const server = new Server(
   {
@@ -46,6 +45,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
     const repoUrl = String(request.params.arguments?.repo);
 
     try {
+      const { runAnalysis } = await import("../src/lib/analysis/pipeline.js");
       const analysisResult = await runAnalysis({
         repoUrl: repoUrl,
         githubToken: process.env.GITHUB_TOKEN,
