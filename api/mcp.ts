@@ -35,6 +35,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["repo"],
         },
       },
+      {
+        name: "get_repository_skills_contract",
+        description: "Retorna os contratos de skills a serem executados em um repositório, mitigando os hotspots identificados na arquitetura.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            repo: {
+              type: "string",
+              description: "URL completa do repositório do GitHub",
+            },
+          },
+          required: ["repo"],
+        },
+      },
     ],
   };
 });
@@ -45,7 +59,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
     const repoUrl = String(request.params.arguments?.repo);
 
     try {
-      const { runAnalysis } = await import("../src/lib/analysis/pipeline.js");
+      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
       const analysisResult = await runAnalysis({
         repoUrl: repoUrl,
         githubToken: process.env.GITHUB_TOKEN,
@@ -66,6 +80,42 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
           {
             type: "text",
             text: `Erro ao analisar o repositório: ${error.message}`
+          }
+        ],
+        isError: true
+      };
+    }
+  }
+
+  if (request.params.name === "get_repository_skills_contract") {
+    const repoUrl = String(request.params.arguments?.repo);
+
+    try {
+      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
+      const { processRepositoryHotspots } = await import("../packages/core/lib/analysis/mrcp-skill-injector.js");
+      
+      const analysisResult = await runAnalysis({
+        repoUrl: repoUrl,
+        githubToken: process.env.GITHUB_TOKEN,
+        maxFiles: 2000,
+      });
+
+      const contracts = processRepositoryHotspots(analysisResult.nodes);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(contracts, null, 2),
+          },
+        ],
+      };
+    } catch (error: any) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Erro ao gerar contratos de skills: ${error.message}`
           }
         ],
         isError: true

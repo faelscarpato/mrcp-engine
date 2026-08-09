@@ -1,3 +1,5 @@
+import { getCachedAnalysis, setCachedAnalysis } from "../packages/core/lib/cache.js";
+
 // Tipamos req e res como 'any' para calar a boca do compilador estrito do TypeScript
 export default async function handler(req: any, res: any) {
   // Configurações de CORS
@@ -58,7 +60,7 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: "Missing files array in POST body" });
       }
       
-      const { buildGraph } = await import("../src/lib/analysis/graph-builder.js");
+      const { buildGraph } = await import("../packages/core/lib/analysis/graph-builder.js");
       const analysisResult = await buildGraph(files);
       analysisResult.quality = "full";
       
@@ -80,18 +82,32 @@ export default async function handler(req: any, res: any) {
       });
     }
 
+    // Verifica se já existe cache
+    const cachedData = await getCachedAnalysis(repoUrl, false);
+    if (cachedData) {
+      return res.status(200).json({
+        status: "success",
+        analyzed_url: repoUrl,
+        architecture_summary: cachedData,
+        cached: true
+      });
+    }
+
     // Importação dinâmica para evitar crash na Vercel (se a árvore de dependências do tree-sitter falhar no load)
-    const { runAnalysis } = await import("../src/lib/analysis/pipeline.js");
+    const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
     const analysisResult = await runAnalysis({
       repoUrl: repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
       maxFiles: 2000,
     });
 
+    await setCachedAnalysis(repoUrl, analysisResult, false);
+
     return res.status(200).json({
       status: "success",
       analyzed_url: repoUrl,
       architecture_summary: analysisResult,
+      cached: false
     });
   } catch (error: any) {
     // Tipamos o erro como 'any' para evitar o TS18046
