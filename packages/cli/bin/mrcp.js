@@ -12,6 +12,7 @@ if (args.length === 1 && args[0].startsWith('http')) {
   const runScriptPath = path.resolve(__dirname, '../run-standalone.ts');
   const child = spawn('npx', ['tsx', runScriptPath, ...args], {
     stdio: 'inherit',
+    shell: process.platform === 'win32'
   });
 
   child.on('error', (err) => {
@@ -27,6 +28,7 @@ if (args.length === 1 && args[0].startsWith('http')) {
   const mcpServerPath = path.resolve(__dirname, '../mcp-server.mjs');
   const child = spawn('npx', ['tsx', mcpServerPath, ...args], {
     stdio: 'inherit',
+    shell: process.platform === 'win32'
   });
 
   child.on('error', (err) => {

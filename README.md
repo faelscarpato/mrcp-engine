@@ -78,13 +78,26 @@ Se os provedores de IA adotarem esse protocolo como uma ferramenta nativa (_Nati
 2. **Aumento Absoluto de Precisão:** A IA passa a responder perguntas sobre bases de código complexas ou documentos jurídicos longos com exatidão matemática, pois está consultando um banco de dados estruturado, não lendo um pergaminho infinito.
 3. **Velocidade para o Usuário Final:** Como o motor devolve o contexto tático em segundos, a interface de chat do usuário final parece ter ganho um aumento absurdo de velocidade e inteligência.
 
-## 5. Como conectar via MCP (Model Context Protocol)
+## 5. Como Instalar e Utilizar o MRCP-Engine
 
-O MRCP-Engine possui suporte nativo ao padrão MCP (Model Context Protocol) para ser consumido instantaneamente por agentes como **Claude Desktop**, **Cursor**, **Gemini** e orquestradores de IA.
+O MRCP-Engine acabou de ser lançado publicamente no NPM! Ele funciona de forma híbrida: pode ser usado diretamente por você no Terminal (CLI) ou integrado a Inteligências Artificiais (Cursor, Windsurf, Claude) via protocolo MCP.
 
-### Opção A: Executando via NPX (Claude Desktop)
-Para adicionar o MRCP-Engine ao Claude Desktop, adicione o seguinte trecho no seu arquivo `claude_desktop_config.json`:
+### 5.1. Modo Standalone (Terminal / CLI)
+Se você é um desenvolvedor e deseja gerar a AST de um repositório para analisar em seus próprios scripts ou visualizar, não é necessário instalar nada globalmente. Basta rodar:
 
+```bash
+npx mrcp-engine https://github.com/usuario/repositorio
+```
+
+O comando fará a leitura remota inteligente (através da nuvem para evitar gastar seu processamento) e cuspirá a árvore estruturada inteira em formato JSON direto na sua tela! 🚀
+
+### 5.2. Modo MCP Bridge (Integração com IDEs de IA)
+A verdadeira mágica acontece quando você conecta o MRCP à sua Inteligência Artificial favorita.
+O motor foi desenhado para agir como uma "Ponte" (Bridge). A sua máquina executa o cliente leve, que se comunica instantaneamente com a nossa API na Vercel (onde as árvores sintáticas do Tree-Sitter extraem e mastigam o código para você em milissegundos).
+
+Para adicionar o MRCP-Engine ao **Claude Desktop**, **Cursor** ou **Windsurf**, você só precisa apontar o servidor MCP nas configurações da IDE:
+
+**No Claude Desktop (em `claude_desktop_config.json`):**
 ```json
 {
   "mcpServers": {
@@ -96,13 +109,16 @@ Para adicionar o MRCP-Engine ao Claude Desktop, adicione o seguinte trecho no se
 }
 ```
 
-### Opção B: Conectando via API HTTP (SSE)
-Para agentes em nuvem ou bibliotecas como LangChain e LlamaIndex, o motor expõe um endpoint oficial de comunicação:
-- **URL do Servidor MCP:** `https://mrcp-engine.vercel.app/api/mcp`
+Ao salvar e reiniciar, basta dizer no chat da IA:
+> *"Use o mrcp-engine para analisar a arquitetura do repositório https://github.com/..."*
 
-### Opção C: Para o ChatGPT (OpenAI Custom Actions)
-Basta importar o Manifesto da OpenAPI no portal de criação de GPTs:
-- **Manifest URL:** `https://mrcp-engine.vercel.app/openapi.json`
+A IA fará a requisição invisível no terminal usando o CLI, baterá na API oficial, e fará o *parsing* do JSON da AST!
+
+### 5.3. Modo API Direta (Serverless / Web)
+Para agentes em nuvem (como LangChain, LlamaIndex, Dify) ou se quiser construir seu próprio frontend web, o motor expõe endpoints REST públicos e otimizados:
+- **Analisar Repositório:** `GET https://mrcp-engine.vercel.app/api/analyze?repo=https://github.com/...`
+- **Contrato de Skills (Injeção de Prompt):** `GET https://mrcp-engine.vercel.app/api/skills?repo=https://github.com/...`
+- **Manifesto OpenAPI (Para ChatGPT Custom Actions):** `https://mrcp-engine.vercel.app/openapi.json`
 
 ## 6. Conclusão
 
