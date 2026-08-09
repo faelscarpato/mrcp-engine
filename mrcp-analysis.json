@@ -1,0 +1,4609 @@
+{
+  "status": "success",
+  "analyzed_url": "https://github.com/faelscarpato/gitgraph",
+  "architecture_summary": {
+    "analysis": {
+      "id": "faelscarpato-gitgraph-main-1786311317521",
+      "repoUrl": "https://github.com/faelscarpato/gitgraph",
+      "owner": "faelscarpato",
+      "repo": "gitgraph",
+      "branch": "main",
+      "createdAt": 1786311317521,
+      "status": "success",
+      "quality": "full",
+      "sourceUsed": "github-api",
+      "attempted": [
+        {
+          "id": "github-api",
+          "ok": true
+        }
+      ],
+      "limitations": [],
+      "nodes": [
+        {
+          "id": "mod:root",
+          "label": "root",
+          "kind": "module",
+          "group": "root"
+        },
+        {
+          "id": "file:package.json",
+          "label": "package.json",
+          "kind": "config",
+          "path": "package.json",
+          "group": "root",
+          "loc": 102,
+          "complexity": 1,
+          "language": "JSON",
+          "entrypoint": false
+        },
+        {
+          "id": "file:tsconfig.json",
+          "label": "tsconfig.json",
+          "kind": "config",
+          "path": "tsconfig.json",
+          "group": "root",
+          "loc": 33,
+          "complexity": 1,
+          "language": "JSON",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:api",
+          "label": "api",
+          "kind": "module",
+          "group": "api"
+        },
+        {
+          "id": "file:api/read.ts",
+          "label": "read.ts",
+          "kind": "file",
+          "path": "api/read.ts",
+          "group": "api",
+          "loc": 56,
+          "complexity": 9,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:eslint.config.js",
+          "label": "eslint.config.js",
+          "kind": "file",
+          "path": "eslint.config.js",
+          "group": "root",
+          "loc": 44,
+          "complexity": 1,
+          "language": "JavaScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:api/analyze.ts",
+          "label": "analyze.ts",
+          "kind": "file",
+          "path": "api/analyze.ts",
+          "group": "api",
+          "loc": 108,
+          "complexity": 26,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:api/mcp.ts",
+          "label": "mcp.ts",
+          "kind": "file",
+          "path": "api/mcp.ts",
+          "group": "api",
+          "loc": 113,
+          "complexity": 8,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:vite.config.ts",
+          "label": "vite.config.ts",
+          "kind": "config",
+          "path": "vite.config.ts",
+          "group": "root",
+          "loc": 35,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:functions",
+          "label": "functions",
+          "kind": "module",
+          "group": "functions"
+        },
+        {
+          "id": "file:functions/ai.ts",
+          "label": "ai.ts",
+          "kind": "file",
+          "path": "functions/ai.ts",
+          "group": "functions",
+          "loc": 199,
+          "complexity": 43,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:mcp-bridge",
+          "label": "mcp-bridge",
+          "kind": "module",
+          "group": "mcp-bridge"
+        },
+        {
+          "id": "file:mcp-bridge/mcp-server.mjs",
+          "label": "mcp-server.mjs",
+          "kind": "file",
+          "path": "mcp-bridge/mcp-server.mjs",
+          "group": "mcp-bridge",
+          "loc": 61,
+          "complexity": 4,
+          "language": "JavaScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:src",
+          "label": "src",
+          "kind": "module",
+          "group": "src"
+        },
+        {
+          "id": "file:src/lucide-react.d.ts",
+          "label": "lucide-react.d.ts",
+          "kind": "file",
+          "path": "src/lucide-react.d.ts",
+          "group": "src",
+          "loc": 34,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/router.tsx",
+          "label": "router.tsx",
+          "kind": "file",
+          "path": "src/router.tsx",
+          "group": "src",
+          "loc": 17,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/server.ts",
+          "label": "server.ts",
+          "kind": "file",
+          "path": "src/server.ts",
+          "group": "src",
+          "loc": 68,
+          "complexity": 14,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/routeTree.gen.ts",
+          "label": "routeTree.gen.ts",
+          "kind": "file",
+          "path": "src/routeTree.gen.ts",
+          "group": "src",
+          "loc": 161,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/start.ts",
+          "label": "start.ts",
+          "kind": "file",
+          "path": "src/start.ts",
+          "group": "src",
+          "loc": 23,
+          "complexity": 5,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:apps",
+          "label": "apps",
+          "kind": "module",
+          "group": "apps"
+        },
+        {
+          "id": "file:apps/mcp/package.json",
+          "label": "package.json",
+          "kind": "config",
+          "path": "apps/mcp/package.json",
+          "group": "apps",
+          "loc": 22,
+          "complexity": 1,
+          "language": "JSON",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/setupTests.ts",
+          "label": "setupTests.ts",
+          "kind": "file",
+          "path": "src/setupTests.ts",
+          "group": "src",
+          "loc": 47,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:apps/mcp/tsconfig.json",
+          "label": "tsconfig.json",
+          "kind": "config",
+          "path": "apps/mcp/tsconfig.json",
+          "group": "apps",
+          "loc": 45,
+          "complexity": 1,
+          "language": "JSON",
+          "entrypoint": false
+        },
+        {
+          "id": "file:apps/mcp/vitest.config.ts",
+          "label": "vitest.config.ts",
+          "kind": "file",
+          "path": "apps/mcp/vitest.config.ts",
+          "group": "apps",
+          "loc": 8,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:src/components",
+          "label": "components",
+          "kind": "module",
+          "group": "src/components"
+        },
+        {
+          "id": "file:src/components/AIChatPanel.tsx",
+          "label": "AIChatPanel.tsx",
+          "kind": "file",
+          "path": "src/components/AIChatPanel.tsx",
+          "group": "src/components",
+          "loc": 174,
+          "complexity": 21,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ExportMenu.tsx",
+          "label": "ExportMenu.tsx",
+          "kind": "file",
+          "path": "src/components/ExportMenu.tsx",
+          "group": "src/components",
+          "loc": 497,
+          "complexity": 67,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/AboutModal.tsx",
+          "label": "AboutModal.tsx",
+          "kind": "file",
+          "path": "src/components/AboutModal.tsx",
+          "group": "src/components",
+          "loc": 164,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/HistoryPanel.tsx",
+          "label": "HistoryPanel.tsx",
+          "kind": "file",
+          "path": "src/components/HistoryPanel.tsx",
+          "group": "src/components",
+          "loc": 136,
+          "complexity": 12,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/GraphViewer.tsx",
+          "label": "GraphViewer.tsx",
+          "kind": "file",
+          "path": "src/components/GraphViewer.tsx",
+          "group": "src/components",
+          "loc": 464,
+          "complexity": 62,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/InsightPanel.tsx",
+          "label": "InsightPanel.tsx",
+          "kind": "file",
+          "path": "src/components/InsightPanel.tsx",
+          "group": "src/components",
+          "loc": 296,
+          "complexity": 19,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/HistoryModal.tsx",
+          "label": "HistoryModal.tsx",
+          "kind": "file",
+          "path": "src/components/HistoryModal.tsx",
+          "group": "src/components",
+          "loc": 226,
+          "complexity": 23,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/MermaidViewer.tsx",
+          "label": "MermaidViewer.tsx",
+          "kind": "file",
+          "path": "src/components/MermaidViewer.tsx",
+          "group": "src/components",
+          "loc": 252,
+          "complexity": 30,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/LLMSModal.tsx",
+          "label": "LLMSModal.tsx",
+          "kind": "file",
+          "path": "src/components/LLMSModal.tsx",
+          "group": "src/components",
+          "loc": 346,
+          "complexity": 14,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/MetricsSidebar.tsx",
+          "label": "MetricsSidebar.tsx",
+          "kind": "file",
+          "path": "src/components/MetricsSidebar.tsx",
+          "group": "src/components",
+          "loc": 157,
+          "complexity": 9,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/MindmapViewer.tsx",
+          "label": "MindmapViewer.tsx",
+          "kind": "file",
+          "path": "src/components/MindmapViewer.tsx",
+          "group": "src/components",
+          "loc": 373,
+          "complexity": 42,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/SemanticSearchPanel.tsx",
+          "label": "SemanticSearchPanel.tsx",
+          "kind": "file",
+          "path": "src/components/SemanticSearchPanel.tsx",
+          "group": "src/components",
+          "loc": 161,
+          "complexity": 20,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/states.tsx",
+          "label": "states.tsx",
+          "kind": "file",
+          "path": "src/components/states.tsx",
+          "group": "src/components",
+          "loc": 131,
+          "complexity": 9,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/RepoForm.tsx",
+          "label": "RepoForm.tsx",
+          "kind": "file",
+          "path": "src/components/RepoForm.tsx",
+          "group": "src/components",
+          "loc": 210,
+          "complexity": 22,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:src/hooks",
+          "label": "hooks",
+          "kind": "module",
+          "group": "src/hooks"
+        },
+        {
+          "id": "file:src/hooks/use-mobile.tsx",
+          "label": "use-mobile.tsx",
+          "kind": "file",
+          "path": "src/hooks/use-mobile.tsx",
+          "group": "src/hooks",
+          "loc": 22,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:src/lib",
+          "label": "lib",
+          "kind": "module",
+          "group": "src/lib"
+        },
+        {
+          "id": "file:src/lib/analyzer.ts",
+          "label": "analyzer.ts",
+          "kind": "file",
+          "path": "src/lib/analyzer.ts",
+          "group": "src/lib",
+          "loc": 5,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/error-capture.ts",
+          "label": "error-capture.ts",
+          "kind": "file",
+          "path": "src/lib/error-capture.ts",
+          "group": "src/lib",
+          "loc": 30,
+          "complexity": 5,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/error-page.ts",
+          "label": "error-page.ts",
+          "kind": "file",
+          "path": "src/lib/error-page.ts",
+          "group": "src/lib",
+          "loc": 31,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/export.ts",
+          "label": "export.ts",
+          "kind": "file",
+          "path": "src/lib/export.ts",
+          "group": "src/lib",
+          "loc": 843,
+          "complexity": 88,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/share.ts",
+          "label": "share.ts",
+          "kind": "file",
+          "path": "src/lib/share.ts",
+          "group": "src/lib",
+          "loc": 149,
+          "complexity": 12,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/graph-types.ts",
+          "label": "graph-types.ts",
+          "kind": "file",
+          "path": "src/lib/graph-types.ts",
+          "group": "src/lib",
+          "loc": 102,
+          "complexity": 27,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/utils.ts",
+          "label": "utils.ts",
+          "kind": "file",
+          "path": "src/lib/utils.ts",
+          "group": "src/lib",
+          "loc": 7,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/history.ts",
+          "label": "history.ts",
+          "kind": "file",
+          "path": "src/lib/history.ts",
+          "group": "src/lib",
+          "loc": 128,
+          "complexity": 18,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "mod:src/routes",
+          "label": "routes",
+          "kind": "module",
+          "group": "src/routes"
+        },
+        {
+          "id": "file:src/routes/ai.ts",
+          "label": "ai.ts",
+          "kind": "file",
+          "path": "src/routes/ai.ts",
+          "group": "src/routes",
+          "loc": 205,
+          "complexity": 39,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/routes/__root.tsx",
+          "label": "__root.tsx",
+          "kind": "file",
+          "path": "src/routes/__root.tsx",
+          "group": "src/routes",
+          "loc": 153,
+          "complexity": 4,
+          "language": "TypeScript",
+          "entrypoint": true
+        },
+        {
+          "id": "file:src/routes/diff.tsx",
+          "label": "diff.tsx",
+          "kind": "file",
+          "path": "src/routes/diff.tsx",
+          "group": "src/routes",
+          "loc": 408,
+          "complexity": 42,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/routes/settings.tsx",
+          "label": "settings.tsx",
+          "kind": "file",
+          "path": "src/routes/settings.tsx",
+          "group": "src/routes",
+          "loc": 457,
+          "complexity": 38,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/routes/share.tsx",
+          "label": "share.tsx",
+          "kind": "file",
+          "path": "src/routes/share.tsx",
+          "group": "src/routes",
+          "loc": 176,
+          "complexity": 12,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:apps/mcp/src/server.test.ts",
+          "label": "server.test.ts",
+          "kind": "file",
+          "path": "apps/mcp/src/server.test.ts",
+          "group": "apps",
+          "loc": 120,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/routes/sitemap[.]xml.ts",
+          "label": "sitemap[.]xml.ts",
+          "kind": "file",
+          "path": "src/routes/sitemap[.]xml.ts",
+          "group": "src/routes",
+          "loc": 24,
+          "complexity": 2,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/routes/index.tsx",
+          "label": "index.tsx",
+          "kind": "file",
+          "path": "src/routes/index.tsx",
+          "group": "src/routes",
+          "loc": 1745,
+          "complexity": 79,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/accordion.tsx",
+          "label": "accordion.tsx",
+          "kind": "file",
+          "path": "src/components/ui/accordion.tsx",
+          "group": "src/components",
+          "loc": 56,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:apps/mcp/src/server.ts",
+          "label": "server.ts",
+          "kind": "file",
+          "path": "apps/mcp/src/server.ts",
+          "group": "apps",
+          "loc": 95,
+          "complexity": 6,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/alert-dialog.tsx",
+          "label": "alert-dialog.tsx",
+          "kind": "file",
+          "path": "src/components/ui/alert-dialog.tsx",
+          "group": "src/components",
+          "loc": 140,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/alert.tsx",
+          "label": "alert.tsx",
+          "kind": "file",
+          "path": "src/components/ui/alert.tsx",
+          "group": "src/components",
+          "loc": 60,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/aspect-ratio.tsx",
+          "label": "aspect-ratio.tsx",
+          "kind": "file",
+          "path": "src/components/ui/aspect-ratio.tsx",
+          "group": "src/components",
+          "loc": 6,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/avatar.tsx",
+          "label": "avatar.tsx",
+          "kind": "file",
+          "path": "src/components/ui/avatar.tsx",
+          "group": "src/components",
+          "loc": 51,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/button.tsx",
+          "label": "button.tsx",
+          "kind": "file",
+          "path": "src/components/ui/button.tsx",
+          "group": "src/components",
+          "loc": 59,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/badge.tsx",
+          "label": "badge.tsx",
+          "kind": "file",
+          "path": "src/components/ui/badge.tsx",
+          "group": "src/components",
+          "loc": 38,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/breadcrumb.tsx",
+          "label": "breadcrumb.tsx",
+          "kind": "file",
+          "path": "src/components/ui/breadcrumb.tsx",
+          "group": "src/components",
+          "loc": 116,
+          "complexity": 5,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/card.tsx",
+          "label": "card.tsx",
+          "kind": "file",
+          "path": "src/components/ui/card.tsx",
+          "group": "src/components",
+          "loc": 84,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/carousel.tsx",
+          "label": "carousel.tsx",
+          "kind": "file",
+          "path": "src/components/ui/carousel.tsx",
+          "group": "src/components",
+          "loc": 261,
+          "complexity": 22,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/calendar.tsx",
+          "label": "calendar.tsx",
+          "kind": "file",
+          "path": "src/components/ui/calendar.tsx",
+          "group": "src/components",
+          "loc": 214,
+          "complexity": 10,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/chart.tsx",
+          "label": "chart.tsx",
+          "kind": "file",
+          "path": "src/components/ui/chart.tsx",
+          "group": "src/components",
+          "loc": 368,
+          "complexity": 68,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/collapsible.tsx",
+          "label": "collapsible.tsx",
+          "kind": "file",
+          "path": "src/components/ui/collapsible.tsx",
+          "group": "src/components",
+          "loc": 12,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/command.tsx",
+          "label": "command.tsx",
+          "kind": "file",
+          "path": "src/components/ui/command.tsx",
+          "group": "src/components",
+          "loc": 154,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/checkbox.tsx",
+          "label": "checkbox.tsx",
+          "kind": "file",
+          "path": "src/components/ui/checkbox.tsx",
+          "group": "src/components",
+          "loc": 29,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/context-menu.tsx",
+          "label": "context-menu.tsx",
+          "kind": "file",
+          "path": "src/components/ui/context-menu.tsx",
+          "group": "src/components",
+          "loc": 199,
+          "complexity": 7,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/dropdown-menu.tsx",
+          "label": "dropdown-menu.tsx",
+          "kind": "file",
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "group": "src/components",
+          "loc": 202,
+          "complexity": 7,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/form.tsx",
+          "label": "form.tsx",
+          "kind": "file",
+          "path": "src/components/ui/form.tsx",
+          "group": "src/components",
+          "loc": 180,
+          "complexity": 7,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/dialog.tsx",
+          "label": "dialog.tsx",
+          "kind": "file",
+          "path": "src/components/ui/dialog.tsx",
+          "group": "src/components",
+          "loc": 123,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/drawer.tsx",
+          "label": "drawer.tsx",
+          "kind": "file",
+          "path": "src/components/ui/drawer.tsx",
+          "group": "src/components",
+          "loc": 117,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/hover-card.tsx",
+          "label": "hover-card.tsx",
+          "kind": "file",
+          "path": "src/components/ui/hover-card.tsx",
+          "group": "src/components",
+          "loc": 28,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/input.tsx",
+          "label": "input.tsx",
+          "kind": "file",
+          "path": "src/components/ui/input.tsx",
+          "group": "src/components",
+          "loc": 23,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/label.tsx",
+          "label": "label.tsx",
+          "kind": "file",
+          "path": "src/components/ui/label.tsx",
+          "group": "src/components",
+          "loc": 27,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/input-otp.tsx",
+          "label": "input-otp.tsx",
+          "kind": "file",
+          "path": "src/components/ui/input-otp.tsx",
+          "group": "src/components",
+          "loc": 70,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/menubar.tsx",
+          "label": "menubar.tsx",
+          "kind": "file",
+          "path": "src/components/ui/menubar.tsx",
+          "group": "src/components",
+          "loc": 255,
+          "complexity": 7,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/navigation-menu.tsx",
+          "label": "navigation-menu.tsx",
+          "kind": "file",
+          "path": "src/components/ui/navigation-menu.tsx",
+          "group": "src/components",
+          "loc": 129,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/pagination.tsx",
+          "label": "pagination.tsx",
+          "kind": "file",
+          "path": "src/components/ui/pagination.tsx",
+          "group": "src/components",
+          "loc": 118,
+          "complexity": 4,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/progress.tsx",
+          "label": "progress.tsx",
+          "kind": "file",
+          "path": "src/components/ui/progress.tsx",
+          "group": "src/components",
+          "loc": 29,
+          "complexity": 2,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/popover.tsx",
+          "label": "popover.tsx",
+          "kind": "file",
+          "path": "src/components/ui/popover.tsx",
+          "group": "src/components",
+          "loc": 32,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/radio-group.tsx",
+          "label": "radio-group.tsx",
+          "kind": "file",
+          "path": "src/components/ui/radio-group.tsx",
+          "group": "src/components",
+          "loc": 43,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/resizable.tsx",
+          "label": "resizable.tsx",
+          "kind": "file",
+          "path": "src/components/ui/resizable.tsx",
+          "group": "src/components",
+          "loc": 44,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/scroll-area.tsx",
+          "label": "scroll-area.tsx",
+          "kind": "file",
+          "path": "src/components/ui/scroll-area.tsx",
+          "group": "src/components",
+          "loc": 47,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/select.tsx",
+          "label": "select.tsx",
+          "kind": "file",
+          "path": "src/components/ui/select.tsx",
+          "group": "src/components",
+          "loc": 160,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/sheet.tsx",
+          "label": "sheet.tsx",
+          "kind": "file",
+          "path": "src/components/ui/sheet.tsx",
+          "group": "src/components",
+          "loc": 142,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/sidebar.tsx",
+          "label": "sidebar.tsx",
+          "kind": "file",
+          "path": "src/components/ui/sidebar.tsx",
+          "group": "src/components",
+          "loc": 780,
+          "complexity": 50,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/separator.tsx",
+          "label": "separator.tsx",
+          "kind": "file",
+          "path": "src/components/ui/separator.tsx",
+          "group": "src/components",
+          "loc": 30,
+          "complexity": 2,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/switch.tsx",
+          "label": "switch.tsx",
+          "kind": "file",
+          "path": "src/components/ui/switch.tsx",
+          "group": "src/components",
+          "loc": 28,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/sonner.tsx",
+          "label": "sonner.tsx",
+          "kind": "file",
+          "path": "src/components/ui/sonner.tsx",
+          "group": "src/components",
+          "loc": 26,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/skeleton.tsx",
+          "label": "skeleton.tsx",
+          "kind": "file",
+          "path": "src/components/ui/skeleton.tsx",
+          "group": "src/components",
+          "loc": 16,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/slider.tsx",
+          "label": "slider.tsx",
+          "kind": "file",
+          "path": "src/components/ui/slider.tsx",
+          "group": "src/components",
+          "loc": 27,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/tabs.tsx",
+          "label": "tabs.tsx",
+          "kind": "file",
+          "path": "src/components/ui/tabs.tsx",
+          "group": "src/components",
+          "loc": 54,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/table.tsx",
+          "label": "table.tsx",
+          "kind": "file",
+          "path": "src/components/ui/table.tsx",
+          "group": "src/components",
+          "loc": 121,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/toggle-group.tsx",
+          "label": "toggle-group.tsx",
+          "kind": "file",
+          "path": "src/components/ui/toggle-group.tsx",
+          "group": "src/components",
+          "loc": 62,
+          "complexity": 3,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/textarea.tsx",
+          "label": "textarea.tsx",
+          "kind": "file",
+          "path": "src/components/ui/textarea.tsx",
+          "group": "src/components",
+          "loc": 23,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/ai/chat.ts",
+          "label": "chat.ts",
+          "kind": "file",
+          "path": "src/lib/ai/chat.ts",
+          "group": "src/lib",
+          "loc": 129,
+          "complexity": 22,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/toggle.tsx",
+          "label": "toggle.tsx",
+          "kind": "file",
+          "path": "src/components/ui/toggle.tsx",
+          "group": "src/components",
+          "loc": 44,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/components/ui/tooltip.tsx",
+          "label": "tooltip.tsx",
+          "kind": "file",
+          "path": "src/components/ui/tooltip.tsx",
+          "group": "src/components",
+          "loc": 33,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/ai/proxy.ts",
+          "label": "proxy.ts",
+          "kind": "file",
+          "path": "src/lib/ai/proxy.ts",
+          "group": "src/lib",
+          "loc": 69,
+          "complexity": 14,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/graph-builder.ts",
+          "label": "graph-builder.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/graph-builder.ts",
+          "group": "src/lib",
+          "loc": 630,
+          "complexity": 120,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/diff.ts",
+          "label": "diff.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/diff.ts",
+          "group": "src/lib",
+          "loc": 211,
+          "complexity": 37,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/mrcp-skill-injector.ts",
+          "label": "mrcp-skill-injector.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/mrcp-skill-injector.ts",
+          "group": "src/lib",
+          "loc": 109,
+          "complexity": 20,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/pipeline.ts",
+          "label": "pipeline.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/pipeline.ts",
+          "group": "src/lib",
+          "loc": 205,
+          "complexity": 49,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/semantic.ts",
+          "label": "semantic.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/semantic.ts",
+          "group": "src/lib",
+          "loc": 244,
+          "complexity": 48,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/persistence/idb.ts",
+          "label": "idb.ts",
+          "kind": "file",
+          "path": "src/lib/persistence/idb.ts",
+          "group": "src/lib",
+          "loc": 167,
+          "complexity": 21,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/persistence/store.ts",
+          "label": "store.ts",
+          "kind": "file",
+          "path": "src/lib/persistence/store.ts",
+          "group": "src/lib",
+          "loc": 70,
+          "complexity": 14,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/providers/local-agents.ts",
+          "label": "local-agents.ts",
+          "kind": "file",
+          "path": "src/lib/providers/local-agents.ts",
+          "group": "src/lib",
+          "loc": 71,
+          "complexity": 12,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/types.ts",
+          "label": "types.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/types.ts",
+          "group": "src/lib",
+          "loc": 58,
+          "complexity": 16,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/providers/types.ts",
+          "label": "types.ts",
+          "kind": "file",
+          "path": "src/lib/providers/types.ts",
+          "group": "src/lib",
+          "loc": 22,
+          "complexity": 7,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/providers/client.ts",
+          "label": "client.ts",
+          "kind": "file",
+          "path": "src/lib/providers/client.ts",
+          "group": "src/lib",
+          "loc": 16,
+          "complexity": 2,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/providers/registry.ts",
+          "label": "registry.ts",
+          "kind": "file",
+          "path": "src/lib/providers/registry.ts",
+          "group": "src/lib",
+          "loc": 61,
+          "complexity": 8,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/parsers/functions.ts",
+          "label": "functions.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/parsers/functions.ts",
+          "group": "src/lib",
+          "loc": 722,
+          "complexity": 73,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/parsers/language.test.ts",
+          "label": "language.test.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/parsers/language.test.ts",
+          "group": "src/lib",
+          "loc": 48,
+          "complexity": 1,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/parsers/imports.ts",
+          "label": "imports.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/parsers/imports.ts",
+          "group": "src/lib",
+          "loc": 426,
+          "complexity": 115,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/parsers/language.ts",
+          "label": "language.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/parsers/language.ts",
+          "group": "src/lib",
+          "loc": 413,
+          "complexity": 67,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/parsers/tree-sitter.ts",
+          "label": "tree-sitter.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/parsers/tree-sitter.ts",
+          "group": "src/lib",
+          "loc": 769,
+          "complexity": 142,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/sources/website.ts",
+          "label": "website.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/sources/website.ts",
+          "group": "src/lib",
+          "loc": 82,
+          "complexity": 15,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/sources/local-dir.ts",
+          "label": "local-dir.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/sources/local-dir.ts",
+          "group": "src/lib",
+          "loc": 96,
+          "complexity": 24,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/sources/github-api.ts",
+          "label": "github-api.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/sources/github-api.ts",
+          "group": "src/lib",
+          "loc": 164,
+          "complexity": 27,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "file:src/lib/analysis/sources/deterministic.ts",
+          "label": "deterministic.ts",
+          "kind": "file",
+          "path": "src/lib/analysis/sources/deterministic.ts",
+          "group": "src/lib",
+          "loc": 123,
+          "complexity": 8,
+          "language": "TypeScript",
+          "entrypoint": false
+        },
+        {
+          "id": "ext:@vercel/node",
+          "label": "@vercel/node",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@eslint/js",
+          "label": "@eslint/js",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:eslint-plugin-prettier",
+          "label": "eslint-plugin-prettier",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:globals",
+          "label": "globals",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:eslint-plugin-react-hooks",
+          "label": "eslint-plugin-react-hooks",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:eslint-plugin-react-refresh",
+          "label": "eslint-plugin-react-refresh",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:typescript-eslint",
+          "label": "typescript-eslint",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@modelcontextprotocol/sdk",
+          "label": "@modelcontextprotocol/sdk",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:vite",
+          "label": "vite",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@vitejs/plugin-react",
+          "label": "@vitejs/plugin-react",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@tailwindcss/vite",
+          "label": "@tailwindcss/vite",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@tanstack/react-start",
+          "label": "@tanstack/react-start",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:react",
+          "label": "react",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@tanstack/react-query",
+          "label": "@tanstack/react-query",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@tanstack/react-router",
+          "label": "@tanstack/react-router",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@testing-library/jest-dom",
+          "label": "@testing-library/jest-dom",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@testing-library/react",
+          "label": "@testing-library/react",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:vitest",
+          "label": "vitest",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:lucide-react",
+          "label": "lucide-react",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@/lib",
+          "label": "@/lib",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@/components",
+          "label": "@/components",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:d3",
+          "label": "d3",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:clsx",
+          "label": "clsx",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:tailwind-merge",
+          "label": "tailwind-merge",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-accordion",
+          "label": "@radix-ui/react-accordion",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:url",
+          "label": "url",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-alert-dialog",
+          "label": "@radix-ui/react-alert-dialog",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:class-variance-authority",
+          "label": "class-variance-authority",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-aspect-ratio",
+          "label": "@radix-ui/react-aspect-ratio",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-avatar",
+          "label": "@radix-ui/react-avatar",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-slot",
+          "label": "@radix-ui/react-slot",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:embla-carousel-react",
+          "label": "embla-carousel-react",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:react-day-picker",
+          "label": "react-day-picker",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:recharts",
+          "label": "recharts",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-collapsible",
+          "label": "@radix-ui/react-collapsible",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-dialog",
+          "label": "@radix-ui/react-dialog",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:cmdk",
+          "label": "cmdk",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-checkbox",
+          "label": "@radix-ui/react-checkbox",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-context-menu",
+          "label": "@radix-ui/react-context-menu",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-dropdown-menu",
+          "label": "@radix-ui/react-dropdown-menu",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-label",
+          "label": "@radix-ui/react-label",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:react-hook-form",
+          "label": "react-hook-form",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:vaul",
+          "label": "vaul",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-hover-card",
+          "label": "@radix-ui/react-hover-card",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:input-otp",
+          "label": "input-otp",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-menubar",
+          "label": "@radix-ui/react-menubar",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-navigation-menu",
+          "label": "@radix-ui/react-navigation-menu",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-progress",
+          "label": "@radix-ui/react-progress",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-popover",
+          "label": "@radix-ui/react-popover",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-radio-group",
+          "label": "@radix-ui/react-radio-group",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:react-resizable-panels",
+          "label": "react-resizable-panels",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-scroll-area",
+          "label": "@radix-ui/react-scroll-area",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-select",
+          "label": "@radix-ui/react-select",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@/hooks",
+          "label": "@/hooks",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-separator",
+          "label": "@radix-ui/react-separator",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-switch",
+          "label": "@radix-ui/react-switch",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:sonner",
+          "label": "sonner",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-slider",
+          "label": "@radix-ui/react-slider",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-tabs",
+          "label": "@radix-ui/react-tabs",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-toggle-group",
+          "label": "@radix-ui/react-toggle-group",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-toggle",
+          "label": "@radix-ui/react-toggle",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:@radix-ui/react-tooltip",
+          "label": "@radix-ui/react-tooltip",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:package:name",
+          "label": "package:name",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:module",
+          "label": "module",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:web-tree-sitter",
+          "label": "web-tree-sitter",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:fs",
+          "label": "fs",
+          "kind": "external",
+          "group": "external"
+        },
+        {
+          "id": "ext:path",
+          "label": "path",
+          "kind": "external",
+          "group": "external"
+        }
+      ],
+      "edges": [
+        {
+          "source": "mod:root",
+          "target": "file:package.json",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:root",
+          "target": "file:tsconfig.json",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:api",
+          "target": "file:api/read.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:root",
+          "target": "file:eslint.config.js",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:api",
+          "target": "file:api/analyze.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:api",
+          "target": "file:api/mcp.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:root",
+          "target": "file:vite.config.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:functions",
+          "target": "file:functions/ai.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:mcp-bridge",
+          "target": "file:mcp-bridge/mcp-server.mjs",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src",
+          "target": "file:src/lucide-react.d.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src",
+          "target": "file:src/router.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src",
+          "target": "file:src/server.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src",
+          "target": "file:src/routeTree.gen.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src",
+          "target": "file:src/start.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:apps",
+          "target": "file:apps/mcp/package.json",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src",
+          "target": "file:src/setupTests.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:apps",
+          "target": "file:apps/mcp/tsconfig.json",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:apps",
+          "target": "file:apps/mcp/vitest.config.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/AIChatPanel.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ExportMenu.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/AboutModal.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/HistoryPanel.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/GraphViewer.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/InsightPanel.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/HistoryModal.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/MermaidViewer.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/LLMSModal.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/MetricsSidebar.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/MindmapViewer.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/SemanticSearchPanel.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/states.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/RepoForm.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/hooks",
+          "target": "file:src/hooks/use-mobile.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analyzer.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/error-capture.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/error-page.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/export.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/share.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/graph-types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/utils.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/history.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/ai.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/__root.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/diff.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/settings.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/share.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:apps",
+          "target": "file:apps/mcp/src/server.test.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/sitemap[.]xml.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/routes",
+          "target": "file:src/routes/index.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/accordion.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:apps",
+          "target": "file:apps/mcp/src/server.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/alert-dialog.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/alert.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/aspect-ratio.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/avatar.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/button.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/badge.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/breadcrumb.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/card.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/carousel.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/calendar.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/chart.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/collapsible.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/command.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/checkbox.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/context-menu.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/dropdown-menu.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/form.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/dialog.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/drawer.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/hover-card.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/input.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/label.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/input-otp.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/menubar.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/navigation-menu.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/pagination.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/progress.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/popover.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/radio-group.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/resizable.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/scroll-area.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/select.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/sheet.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/sidebar.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/separator.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/switch.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/sonner.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/skeleton.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/slider.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/tabs.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/table.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/toggle-group.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/textarea.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/ai/chat.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/toggle.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/components",
+          "target": "file:src/components/ui/tooltip.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/ai/proxy.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/graph-builder.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/diff.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/mrcp-skill-injector.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/pipeline.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/semantic.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/persistence/idb.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/persistence/store.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/providers/local-agents.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/providers/types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/providers/client.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/providers/registry.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/parsers/functions.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/parsers/language.test.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/parsers/imports.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/parsers/language.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/parsers/tree-sitter.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/sources/website.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/sources/local-dir.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/sources/github-api.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "mod:src/lib",
+          "target": "file:src/lib/analysis/sources/deterministic.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:api/read.ts",
+          "target": "ext:@vercel/node",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:eslint.config.js",
+          "target": "ext:@eslint/js",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:eslint.config.js",
+          "target": "ext:eslint-plugin-prettier",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:eslint.config.js",
+          "target": "ext:globals",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:eslint.config.js",
+          "target": "ext:eslint-plugin-react-hooks",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:eslint.config.js",
+          "target": "ext:eslint-plugin-react-refresh",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:eslint.config.js",
+          "target": "ext:typescript-eslint",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:api/mcp.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:api/mcp.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:api/mcp.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:vite.config.ts",
+          "target": "ext:vite",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:vite.config.ts",
+          "target": "ext:@vitejs/plugin-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:vite.config.ts",
+          "target": "ext:@tailwindcss/vite",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:vite.config.ts",
+          "target": "ext:@tanstack/react-start",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:mcp-bridge/mcp-server.mjs",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:mcp-bridge/mcp-server.mjs",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:mcp-bridge/mcp-server.mjs",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lucide-react.d.ts",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/router.tsx",
+          "target": "ext:@tanstack/react-query",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/router.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/router.tsx",
+          "target": "file:src/routeTree.gen.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/server.ts",
+          "target": "file:src/lib/error-page.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/server.ts",
+          "target": "ext:@tanstack/react-start",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/__root.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/index.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/ai.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/diff.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/settings.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/share.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/routes/sitemap[.]xml.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/router.tsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routeTree.gen.ts",
+          "target": "file:src/start.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/start.ts",
+          "target": "ext:@tanstack/react-start",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/start.ts",
+          "target": "file:src/lib/error-page.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/setupTests.ts",
+          "target": "ext:@testing-library/jest-dom",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/setupTests.ts",
+          "target": "ext:@testing-library/react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/setupTests.ts",
+          "target": "ext:vitest",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/vitest.config.ts",
+          "target": "ext:vitest",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AIChatPanel.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AIChatPanel.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AIChatPanel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AIChatPanel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ExportMenu.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ExportMenu.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ExportMenu.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ExportMenu.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ExportMenu.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AboutModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AboutModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/AboutModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryPanel.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryPanel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/GraphViewer.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/GraphViewer.tsx",
+          "target": "ext:d3",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/GraphViewer.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/GraphViewer.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/InsightPanel.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/InsightPanel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryModal.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryModal.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/HistoryModal.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MermaidViewer.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MermaidViewer.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MermaidViewer.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MermaidViewer.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/LLMSModal.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/LLMSModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/LLMSModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/LLMSModal.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/LLMSModal.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MetricsSidebar.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MindmapViewer.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MindmapViewer.tsx",
+          "target": "ext:d3",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MindmapViewer.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/MindmapViewer.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/SemanticSearchPanel.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/SemanticSearchPanel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/SemanticSearchPanel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/SemanticSearchPanel.tsx",
+          "target": "ext:@tanstack/react-query",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/states.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/states.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/RepoForm.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/RepoForm.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/RepoForm.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/RepoForm.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/RepoForm.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/hooks/use-mobile.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analyzer.ts",
+          "target": "file:src/lib/analysis/pipeline.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/export.ts",
+          "target": "file:src/lib/graph-types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/share.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/utils.ts",
+          "target": "ext:clsx",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/utils.ts",
+          "target": "ext:tailwind-merge",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/history.ts",
+          "target": "file:src/lib/graph-types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/history.ts",
+          "target": "file:src/lib/persistence/store.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/history.ts",
+          "target": "file:src/lib/persistence/idb.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/ai.ts",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/ai.ts",
+          "target": "ext:@tanstack/react-start",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/__root.tsx",
+          "target": "ext:@tanstack/react-query",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/__root.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/__root.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/diff.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/diff.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/diff.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/diff.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/diff.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/settings.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/settings.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/settings.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/settings.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/settings.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/settings.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/share.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/share.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/share.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/share.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/share.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/share.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.test.ts",
+          "target": "ext:vitest",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.test.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.test.ts",
+          "target": "ext:vitest",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/sitemap[.]xml.ts",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/sitemap[.]xml.ts",
+          "target": "ext:@tanstack/react-start",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@tanstack/react-router",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/routes/index.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/accordion.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/accordion.tsx",
+          "target": "ext:@radix-ui/react-accordion",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/accordion.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/accordion.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.ts",
+          "target": "ext:url",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:apps/mcp/src/server.ts",
+          "target": "ext:@modelcontextprotocol/sdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert-dialog.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert-dialog.tsx",
+          "target": "ext:@radix-ui/react-alert-dialog",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert-dialog.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert-dialog.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/alert.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/aspect-ratio.tsx",
+          "target": "ext:@radix-ui/react-aspect-ratio",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/avatar.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/avatar.tsx",
+          "target": "ext:@radix-ui/react-avatar",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/avatar.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/button.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/button.tsx",
+          "target": "ext:@radix-ui/react-slot",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/button.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/button.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/badge.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/badge.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/badge.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/breadcrumb.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/breadcrumb.tsx",
+          "target": "ext:@radix-ui/react-slot",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/breadcrumb.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/breadcrumb.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/card.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/card.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/carousel.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/carousel.tsx",
+          "target": "ext:embla-carousel-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/carousel.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/carousel.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/carousel.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/calendar.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/calendar.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/calendar.tsx",
+          "target": "ext:react-day-picker",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/calendar.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/calendar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/chart.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/chart.tsx",
+          "target": "ext:recharts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/chart.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/collapsible.tsx",
+          "target": "ext:@radix-ui/react-collapsible",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/command.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/command.tsx",
+          "target": "ext:@radix-ui/react-dialog",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/command.tsx",
+          "target": "ext:cmdk",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/command.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/command.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/command.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/checkbox.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/checkbox.tsx",
+          "target": "ext:@radix-ui/react-checkbox",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/checkbox.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/checkbox.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/context-menu.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/context-menu.tsx",
+          "target": "ext:@radix-ui/react-context-menu",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/context-menu.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/context-menu.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dropdown-menu.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dropdown-menu.tsx",
+          "target": "ext:@radix-ui/react-dropdown-menu",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dropdown-menu.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dropdown-menu.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/form.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/form.tsx",
+          "target": "ext:@radix-ui/react-label",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/form.tsx",
+          "target": "ext:@radix-ui/react-slot",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/form.tsx",
+          "target": "ext:react-hook-form",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/form.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/form.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dialog.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dialog.tsx",
+          "target": "ext:@radix-ui/react-dialog",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dialog.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/dialog.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/drawer.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/drawer.tsx",
+          "target": "ext:vaul",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/drawer.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/hover-card.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/hover-card.tsx",
+          "target": "ext:@radix-ui/react-hover-card",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/hover-card.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/input.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/input.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/label.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/label.tsx",
+          "target": "ext:@radix-ui/react-label",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/label.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/label.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/input-otp.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/input-otp.tsx",
+          "target": "ext:input-otp",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/input-otp.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/input-otp.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/menubar.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/menubar.tsx",
+          "target": "ext:@radix-ui/react-menubar",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/menubar.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/menubar.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/navigation-menu.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/navigation-menu.tsx",
+          "target": "ext:@radix-ui/react-navigation-menu",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/navigation-menu.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/navigation-menu.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/navigation-menu.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/pagination.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/pagination.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/pagination.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/pagination.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/progress.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/progress.tsx",
+          "target": "ext:@radix-ui/react-progress",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/progress.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/popover.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/popover.tsx",
+          "target": "ext:@radix-ui/react-popover",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/popover.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/radio-group.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/radio-group.tsx",
+          "target": "ext:@radix-ui/react-radio-group",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/radio-group.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/radio-group.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/resizable.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/resizable.tsx",
+          "target": "ext:react-resizable-panels",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/resizable.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/scroll-area.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/scroll-area.tsx",
+          "target": "ext:@radix-ui/react-scroll-area",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/scroll-area.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/select.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/select.tsx",
+          "target": "ext:@radix-ui/react-select",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/select.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/select.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sheet.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sheet.tsx",
+          "target": "ext:@radix-ui/react-dialog",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sheet.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sheet.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sheet.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@radix-ui/react-slot",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:lucide-react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/hooks",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sidebar.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/separator.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/separator.tsx",
+          "target": "ext:@radix-ui/react-separator",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/separator.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/switch.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/switch.tsx",
+          "target": "ext:@radix-ui/react-switch",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/switch.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/sonner.tsx",
+          "target": "ext:sonner",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/skeleton.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/slider.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/slider.tsx",
+          "target": "ext:@radix-ui/react-slider",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/slider.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/tabs.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/tabs.tsx",
+          "target": "ext:@radix-ui/react-tabs",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/tabs.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/table.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/table.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle-group.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle-group.tsx",
+          "target": "ext:@radix-ui/react-toggle-group",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle-group.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle-group.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle-group.tsx",
+          "target": "ext:@/components",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/textarea.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/textarea.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/ai/chat.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/ai/chat.ts",
+          "target": "file:src/lib/ai/proxy.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/ai/chat.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle.tsx",
+          "target": "ext:@radix-ui/react-toggle",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle.tsx",
+          "target": "ext:class-variance-authority",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/toggle.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/tooltip.tsx",
+          "target": "ext:react",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/tooltip.tsx",
+          "target": "ext:@radix-ui/react-tooltip",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/components/ui/tooltip.tsx",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/graph-builder.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/diff.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/pipeline.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/semantic.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/semantic.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/semantic.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/types.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/providers/client.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/providers/client.ts",
+          "target": "file:src/lib/providers/types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/providers/registry.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/providers/registry.ts",
+          "target": "file:src/lib/providers/types.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/functions.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/language.test.ts",
+          "target": "ext:vitest",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/language.test.ts",
+          "target": "file:src/lib/analysis/parsers/language.ts",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/imports.ts",
+          "target": "ext:package:name",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/imports.ts",
+          "target": "ext:module",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/tree-sitter.ts",
+          "target": "ext:web-tree-sitter",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/tree-sitter.ts",
+          "target": "ext:fs",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/parsers/tree-sitter.ts",
+          "target": "ext:path",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/sources/local-dir.ts",
+          "target": "ext:fs",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/sources/local-dir.ts",
+          "target": "ext:path",
+          "weight": 1,
+          "kind": "import"
+        },
+        {
+          "source": "file:src/lib/analysis/sources/deterministic.ts",
+          "target": "ext:@/lib",
+          "weight": 1,
+          "kind": "import"
+        }
+      ],
+      "metrics": {
+        "nodes": 196,
+        "edges": 455,
+        "modules": 10,
+        "files": 114,
+        "functions": 0,
+        "externals": 67,
+        "avgDegree": 4.64,
+        "density": 0.0119,
+        "maxComplexity": 142,
+        "warnings": [],
+        "topByDegree": [
+          {
+            "id": "ext:@/lib",
+            "label": "@/lib",
+            "degree": 90
+          },
+          {
+            "id": "mod:src/components",
+            "label": "components",
+            "degree": 60
+          },
+          {
+            "id": "ext:react",
+            "label": "react",
+            "degree": 60
+          },
+          {
+            "id": "ext:@/components",
+            "label": "@/components",
+            "degree": 34
+          },
+          {
+            "id": "mod:src/lib",
+            "label": "lib",
+            "degree": 31
+          }
+        ],
+        "hotspots": [
+          {
+            "id": "file:src/lib/analysis/parsers/tree-sitter.ts",
+            "label": "tree-sitter.ts",
+            "complexity": 142
+          },
+          {
+            "id": "file:src/lib/analysis/graph-builder.ts",
+            "label": "graph-builder.ts",
+            "complexity": 120
+          },
+          {
+            "id": "file:src/lib/analysis/parsers/imports.ts",
+            "label": "imports.ts",
+            "complexity": 115
+          },
+          {
+            "id": "file:src/lib/export.ts",
+            "label": "export.ts",
+            "complexity": 88
+          },
+          {
+            "id": "file:src/routes/index.tsx",
+            "label": "index.tsx",
+            "complexity": 79
+          }
+        ],
+        "languages": {
+          "JSON": 4,
+          "TypeScript": 113,
+          "JavaScript": 2
+        }
+      },
+      "monorepoTool": "none",
+      "monorepoRoots": []
+    },
+    "attempted": [
+      {
+        "id": "github-api",
+        "ok": true
+      }
+    ]
+  },
+  "cached": true
+}

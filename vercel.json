@@ -1,4 +1,15 @@
 {
+  "functions": {
+    "api/mcp.ts": {
+      "maxDuration": 60
+    },
+    "api/analyze.ts": {
+      "maxDuration": 60
+    },
+    "api/skills.ts": {
+      "maxDuration": 60
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

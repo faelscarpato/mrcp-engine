@@ -1,162 +1,231 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types";
 
-const server = new Server(
+/**
+ * MRCP-Engine — Endpoint MCP via Streamable HTTP (Stateless)
+ * 
+ * Compatível com Vercel Serverless. Cada request cria um contexto MCP efêmero,
+ * processa a chamada e responde. Sem SSE, sem conexão persistente.
+ * 
+ * Uso: POST https://mrcp-engine.vercel.app/api/mcp
+ *      GET  https://mrcp-engine.vercel.app/api/mcp  → Discovery/Health
+ */
+
+// ─── Tool Definitions ───────────────────────────
+const TOOLS = [
   {
-    name: "mrcp-engine",
-    version: "1.0.0",
+    name: "analyze_repository",
+    description:
+      "Analyzes the structural AST graph of a GitHub repository. Returns nodes (files, modules, functions), edges (dependencies), metrics (complexity, coupling, hotspots), and architecture insights. Use this to understand a codebase without reading raw files.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: {
+          type: "string",
+          description:
+            "Full URL of the GitHub repository (e.g., https://github.com/user/project)",
+        },
+      },
+      required: ["repo"],
+    },
   },
   {
-    capabilities: {
-      tools: {},
+    name: "get_repository_skills_contract",
+    description:
+      "Returns actionable skill contracts for hotspot files in a repository. Each contract includes the detected language, complexity metrics, structural status, dependency shielding rules, and strict directives for refactoring. Use after analyze_repository to get improvement recommendations.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
+      },
+      required: ["repo"],
     },
-  }
-);
+  },
+];
 
-// 1. Listar as ferramentas disponíveis
-server.setRequestHandler(ListToolsRequestSchema, async () => {
+// ─── Tool Execution ─────────────────────────────
+async function executeTool(toolName: string, args: any): Promise<any> {
+  const repoUrl = String(args?.repo || "");
+
+  if (!repoUrl) {
+    return {
+      content: [{ type: "text", text: "Error: 'repo' parameter is required." }],
+      isError: true,
+    };
+  }
+
+  if (toolName === "analyze_repository") {
+    try {
+      const { runAnalysis } = await import(
+        "../packages/core/lib/analysis/pipeline.js"
+      );
+      const result = await runAnalysis({
+        repoUrl,
+        githubToken: process.env.GITHUB_TOKEN,
+        maxFiles: 2000,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [
+          { type: "text", text: `Error analyzing repository: ${error.message}` },
+        ],
+        isError: true,
+      };
+    }
+  }
+
+  if (toolName === "get_repository_skills_contract") {
+    try {
+      const { runAnalysis } = await import(
+        "../packages/core/lib/analysis/pipeline.js"
+      );
+      const { processRepositoryHotspots } = await import(
+        "../packages/core/lib/analysis/mrcp-skill-injector.js"
+      );
+
+      const result = await runAnalysis({
+        repoUrl,
+        githubToken: process.env.GITHUB_TOKEN,
+        maxFiles: 2000,
+      });
+
+      const contracts = processRepositoryHotspots(result.analysis?.nodes || result.nodes || []);
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(contracts, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [
+          { type: "text", text: `Error generating skill contracts: ${error.message}` },
+        ],
+        isError: true,
+      };
+    }
+  }
+
   return {
-    tools: [
-      {
-        name: "analyze_repository",
-        description: "Analisa a estrutura e código de um repositório do GitHub.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            repo: {
-              type: "string",
-              description: "URL completa do repositório do GitHub (ex: https://github.com/usuario/repositorio)",
-            },
-          },
-          required: ["repo"],
-        },
-      },
-      {
-        name: "get_repository_skills_contract",
-        description: "Retorna os contratos de skills a serem executados em um repositório, mitigando os hotspots identificados na arquitetura.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            repo: {
-              type: "string",
-              description: "URL completa do repositório do GitHub",
-            },
-          },
-          required: ["repo"],
-        },
-      },
-    ],
+    content: [{ type: "text", text: `Unknown tool: ${toolName}` }],
+    isError: true,
   };
-});
+}
 
-// 2. Executar a ferramenta
-server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
-  if (request.params.name === "analyze_repository") {
-    const repoUrl = String(request.params.arguments?.repo);
-
-    try {
-      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
-      const analysisResult = await runAnalysis({
-        repoUrl: repoUrl,
-        githubToken: process.env.GITHUB_TOKEN,
-        maxFiles: 2000,
-      });
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(analysisResult, null, 2),
-          },
-        ],
-      };
-    } catch (error: any) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Erro ao analisar o repositório: ${error.message}`
-          }
-        ],
-        isError: true
-      };
-    }
-  }
-
-  if (request.params.name === "get_repository_skills_contract") {
-    const repoUrl = String(request.params.arguments?.repo);
-
-    try {
-      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
-      const { processRepositoryHotspots } = await import("../packages/core/lib/analysis/mrcp-skill-injector.js");
-      
-      const analysisResult = await runAnalysis({
-        repoUrl: repoUrl,
-        githubToken: process.env.GITHUB_TOKEN,
-        maxFiles: 2000,
-      });
-
-      const contracts = processRepositoryHotspots(analysisResult.nodes);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(contracts, null, 2),
-          },
-        ],
-      };
-    } catch (error: any) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Erro ao gerar contratos de skills: ${error.message}`
-          }
-        ],
-        isError: true
-      };
-    }
-  }
-
-  throw new Error(`Ferramenta não encontrada: ${request.params.name}`);
-});
-
-let transport: SSEServerTransport | null = null;
-
+// ─── HTTP Handler (Vercel Serverless) ───────────
 export default async function handler(req: any, res: any) {
-  // Configurações de CORS recomendadas
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
+  // GET → Discovery endpoint (retorna info do servidor e tools disponíveis)
   if (req.method === "GET") {
-    // Configura o transporte SSE
-    transport = new SSEServerTransport("/api/mcp", res);
-    await server.connect(transport);
-    
-    // Importante: No Vercel Edge/Serverless, conexões longas podem ser interrompidas
-    // dependendo do plano, mas este é o padrão exigido pelo MCP via HTTP.
-    return;
+    return res.status(200).json({
+      name: "mrcp-engine",
+      version: "2.0.0",
+      description: "Machine-Readable Context Protocol Engine — Structural intelligence for AI agents",
+      protocol: "MCP/Streamable-HTTP",
+      tools: TOOLS,
+      endpoints: {
+        analyze: "GET /api/analyze?repo=<url>",
+        skills: "GET /api/skills?repo=<url>",
+        mcp: "POST /api/mcp (JSON-RPC 2.0)",
+      },
+      instructions: "Send a JSON-RPC 2.0 POST with method 'tools/list' or 'tools/call' to interact with the MCP server.",
+    });
   }
 
+  // POST → JSON-RPC 2.0 (MCP protocol)
   if (req.method === "POST") {
-    if (!transport) {
-      return res.status(400).json({ error: "SSE transport não iniciado. Faça uma requisição GET primeiro para estabelecer a conexão." });
+    try {
+      const body = req.body;
+      const { jsonrpc, method, id, params } = body;
+
+      if (jsonrpc !== "2.0") {
+        return res.status(400).json({
+          jsonrpc: "2.0",
+          id: id || null,
+          error: { code: -32600, message: "Invalid Request: jsonrpc must be '2.0'" },
+        });
+      }
+
+      // tools/list
+      if (method === "tools/list") {
+        return res.status(200).json({
+          jsonrpc: "2.0",
+          id,
+          result: { tools: TOOLS },
+        });
+      }
+
+      // tools/call
+      if (method === "tools/call") {
+        const toolName = params?.name;
+        const toolArgs = params?.arguments || {};
+
+        if (!toolName) {
+          return res.status(400).json({
+            jsonrpc: "2.0",
+            id,
+            error: { code: -32602, message: "Invalid params: 'name' is required" },
+          });
+        }
+
+        const result = await executeTool(toolName, toolArgs);
+
+        return res.status(200).json({
+          jsonrpc: "2.0",
+          id,
+          result,
+        });
+      }
+
+      // initialize (handshake)
+      if (method === "initialize") {
+        return res.status(200).json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            protocolVersion: "2024-11-05",
+            capabilities: { tools: {} },
+            serverInfo: {
+              name: "mrcp-engine",
+              version: "2.0.0",
+            },
+          },
+        });
+      }
+
+      // notifications/initialized (ack — no response needed but we send one for HTTP)
+      if (method === "notifications/initialized") {
+        return res.status(200).json({ jsonrpc: "2.0", id, result: {} });
+      }
+
+      // Unknown method
+      return res.status(200).json({
+        jsonrpc: "2.0",
+        id,
+        error: { code: -32601, message: `Method not found: ${method}` },
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32603, message: `Internal error: ${err.message}` },
+      });
     }
-    
-    // O MCP SDK espera lidar com a requisição e resposta diretamente
-    await transport.handlePostMessage(req, res);
-    return;
   }
 
-  res.status(405).json({ error: "Method Not Allowed. Use GET para conectar via SSE ou POST para enviar mensagens (após conectado)." });
+  return res.status(405).json({ error: "Method Not Allowed" });
 }
