@@ -1,6 +1,6 @@
 {
   "name": "mrcp-engine",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": false,
   "workspaces": [
     "packages/*",
@@ -17,11 +17,9 @@
     "lint": "eslint .",
     "format": "prettier --write ."
   },
-  "bin": {
-    "mrcp-engine": "./packages/cli/bin/mrcp.js"
-  },
+  "bin": "bin/mrcp.js",
   "files": [
-    "packages/cli/",
+    "bin/",
     "README.md",
     "LICENSE"
   ],

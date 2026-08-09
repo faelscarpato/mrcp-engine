@@ -123,10 +123,13 @@ curl "https://mrcp-engine.vercel.app/api/analyze?repo=https://github.com/usuario
 # Obter skills de hotspots
 curl "https://mrcp-engine.vercel.app/api/skills?repo=https://github.com/usuario/repo"
 
-# Listar ferramentas MCP
+# Listar ferramentas MCP (em bash/zsh)
 curl -X POST https://mrcp-engine.vercel.app/api/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
+
+# No PowerShell:
+# Invoke-RestMethod -Uri https://mrcp-engine.vercel.app/api/mcp -Method Post -Body '{"jsonrpc":"2.0","method":"tools/list","id":1}' -ContentType "application/json"
 ```
 
 ### ChatGPT Custom GPT
