@@ -1,6 +1,6 @@
 {
   "name": "mrcp-engine",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "private": false,
   "workspaces": [
     "packages/*",
@@ -20,6 +20,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "date-fns": "^4.1.0",
+    "mrcp-engine": "^1.0.1",
     "opencode-ai": "^1.18.5",
     "the": "^1.0.2",
     "tree-sitter-c": "^0.24.1",
