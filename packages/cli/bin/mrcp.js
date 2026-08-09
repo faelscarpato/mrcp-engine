@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'child_process';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +16,7 @@ if (args.length === 1 && args[0].startsWith('http')) {
   // Usamos o tsx (ou node se compilado) para rodar a pipeline
   const pipelinePath = path.resolve(__dirname, '../../core/lib/analysis/pipeline.js');
   
-  import(pipelinePath).then(async ({ runAnalysis }) => {
+  import(pathToFileURL(pipelinePath).href).then(async ({ runAnalysis }) => {
     try {
       const result = await runAnalysis({
         repoUrl: repoUrl,

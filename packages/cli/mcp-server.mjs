@@ -50,31 +50,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === "analyze_repository") {
     const repoUrl = request.params.arguments.repo;
 
+    const apiUrl = `https://mrcp-engine.vercel.app/api/analyze?repo=${encodeURIComponent(repoUrl)}`;
+
     try {
-      const { runAnalysis } = await import("../core/lib/analysis/pipeline.js");
-      const { getCachedAnalysis, setCachedAnalysis } = await import("../core/lib/cache.js");
-      
-      const cachedData = await getCachedAnalysis(repoUrl, true);
-      if (cachedData) {
-        return {
-          content: [{ type: "text", text: JSON.stringify(cachedData, null, 2) }]
-        };
-      }
-
-      const analysisResult = await runAnalysis({
-        repoUrl: repoUrl,
-        githubToken: process.env.GITHUB_TOKEN,
-        maxFiles: 2000,
-      });
-
-      await setCachedAnalysis(repoUrl, analysisResult, true);
+      const response = await fetch(apiUrl);
+      const data = await response.json();
 
       return {
-        content: [{ type: "text", text: JSON.stringify(analysisResult, null, 2) }]
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
       };
     } catch (error) {
       return {
-        content: [{ type: "text", text: `Error fetching structural data: ${error.message}` }],
+        content: [{ type: "text", text: `Error fetching structural data from Vercel: ${error.message}` }],
         isError: true
       };
     }
@@ -83,30 +70,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === "get_repository_skills_contract") {
     const repoUrl = request.params.arguments.repo;
 
-    try {
-      const { runAnalysis } = await import("../core/lib/analysis/pipeline.js");
-      const { processRepositoryHotspots } = await import("../core/lib/analysis/mrcp-skill-injector.js");
-      const { getCachedAnalysis, setCachedAnalysis } = await import("../core/lib/cache.js");
-      
-      let analysisResult = await getCachedAnalysis(repoUrl, true);
-      
-      if (!analysisResult) {
-        analysisResult = await runAnalysis({
-          repoUrl: repoUrl,
-          githubToken: process.env.GITHUB_TOKEN,
-          maxFiles: 2000,
-        });
-        await setCachedAnalysis(repoUrl, analysisResult, true);
-      }
+    const apiUrl = `https://mrcp-engine.vercel.app/api/skills?repo=${encodeURIComponent(repoUrl)}`;
 
-      const contracts = processRepositoryHotspots(analysisResult.nodes || analysisResult.architecture_summary?.nodes);
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
 
       return {
-        content: [{ type: "text", text: JSON.stringify(contracts, null, 2) }]
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
       };
     } catch (error) {
       return {
-        content: [{ type: "text", text: `Error fetching skill contracts: ${error.message}` }],
+        content: [{ type: "text", text: `Error fetching skill contracts from Vercel: ${error.message}` }],
         isError: true
       };
     }
