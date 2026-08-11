@@ -2,6 +2,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types";
+import { trackEngineUsage } from "../src/services/analytics.js";
 
 /**
  * MRCP-Engine — Endpoint MCP via Streamable HTTP (Stateless)
@@ -128,6 +129,8 @@ export default async function handler(req: any, res: any) {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
+
+  trackEngineUsage(null, 'mrcp_engine_request', { method: req.method, endpoint: '/api/mcp' });
 
   // GET → Discovery endpoint (retorna info do servidor e tools disponíveis)
   if (req.method === "GET") {

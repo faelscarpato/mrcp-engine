@@ -1,5 +1,6 @@
 import { runAnalysis } from "../packages/core/lib/analysis/pipeline.js";
 import { processRepositoryHotspots } from "../packages/core/lib/analysis/mrcp-skill-injector.js";
+import { trackEngineUsage } from "../src/services/analytics.js";
 
 export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -8,6 +9,8 @@ export default async function handler(req: any, res: any) {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
+
+  trackEngineUsage(null, 'mrcp_engine_request', { method: req.method, endpoint: '/api/skills' });
 
   try {
     const repoUrl = req.query.repo;

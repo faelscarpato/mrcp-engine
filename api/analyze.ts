@@ -1,4 +1,5 @@
 import { getCachedAnalysis, setCachedAnalysis } from "../packages/core/lib/cache.js";
+import { trackEngineUsage } from "../src/services/analytics.js";
 
 // Tipamos req e res como 'any' para calar a boca do compilador estrito do TypeScript
 export default async function handler(req: any, res: any) {
@@ -10,6 +11,8 @@ export default async function handler(req: any, res: any) {
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
+  
+  trackEngineUsage(null, 'mrcp_engine_request', { method: req.method, endpoint: '/api/analyze' });
 
   const acceptHeader = req.headers["accept"] || "";
   const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
