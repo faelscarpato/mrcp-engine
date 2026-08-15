@@ -9,7 +9,7 @@
     "api/skills.ts": {
       "maxDuration": 60
     },
-    "api/search.ts": {
+    "api/web-search.ts": {
       "maxDuration": 30
     },
     "api/scrape.ts": {

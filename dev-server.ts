@@ -19,7 +19,7 @@ async function loadHandler(routePath: string) {
 
 // Mapeamento rota → arquivo handler
 const ROUTES: Record<string, string> = {
-  "/api/search": "./api/search.ts",
+  "/api/web-search": "./api/web-search.ts",
   "/api/scrape": "./api/scrape.ts",
   "/api/smart-search": "./api/smart-search.ts",
   "/api/mcp": "./api/mcp.ts",
@@ -90,7 +90,7 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
 }).listen(PORT, () => {
   console.log(`\n🚀 MRCP Dev Server rodando em http://localhost:${PORT}`);
   console.log(`\nEndpoints disponíveis:`);
-  console.log(`  GET  /api/search?q=<query>`);
+  console.log(`  GET  /api/web-search?q=<query>`);
   console.log(`  GET  /api/scrape?url=<url>`);
   console.log(`  GET  /api/smart-search?q=<query>&topN=2`);
   console.log(`  GET  /api/mcp                (Discovery)`);
