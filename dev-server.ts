@@ -14,7 +14,7 @@ const PORT = 3000;
 
 async function loadHandler(routePath: string) {
   const mod = await import(routePath);
-  return mod.default;
+  return mod.default || Object.values(mod)[0];
 }
 
 // Mapeamento rota → arquivo handler
@@ -26,6 +26,8 @@ const ROUTES: Record<string, string> = {
   "/api/analyze": "./api/analyze.ts",
   "/api/skills": "./api/skills.ts",
   "/api/read": "./api/read.ts",
+  "/api/search": "./api/search.ts",
+  "/api/node": "./api/node"
 };
 
 function parseBody(req: IncomingMessage): Promise<any> {
