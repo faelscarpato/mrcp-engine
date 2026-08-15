@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@mrcp/core": "*"
+    "@mrcp/core": "workspace:*"
   }
 }

@@ -5,6 +5,7 @@
   "dependencies": {
     "@vercel/node": "^5.9.5",
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@mrcp/core": "*"
+    "@mrcp/core": "workspace:*",
+    "cheerio": "^1.2.0"
   }
 }

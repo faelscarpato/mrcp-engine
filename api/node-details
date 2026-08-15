@@ -1,0 +1,31 @@
+// Lógica para o novo endpoint: /api/node
+export async function handleNodeDetails(req, res) {
+  const { repoUrl, filePath } = req.query;
+
+  if (!repoUrl || !filePath) {
+    return res.status(400).json({ error: "Faltam parâmetros: repoUrl ou filePath" });
+  }
+
+  try {
+    const analysis = await engine.analyzeRepository(repoUrl);
+    
+    // 1. Isola exatamente o arquivo que a IA pediu
+    const targetNode = analysis.nodes.find(node => node.path === filePath);
+    
+    // 2. Filtra todas as arestas (edges) que entram ou saem deste arquivo
+    const nodeConnections = analysis.edges.filter(
+      edge => edge.source === targetNode.id || edge.target === targetNode.id
+    );
+
+    // 3. Entrega o Raio-X cirúrgico
+    return res.json({
+      status: "success",
+      target_file: filePath,
+      details: targetNode,
+      connections: nodeConnections
+    });
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}

@@ -4,6 +4,7 @@
   "type": "module",
   "main": "src/analysis/pipeline.js",
   "dependencies": {
+    "cheerio": "^1.2.0",
     "tree-sitter-c": "^0.24.1",
     "tree-sitter-cobol": "^0.0.1",
     "tree-sitter-cpp": "^0.23.4",
