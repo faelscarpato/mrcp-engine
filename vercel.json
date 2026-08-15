@@ -8,6 +8,15 @@
     },
     "api/skills.ts": {
       "maxDuration": 60
+    },
+    "api/search.ts": {
+      "maxDuration": 30
+    },
+    "api/scrape.ts": {
+      "maxDuration": 30
+    },
+    "api/smart-search.ts": {
+      "maxDuration": 60
     }
   },
   "headers": [
