@@ -1,0 +1,71 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MRCP Engine API",
+    "version": "1.0.0",
+    "description": "API para análise detalhada de repositórios GitHub. Converte repositórios em grafos JSON semânticos."
+  },
+  "servers": [
+    {
+      "url": "https://mrcp-engine.vercel.app"
+    }
+  ],
+  "paths": {
+    "/api/analyze": {
+      "get": {
+        "summary": "Analisar Repositório",
+        "operationId": "analyzeRepository",
+        "description": "Fetches the Abstract Syntax Tree (AST) and architectural graph of a given repository.",
+        "parameters": [
+          {
+            "name": "repo",
+            "in": "query",
+            "required": true,
+            "description": "URL do repositório no GitHub (ex: https://github.com/usuario/repositorio)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado da análise do repositório contendo a estrutura de diretórios e métricas de complexidade.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "analyzed_url": { "type": "string" },
+                    "architecture_summary": {
+                      "type": "object",
+                      "properties": {
+                        "topology": {
+                          "type": "object",
+                          "description": "Diretórios e assinaturas de funções"
+                        },
+                        "metrics": {
+                          "type": "object",
+                          "description": "Métricas de complexidade e acoplamento (Ca, Ce)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (falta a URL do repositório)"
+          },
+          "403": {
+            "description": "Acesso negado para clientes não-máquina (navegadores)"
+          },
+          "500": {
+            "description": "Erro interno ao processar o repositório"
+          }
+        }
+      }
+    }
+  }
+}

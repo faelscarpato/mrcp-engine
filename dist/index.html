@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRCP Engine - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: rgba(24, 24, 27, 0.7);
+            --border: #27272a;
+            --primary: #ededed;
+            --muted: #a1a1aa;
+            --accent: #3b82f6;
+            --glass-bg: rgba(9, 9, 11, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Fixed full-height layout */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 25%);
+        }
+
+        /* Fixed Header */
+        header {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        p.subtitle {
+            color: var(--muted);
+            margin: 0.25rem 0 0 0;
+            font-size: 0.9rem;
+        }
+
+        /* Scrollable main area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .composer {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 100px; /* Space for the footer */
+        }
+
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: rgba(0,0,0,0.4);
+            padding: 0.35rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.6rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .tab.active {
+            background: var(--border);
+            color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 0.85rem 1.25rem;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            background: rgba(0,0,0,0.5);
+        }
+
+        button.action-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        button.action-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        button.action-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button.action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.3);
+            border: 1px dashed var(--muted);
+            color: var(--muted);
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(255,255,255,0.02);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* JSON Result Editor Styling */
+        pre {
+            background: rgba(0,0,0,0.5);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #a6accd;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .result-title {
+            font-size: 1rem;
+            margin: 0 0 1rem 0;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background: var(--border);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Fixed Footer */
+        footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 20;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        footer.visible {
+            transform: translateY(0);
+        }
+
+        .footer-content {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-title {
+            font-weight: 500;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .export-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--muted);
+        }
+        
+        .export-btn.graph-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+        }
+        
+        .export-btn.graph-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-left-color: #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* JSON Syntax Highlighting */
+        .string { color: #89ddff; }
+        .number { color: #f78c6c; }
+        .boolean { color: #ff5370; }
+        .null { color: #ff5370; }
+        .key { color: #c3e88d; }
+    </style>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HSQM4Q77P6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HSQM4Q77P6');
+</script>
+</head>
+<body>
+
+    <header>
+        <h1>MRCP Engine</h1>
+        <p class="subtitle">Análise arquitetural estruturada para Agentes IA</p>
+    </header>
+
+    <main>
+        <div class="composer">
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" data-mode="github">GitHub</button>
+                    <button class="tab" data-mode="web">Website</button>
+                    <button class="tab" data-mode="local">Pasta Local</button>
+                </div>
+
+                <!-- Form para URL (Github/Web) -->
+                <div class="input-group" id="url-input-group">
+                    <input type="text" id="url-input" placeholder="https://github.com/facebook/react" autocomplete="off">
+                    <button class="action-btn" id="analyze-url-btn">Analisar</button>
+                </div>
+
+                <!-- Form para Pasta Local (File Picker) -->
+                <div class="input-group hidden" id="local-input-group">
+                    <div class="file-upload-wrapper">
+                        <label for="folder-input" class="file-upload-label" id="folder-label">
+                            📁 Selecionar pasta do projeto...
+                        </label>
+                        <input type="file" id="folder-input" webkitdirectory directory multiple>
+                    </div>
+                    <button class="action-btn" id="analyze-local-btn" disabled>Analisar Pasta</button>
+                </div>
+            </div>
+
+            <div class="card hidden" id="result-card">
+                <h3 class="result-title">Editor JSON <span class="badge" id="source-badge"></span></h3>
+                <pre><code id="json-output"></code></pre>
+            </div>
+        </div>
+    </main>
+
+    <footer id="fixed-footer">
+        <div class="footer-content">
+            <div class="footer-title">Extração de Resultados</div>
+            <div class="export-actions">
+                <button class="export-btn" id="copy-btn">📋 Copiar JSON</button>
+                <button class="export-btn" id="download-txt-btn">📄 Baixar .txt</button>
+                <button class="export-btn" id="download-md-btn">📝 Baixar .md</button>
+                <button class="export-btn" id="download-json-btn">⚙️ Baixar .json</button>
+                <button class="export-btn graph-btn" id="download-graph-btn">🌐 Baixar Relatório HTML (Grafo)</button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentMode = 'github';
+        let selectedFiles = [];
+        let lastJsonResult = null;
+
+        // UI Elements
+        const tabs = document.querySelectorAll('.tab');
+        const urlGroup = document.getElementById('url-input-group');
+        const localGroup = document.getElementById('local-input-group');
+        const urlInput = document.getElementById('url-input');
+        const analyzeUrlBtn = document.getElementById('analyze-url-btn');
+        const analyzeLocalBtn = document.getElementById('analyze-local-btn');
+        const folderInput = document.getElementById('folder-input');
+        const folderLabel = document.getElementById('folder-label');
+        const resultCard = document.getElementById('result-card');
+        const jsonOutput = document.getElementById('json-output');
+        const sourceBadge = document.getElementById('source-badge');
+        const fixedFooter = document.getElementById('fixed-footer');
+
+        // Carregar do Storage (IndexDB / LocalStorage)
+        window.addEventListener('DOMContentLoaded', () => {
+            const cached = localStorage.getItem('mrcp_last_analysis');
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    showResult(data, 'cache');
+                } catch(e) {}
+            }
+        });
+
+        // Tab Switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMode = tab.dataset.mode;
+
+                if (currentMode === 'local') {
+                    urlGroup.classList.add('hidden');
+                    localGroup.classList.remove('hidden');
+                } else {
+                    urlGroup.classList.remove('hidden');
+                    localGroup.classList.add('hidden');
+                    urlInput.placeholder = currentMode === 'github' 
+                        ? 'https://github.com/facebook/react' 
+                        : 'https://seusite.com';
+                }
+            });
+        });
+
+        // Folder Selection
+        folderInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files).filter(f => {
+                const path = f.webkitRelativePath;
+                if (path.includes('/node_modules/') || path.includes('/.git/') || path.includes('/dist/') || path.includes('/.next/')) return false;
+                const ext = path.split('.').pop().toLowerCase();
+                const invalidExts = ['png', 'jpg', 'jpeg', 'gif', 'mp4', 'pdf', 'zip', 'exe', 'dll'];
+                if (invalidExts.includes(ext)) return false;
+                return true;
+            });
+
+            if (selectedFiles.length > 0) {
+                folderLabel.textContent = `📁 ${selectedFiles.length} arquivos selecionados`;
+                analyzeLocalBtn.disabled = false;
+            } else {
+                folderLabel.textContent = '📁 Selecionar pasta do projeto...';
+                analyzeLocalBtn.disabled = true;
+            }
+        });
+
+        // API Call (URL)
+        analyzeUrlBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) return;
+            setLoading(analyzeUrlBtn, true);
+            try {
+                const res = await fetch(`/api/analyze?repo=${encodeURIComponent(url)}`, { headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                showResult(data, currentMode);
+            } catch (err) {
+                showResult({ error: err.message }, 'error');
+            }
+            setLoading(analyzeUrlBtn, false);
+        });
+
+        // API Call (Local Upload)
+        analyzeLocalBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+            setLoading(analyzeLocalBtn, true);
+            try {
+                const filePayloads = await Promise.all(selectedFiles.map(file => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            resolve({ path: file.webkitRelativePath, content: e.target.result, size: file.size });
+                        };
+                        reader.readAsText(file);
+                    });
+                }));
+                const res = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ files: filePayloads }) });
+                const data = await res.json();
+                showResult(data, 'local-upload');
+            } catch (err) {
+                showResult({ error: err.message }, 'error');
+            }
+            setLoading(analyzeLocalBtn, false);
+        });
+
+        // Helper: Show Result
+        function showResult(data, source) {
+            lastJsonResult = data;
+            localStorage.setItem('mrcp_last_analysis', JSON.stringify(data));
+            
+            resultCard.classList.remove('hidden');
+            fixedFooter.classList.add('visible'); // Mostra o footer fixo!
+            sourceBadge.textContent = source;
+            
+            const jsonStr = JSON.stringify(data, null, 2);
+            jsonOutput.innerHTML = syntaxHighlight(jsonStr);
+        }
+
+        // Helper: Syntax Highlight JSON
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Helper: Loading State
+        function setLoading(btn, isLoading) {
+            if (isLoading) {
+                btn.dataset.text = btn.textContent;
+                btn.innerHTML = '<span class="loader"></span>';
+                btn.disabled = true;
+                fixedFooter.classList.remove('visible');
+            } else {
+                btn.textContent = btn.dataset.text;
+                btn.disabled = false;
+            }
+        }
+        
+        // Helper: Download File
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Actions: Copiar
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            if (!lastJsonResult) return;
+            navigator.clipboard.writeText(JSON.stringify(lastJsonResult, null, 2));
+            const btn = document.getElementById('copy-btn');
+            const original = btn.innerHTML;
+            btn.innerHTML = '✅ Copiado!';
+            setTimeout(() => btn.innerHTML = original, 2000);
+        });
+
+        // Actions: Baixar JSON
+        document.getElementById('download-json-btn').addEventListener('click', () => {
+            if (!lastJsonResult) return;
+            downloadFile(JSON.stringify(lastJsonResult, null, 2), `mrcp-analysis-${Date.now()}.json`, 'application/json');
+        });
+
+        // Actions: Baixar TXT
+        document.getElementById('download-txt-btn').addEventListener('click', () => {
+            if (!lastJsonResult || !lastJsonResult.metrics) return;
+            const metrics = lastJsonResult.metrics;
+            let txt = `MRCP Engine Analysis Report\n===========================\n\n`;
+            txt += `Overview:\n`;
+            txt += `- Nodes: ${metrics.nodes || 0}\n`;
+            txt += `- Edges: ${metrics.edges || 0}\n`;
+            txt += `- Modules: ${metrics.modules || 0}\n`;
+            txt += `- Files: ${metrics.files || 0}\n`;
+            txt += `- Max Complexity: ${metrics.maxComplexity || 0}\n\n`;
+            
+            if (metrics.topByDegree) {
+                txt += `Top Connections:\n`;
+                metrics.topByDegree.forEach(t => txt += `- ${t.label}: ${t.degree}\n`);
+            }
+            if (metrics.hotspots) {
+                txt += `\nHotspots:\n`;
+                metrics.hotspots.forEach(h => txt += `- ${h.label}: Complexity ${h.complexity}\n`);
+            }
+            downloadFile(txt, `mrcp-report-${Date.now()}.txt`, 'text/plain');
+        });
+
+        // Actions: Baixar MD
+        document.getElementById('download-md-btn').addEventListener('click', () => {
+            if (!lastJsonResult || !lastJsonResult.metrics) return;
+            const metrics = lastJsonResult.metrics;
+            let md = `# MRCP Engine Analysis Report\n\n`;
+            md += `## Overview\n\n`;
+            md += `| Metric | Value |\n|---|---|\n`;
+            md += `| Nodes | ${metrics.nodes || 0} |\n`;
+            md += `| Edges | ${metrics.edges || 0} |\n`;
+            md += `| Modules | ${metrics.modules || 0} |\n`;
+            md += `| Files | ${metrics.files || 0} |\n`;
+            md += `| Max Complexity | ${metrics.maxComplexity || 0} |\n\n`;
+            
+            if (metrics.topByDegree && metrics.topByDegree.length > 0) {
+                md += `## Top Connections\n\n`;
+                metrics.topByDegree.forEach(t => md += `- **${t.label}**: ${t.degree}\n`);
+            }
+            if (metrics.hotspots && metrics.hotspots.length > 0) {
+                md += `\n## Hotspots\n\n`;
+                metrics.hotspots.forEach(h => md += `- **${h.label}**: Complexity ${h.complexity}\n`);
+            }
+            downloadFile(md, `mrcp-report-${Date.now()}.md`, 'text/markdown');
+        });
+
+        // Actions: Baixar Relatório HTML (Grafo Animado)
+        document.getElementById('download-graph-btn').addEventListener('click', () => {
+            if (!lastJsonResult || !lastJsonResult.nodes) return;
+            const nodesArr = lastJsonResult.nodes.map(n => ({ id: n.id, label: n.id.split('/').pop(), group: n.kind || 'unknown' }));
+            const edgesArr = (lastJsonResult.edges || []).map(e => ({ from: e.source, to: e.target, title: e.kind }));
+            const metrics = lastJsonResult.metrics || {};
+            
+            const topsHtml = (metrics.topByDegree || []).map(t => `<li>${t.label} <span style="color:#3b82f6">(${t.degree})</span></li>`).join('');
+            const hotspotsHtml = (metrics.hotspots || []).map(h => `<li>${h.label} <span style="color:#ef4444">(${h.complexity})</span></li>`).join('');
+
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MRCP Graph Report</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"><\/script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; padding: 0; display: flex; height: 100vh; font-family: 'Inter', sans-serif; background: #09090b; color: #ededed; overflow: hidden; }
+    #mynetwork { flex: 1; height: 100vh; background-image: radial-gradient(circle at 50% 50%, rgba(39, 39, 42, 0.5) 0%, transparent 60%); }
+    #sidebar { width: 340px; background: #18181b; border-left: 1px solid #27272a; padding: 24px; overflow-y: auto; box-shadow: -4px 0 24px rgba(0,0,0,0.5); z-index: 10; }
+    h2 { font-size: 1.25rem; color: #fff; margin: 0 0 20px 0; padding-bottom: 15px; border-bottom: 1px solid #27272a; }
+    h3 { font-size: 0.95rem; margin-top: 24px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;}
+    .stat { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .stat-label { color: #a1a1aa; }
+    .stat-value { font-weight: 600; color: #fff; }
+    .list { list-style: none; padding: 0; margin: 0; }
+    .list li { margin-bottom: 8px; font-size: 0.85rem; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid #27272a; border-radius: 6px; display: flex; justify-content: space-between;}
+  </style>
+</head>
+<body>
+<div id="mynetwork"></div>
+<div id="sidebar">
+  <h2>Relatório Estrutural</h2>
+  <div class="stat"><span class="stat-label">Total de Nós</span><span class="stat-value">${metrics.nodes || 0}</span></div>
+  <div class="stat"><span class="stat-label">Arestas</span><span class="stat-value">${metrics.edges || 0}</span></div>
+  <div class="stat"><span class="stat-label">Módulos</span><span class="stat-value">${metrics.modules || 0}</span></div>
+  <div class="stat"><span class="stat-label">Arquivos</span><span class="stat-value">${metrics.files || 0}</span></div>
+  <div class="stat"><span class="stat-label">Grau Médio</span><span class="stat-value">${metrics.avgDegree || 0}</span></div>
+  <div class="stat"><span class="stat-label">Complexidade Max</span><span class="stat-value">${metrics.maxComplexity || 0}</span></div>
+  
+  <h3>Nós Mais Conectados</h3>
+  <ul class="list">${topsHtml || '<li>Nenhum dado</li>'}</ul>
+  
+  <h3>Hotspots (Complexos)</h3>
+  <ul class="list">${hotspotsHtml || '<li>Nenhum dado</li>'}</ul>
+</div>
+<script type="text/javascript">
+  const nodes = new vis.DataSet(${JSON.stringify(nodesArr)});
+  const edges = new vis.DataSet(${JSON.stringify(edgesArr)});
+  const container = document.getElementById('mynetwork');
+  const data = { nodes: nodes, edges: edges };
+  const options = {
+    nodes: { 
+        shape: 'dot', 
+        size: 12, 
+        font: { color: '#a1a1aa', size: 12, face: 'Inter' },
+        borderWidth: 2,
+        color: { border: '#27272a', background: '#3b82f6', highlight: { border: '#fff', background: '#60a5fa' } }
+    },
+    edges: { 
+        color: { color: '#3f3f46', highlight: '#ffffff' }, 
+        smooth: { type: 'continuous' } 
+    },
+    physics: {
+      forceAtlas2Based: { gravitationalConstant: -30, centralGravity: 0.005, springLength: 200, springConstant: 0.1 },
+      maxVelocity: 50,
+      solver: 'forceAtlas2Based',
+      timestep: 0.35,
+      stabilization: { iterations: 150 }
+    },
+    interaction: { hover: true, tooltipDelay: 200 }
+  };
+  new vis.Network(container, data, options);
+<\/script>
+</body>
+</html>`;
+            downloadFile(html, `mrcp-graph-${Date.now()}.html`, 'text/html');
+        });
+    </script>
+</body>
+</html>
