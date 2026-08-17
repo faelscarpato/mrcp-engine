@@ -307,7 +307,7 @@ async function executeTool(toolName: string, args: any): Promise<any> {
       const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
       const { processRepositoryHotspots } = await import("../packages/core/lib/analysis/mrcp-skill-injector.js");
       const result = await runAnalysis({ repoUrl, githubToken: process.env.GITHUB_TOKEN, maxFiles: 2000 });
-      const contracts = processRepositoryHotspots(result.analysis?.nodes || result.nodes || []);
+      const contracts = processRepositoryHotspots((result as any).analysis?.nodes || (result as any).nodes || []);
       return { content: [{ type: "text", text: JSON.stringify(contracts, null, 2) }] };
     } catch (error: any) {
       return { content: [{ type: "text", text: `Error generating skill contracts: ${error.message}` }], isError: true };

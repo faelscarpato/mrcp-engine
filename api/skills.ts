@@ -29,7 +29,8 @@ export default async function handler(req: any, res: any) {
       maxFiles: 2000,
     });
 
-    const contracts = processRepositoryHotspots(analysisResult.nodes);
+    const nodes = (analysisResult as any).analysis?.nodes || (analysisResult as any).nodes || [];
+    const contracts = processRepositoryHotspots(nodes);
 
     return res.status(200).json({
       status: "success",
