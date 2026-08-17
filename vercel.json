@@ -1,19 +1,66 @@
- {
-      "functions": {
-        "api/*.ts": {
-     "maxDuration": 15
+{
+  "functions": {
+    "api/mcp.ts": {
+      "maxDuration": 30
+    },
+    "api/analyze.ts": {
+      "maxDuration": 30
+    },
+    "api/skills.ts": {
+      "maxDuration": 30
+    },
+    "api/web-search.ts": {
+      "maxDuration": 30
+    },
+    "api/scrape.ts": {
+      "maxDuration": 30
+    },
+    "api/smart-search.ts": {
+      "maxDuration": 30
+    },
+    "api/impact-analysis.ts": {
+      "maxDuration": 30
+    },
+    "api/security-audit.ts": {
+      "maxDuration": 30
+    },
+    "api/architecture-drift.ts": {
+      "maxDuration": 30
+    },
+    "api/test-gap-analysis.ts": {
+      "maxDuration": 30
+    },
+    "api/context-pack.ts": {
+      "maxDuration": 30
+    },
+    "api/refactor-applier.ts": {
+      "maxDuration": 30
+    },
+    "api/type-signature-extractor.ts": {
+      "maxDuration": 30
+    },
+    "api/diff-summarizer.ts": {
+      "maxDuration": 30
+    },
+    "api/dependency-resolver.ts": {
+      "maxDuration": 30
+    },
+    "api/dead-code-pruner.ts": {
+      "maxDuration": 30
+    },
+    "api/sql-orm-contract.ts": {
+      "maxDuration": 30
     }
   },
   "headers": [
     {
- "source": "/(.*)",
- "headers": [
- { "key": "Access-Control-Allow-Credentials", "value": "true" },
- { "key": "Access-Control-Allow-Origin", "value": "*" },
- { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
- { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type,
-  Date, X-Api-Version, Authorization" }
-     ]
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
     }
   ]
 }
