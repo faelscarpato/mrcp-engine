@@ -2,6 +2,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types";
+import { saveEndpointOutput } from "../packages/core/lib/cache.js";
 import { trackEngineUsage } from "../src/services/analytics.js";
 
 /**
@@ -47,6 +48,158 @@ const TOOLS = [
       },
       required: ["repo"],
     },
+  },
+
+  // --- Category: Predictive & Security Engineering ---
+  {
+    name: "mrcp_impact_analysis",
+    description:
+      "[Category: Predictive & Security Engineering] Calculates the AST Blast Radius of code changes. Traces downstream impacted files, functions, and unit tests before committing.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        modifiedFiles: { type: "array", items: { type: "string" }, description: "List of modified file paths" },
+        diffContent: { type: "string", description: "Optional git diff string" }
+      },
+      required: ["repo", "modifiedFiles"]
+    }
+  },
+  {
+    name: "mrcp_security_compliance_audit",
+    description:
+      "[Category: Predictive & Security Engineering] Performs static AST security audit (OWASP, hardcoded secrets, unsafe execution, package licenses).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        severityThreshold: { type: "string", enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"], default: "LOW" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_architectural_drift_detector",
+    description:
+      "[Category: Predictive & Security Engineering] Detects architectural drift, circular dependencies, and cross-layer violations against Clean Architecture.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        architectureType: { type: "string", enum: ["CLEAN_ARCHITECTURE", "HEXAGONAL", "FEATURE_FIRST", "LAYERED"], default: "CLEAN_ARCHITECTURE" },
+        maxAllowedCyclicDependencies: { type: "number", default: 0 }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_auto_test_coverage_gap_finder",
+    description:
+      "[Category: Predictive & Security Engineering] Maps high-complexity function nodes against tests to identify uncovered gaps and generate Vitest/Jest stubs.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        targetHotspotsOnly: { type: "boolean", default: true },
+        generateStubs: { type: "boolean", default: true }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_context_pruning_pack",
+    description:
+      "[Category: Predictive & Security Engineering] Slices a minimal, hyper-focused AST context prompt pack for a specific task to optimize LLM token budget.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        taskDescription: { type: "string", description: "Description of the user task for the LLM" },
+        maxTokenBudget: { type: "number", default: 8000 }
+      },
+      required: ["repo", "taskDescription"]
+    }
+  },
+
+  // --- Category: High-Efficiency Agent Offloading ---
+  {
+    name: "mrcp_ast_refactor_applier",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Applies deterministic AST refactoring (rename symbols, extract interfaces, update imports) in batch without LLM token cost.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        action: { type: "string", enum: ["RENAME_SYMBOL", "EXTRACT_INTERFACE", "UPDATE_IMPORT"] },
+        targetSymbol: { type: "string" },
+        newSymbolName: { type: "string" },
+        targetFilePath: { type: "string" },
+        dryRun: { type: "boolean", default: false }
+      },
+      required: ["action", "targetSymbol"]
+    }
+  },
+  {
+    name: "mrcp_type_signature_extractor",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Extracts only TypeScript .d.ts interfaces and type signatures from files, eliminating implementation body tokens.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        targetFilePath: { type: "string" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_git_diff_semantic_summarizer",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Strips whitespace/formatting noise from git diffs and summarizes changes by business domain at AST level.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        diffContent: { type: "string" },
+        stripFormattingNoise: { type: "boolean", default: true }
+      },
+      required: ["diffContent"]
+    }
+  },
+  {
+    name: "mrcp_dependency_compatibility_resolver",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Resolves SemVer package version compatibility, peer dependency mismatches, and breaking change risks.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        packageName: { type: "string" },
+        targetVersion: { type: "string", default: "latest" }
+      },
+      required: ["packageName"]
+    }
+  },
+  {
+    name: "mrcp_dead_code_pruner",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Performs AST tree-shaking reachability analysis to identify unreferenced exports, dead variables, and unused imports.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_sql_schema_orm_contract_generator",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Parses SQL DDL, Prisma schemas, or Drizzle/TypeORM models to expose typed DB tables, foreign keys, and queries.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        schemaFilePath: { type: "string" }
+      }
+    }
   },
 
   // --- Category: Triage & HR ---
@@ -158,6 +311,169 @@ async function executeTool(toolName: string, args: any): Promise<any> {
       return { content: [{ type: "text", text: JSON.stringify(contracts, null, 2) }] };
     } catch (error: any) {
       return { content: [{ type: "text", text: `Error generating skill contracts: ${error.message}` }], isError: true };
+    }
+  }
+
+  // Predictive & Security Engineering Tools
+  if (toolName === "mrcp_impact_analysis") {
+    const repoUrl = String(args?.repo || "");
+    const modifiedFiles = args?.modifiedFiles || [];
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { calculateImpactAnalysis } = await import("../packages/core/lib/analysis/impact-analysis.js");
+      const result = await calculateImpactAnalysis({ repoUrl, modifiedFiles, diffContent: args?.diffContent });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error executing impact analysis: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_security_compliance_audit") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { runSecurityAudit } = await import("../packages/core/lib/analysis/security-audit.js");
+      const result = await runSecurityAudit({ repoUrl, severityThreshold: args?.severityThreshold });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error executing security audit: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_architectural_drift_detector") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { detectArchitectureDrift } = await import("../packages/core/lib/analysis/architecture-drift.js");
+      const result = await detectArchitectureDrift({
+        repoUrl,
+        architectureType: args?.architectureType,
+        maxAllowedCyclicDependencies: args?.maxAllowedCyclicDependencies
+      });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error detecting architecture drift: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_auto_test_coverage_gap_finder") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { findTestCoverageGaps } = await import("../packages/core/lib/analysis/test-gap-analysis.js");
+      const result = await findTestCoverageGaps({
+        repoUrl,
+        targetHotspotsOnly: args?.targetHotspotsOnly,
+        generateStubs: args?.generateStubs
+      });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error finding test coverage gaps: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_context_pruning_pack") {
+    const repoUrl = String(args?.repo || "");
+    const taskDescription = String(args?.taskDescription || "");
+    if (!repoUrl || !taskDescription) {
+      return { content: [{ type: "text", text: "Error: 'repo' and 'taskDescription' parameters are required." }], isError: true };
+    }
+    try {
+      const { buildContextPack } = await import("../packages/core/lib/analysis/context-pack.js");
+      const result = await buildContextPack({
+        repoUrl,
+        taskDescription,
+        maxTokenBudget: args?.maxTokenBudget
+      });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error generating context pruning pack: ${error.message}` }], isError: true };
+    }
+  }
+
+  // High-Efficiency Agent Offloading Tools
+  if (toolName === "mrcp_ast_refactor_applier") {
+    try {
+      const { applyAstRefactoring } = await import("../packages/core/lib/analysis/refactor-applier.js");
+      const result = await applyAstRefactoring({
+        action: args.action,
+        targetSymbol: args.targetSymbol,
+        newSymbolName: args.newSymbolName,
+        targetFilePath: args.targetFilePath,
+        dryRun: args.dryRun
+      });
+      saveEndpointOutput(toolName, args.repoUrl || "local", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error applying AST refactoring: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_type_signature_extractor") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { extractTypeSignatures } = await import("../packages/core/lib/analysis/type-signature-extractor.js");
+      const result = await extractTypeSignatures({ repoUrl, targetFilePath: args.targetFilePath });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error extracting type signatures: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_git_diff_semantic_summarizer") {
+    const diffContent = String(args?.diffContent || "");
+    if (!diffContent) return { content: [{ type: "text", text: "Error: 'diffContent' parameter is required." }], isError: true };
+    try {
+      const { summarizeGitDiff } = await import("../packages/core/lib/analysis/diff-summarizer.js");
+      const result = await summarizeGitDiff({ diffContent, stripFormattingNoise: args.stripFormattingNoise });
+      saveEndpointOutput(toolName, "diff-session", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error summarizing git diff: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_dependency_compatibility_resolver") {
+    const packageName = String(args?.packageName || "");
+    if (!packageName) return { content: [{ type: "text", text: "Error: 'packageName' parameter is required." }], isError: true };
+    try {
+      const { resolveDependencyCompatibility } = await import("../packages/core/lib/analysis/dependency-resolver.js");
+      const result = await resolveDependencyCompatibility({ packageName, targetVersion: args.targetVersion });
+      saveEndpointOutput(toolName, packageName, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error resolving dependency compatibility: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_dead_code_pruner") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { findDeadCode } = await import("../packages/core/lib/analysis/dead-code-pruner.js");
+      const result = await findDeadCode({ repoUrl });
+      saveEndpointOutput(toolName, repoUrl, result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error finding dead code: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_sql_schema_orm_contract_generator") {
+    try {
+      const { generateSqlOrmContract } = await import("../packages/core/lib/analysis/sql-orm-contract.js");
+      const result = await generateSqlOrmContract({ repoUrl: args.repo, schemaFilePath: args.schemaFilePath });
+      saveEndpointOutput(toolName, args.repo || "schema-session", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error generating SQL/ORM contract: ${error.message}` }], isError: true };
     }
   }
 

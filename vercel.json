@@ -17,6 +17,39 @@
     },
     "api/smart-search.ts": {
       "maxDuration": 60
+    },
+    "api/impact-analysis.ts": {
+      "maxDuration": 60
+    },
+    "api/security-audit.ts": {
+      "maxDuration": 60
+    },
+    "api/architecture-drift.ts": {
+      "maxDuration": 60
+    },
+    "api/test-gap-analysis.ts": {
+      "maxDuration": 60
+    },
+    "api/context-pack.ts": {
+      "maxDuration": 60
+    },
+    "api/refactor-applier.ts": {
+      "maxDuration": 60
+    },
+    "api/type-signature-extractor.ts": {
+      "maxDuration": 60
+    },
+    "api/diff-summarizer.ts": {
+      "maxDuration": 30
+    },
+    "api/dependency-resolver.ts": {
+      "maxDuration": 30
+    },
+    "api/dead-code-pruner.ts": {
+      "maxDuration": 60
+    },
+    "api/sql-orm-contract.ts": {
+      "maxDuration": 30
     }
   },
   "headers": [
