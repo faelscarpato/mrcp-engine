@@ -20,7 +20,7 @@ async function main() {
     
     console.log(JSON.stringify(result, null, 2));
     process.exit(0);
-  } catch (e) {
+  } catch (e: any) {
     console.error('Erro na análise:', e.message);
     process.exit(1);
   }
