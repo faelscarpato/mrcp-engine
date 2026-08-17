@@ -9,37 +9,12 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { URL } from "node:url";
 
-// Dynamic imports das rotas serverless
 const PORT = 3000;
 
 async function loadHandler(routePath: string) {
   const mod = await import(routePath);
   return mod.default || Object.values(mod)[0];
 }
-
-// Mapeamento rota → arquivo handler
-const ROUTES: Record<string, string> = {
-  "/api/web-search": "./api/web-search.ts",
-  "/api/scrape": "./api/scrape.ts",
-  "/api/smart-search": "./api/smart-search.ts",
-  "/api/mcp": "./api/mcp.ts",
-  "/api/analyze": "./api/analyze.ts",
-  "/api/skills": "./api/skills.ts",
-  "/api/read": "./api/read.ts",
-  "/api/search": "./api/search.ts",
-  "/api/node": "./api/node",
-  "/api/impact-analysis": "./api/impact-analysis.ts",
-  "/api/security-audit": "./api/security-audit.ts",
-  "/api/architecture-drift": "./api/architecture-drift.ts",
-  "/api/test-gap-analysis": "./api/test-gap-analysis.ts",
-  "/api/context-pack": "./api/context-pack.ts",
-  "/api/refactor-applier": "./api/refactor-applier.ts",
-  "/api/type-signature-extractor": "./api/type-signature-extractor.ts",
-  "/api/diff-summarizer": "./api/diff-summarizer.ts",
-  "/api/dependency-resolver": "./api/dependency-resolver.ts",
-  "/api/dead-code-pruner": "./api/dead-code-pruner.ts",
-  "/api/sql-orm-contract": "./api/sql-orm-contract.ts"
-};
 
 function parseBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve) => {
@@ -85,11 +60,7 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
   });
 
   // Encontrar o handler
-  const routeFile = ROUTES[pathname];
-  if (!routeFile) {
-    vercelRes.status(404).json({ error: `Rota não encontrada: ${pathname}` });
-    return;
-  }
+  const routeFile = pathname === "/api/mcp" ? "./api/mcp.ts" : "./api/index.ts";
 
   try {
     const handler = await loadHandler(routeFile);
@@ -102,13 +73,5 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
   }
 }).listen(PORT, () => {
   console.log(`\n🚀 MRCP Dev Server rodando em http://localhost:${PORT}`);
-  console.log(`\nEndpoints disponíveis:`);
-  console.log(`  GET  /api/web-search?q=<query>`);
-  console.log(`  GET  /api/scrape?url=<url>`);
-  console.log(`  GET  /api/smart-search?q=<query>&topN=2`);
-  console.log(`  GET  /api/mcp                (Discovery)`);
-  console.log(`  POST /api/mcp                (JSON-RPC 2.0)`);
-  console.log(`  GET  /api/analyze?repo=<url>`);
-  console.log(`  GET  /api/skills?repo=<url>`);
-  console.log(`\nPronto para receber requisições via curl ou navegador!\n`);
+  console.log(`\nConsolidado em 2 Serverless Functions para compatibilidade total Vercel Hobby:\n  1. /api/mcp\n  2. /api/index (Roteador Mestre REST)\n`);
 });
