@@ -1,8 +1,39 @@
+
 # 🧠 MRCP-Engine
 
 **Machine-Readable Context Protocol Engine**
 
-Motor de inteligência estrutural que transforma repositórios de código em grafos AST otimizados para consumo por IAs. Elimina o "AI Tax" — o desperdício de tokens quando LLMs lêem código bruto.
+Motor de inteligência e contexto estruturado que otimiza dados para consumo por LLMs e agentes de IA. Elimina o "AI Tax" — reduzindo drasticamente o desperdício de tokens através de parsing determinístico, grafos de dependência AST, extração web limpa e triagem automatizada.
+
+---
+
+## 🛠️ Módulos e Ferramentas Disponíveis
+
+O MRCP-Engine expõe um conjunto de ferramentas divididas em três categorias principais:
+
+### 1. 🏗️ Core Engine (Análise de Repositórios & AST)
+Otimizado para análise arquitetural de código-fonte sem necessidade de enviar arquivos inteiros para o LLM.
+
+* **`analyze_repository`**: Analisa o grafo estrutural AST de um repositório GitHub. Extrai nós (arquivos, módulos, funções), arestas (dependências), métricas de complexidade ciclomática, acoplamento e hotspots arquiteturais.
+* **`get_repository_skills_contract`**: Gera contratos de habilidades e diretrizes acionáveis de refatoração para arquivos classificados como hotspots, definindo regras estritas de blindagem de dependências e limites de complexidade.
+
+---
+
+### 2. 🌐 Web Scraper & Search (Extração Web Inteligente)
+Ferramentas de navegação e extração com foco em texto limpo e baixo consumo de contexto.
+
+* **`mrcp_web_search`**: Pesquisa rápida na web retornando títulos, URLs e snippets relevantes.
+* **`mrcp_web_scrape`**: Raspa uma URL específica e extrai apenas o conteúdo textual limpo, eliminando tags de navegação, scripts, anúncios e boilerplate HTML.
+* **`mrcp_web_smart_search`**: Orquestrador de busca profunda que pesquisa, ranqueia os resultados mais relevantes por pontuação de palavras-chave e já extrai o texto integral das páginas principais (`topN`).
+
+---
+
+### 3. 👥 Triage & HR (Triagem & Recrutamento Determinístico)
+Pipeline de processamento e avaliação de candidatos focado em baixo custo computacional.
+
+* **`mrcp_triage_parse_resume`**: Extrai de forma determinística nome, e-mail e lista de habilidades técnicas de currículos em texto bruto via regex/parsing sem consumo desnecessário de tokens.
+* **`mrcp_triage_score_candidate`**: Calcula o percentual de aderência (match score) entre o perfil do candidato e os requisitos da vaga utilizando teoria de conjuntos.
+* **`mrcp_triage_generate_hr_report`**: Gera um parecer técnico estruturado de triagem (relatório simulado/formatado) para apoio à tomada de decisão no RH.
 
 ---
 
@@ -14,6 +45,7 @@ npx mrcp-engine https://github.com/usuario/repositorio
 
 # Auto-configura MCP no Claude Desktop, Cursor e Windsurf
 npx mrcp-engine setup
+
 ```
 
 ---
@@ -21,34 +53,42 @@ npx mrcp-engine setup
 ## 📦 Instalação
 
 ### Via NPX (sem instalar)
+
 ```bash
 npx mrcp-engine https://github.com/usuario/repositorio
 ```
+
 Gera automaticamente um arquivo `mrcp-analysis.json` no diretório atual com a árvore estruturada completa.
 
 Use `--no-save` para imprimir apenas no terminal sem salvar.
 
 ### Via NPM (instalação global)
+
 ```bash
 npm install -g mrcp-engine
 mrcp-engine https://github.com/usuario/repositorio
+
 ```
 
 ---
 
 ## 🤖 Integração com IAs (MCP)
 
-O MRCP-Engine funciona como servidor MCP — protocolo aberto para IAs consumirem ferramentas externas.
+O MRCP-Engine funciona como um servidor MCP (*Model Context Protocol*) — protocolo aberto para LLMs e IDEs consumirem ferramentas externas.
 
 ### Configuração Automática
+
 ```bash
 npx mrcp-engine setup
+
 ```
-Detecta automaticamente IDEs instaladas (Claude Desktop, Cursor, Windsurf) e configura o MCP.
+
+Detecta automaticamente as IDEs instaladas (Claude Desktop, Cursor, Windsurf) e injeta a configuração.
 
 ### Configuração Manual
 
 #### Claude Desktop (`claude_desktop_config.json`)
+
 ```json
 {
   "mcpServers": {
@@ -57,9 +97,11 @@ Detecta automaticamente IDEs instaladas (Claude Desktop, Cursor, Windsurf) e con
     }
   }
 }
+
 ```
 
 #### Cursor (Settings → MCP)
+
 ```json
 {
   "mcpServers": {
@@ -68,9 +110,11 @@ Detecta automaticamente IDEs instaladas (Claude Desktop, Cursor, Windsurf) e con
     }
   }
 }
+
 ```
 
 #### Windsurf
+
 ```json
 {
   "mcpServers": {
@@ -79,10 +123,13 @@ Detecta automaticamente IDEs instaladas (Claude Desktop, Cursor, Windsurf) e con
     }
   }
 }
+
 ```
 
 #### Via Processo Local (stdio)
-Se a IDE não suportar URLs MCP remotas, use o modo local:
+
+Se a IDE não suportar endpoints HTTP remotos:
+
 ```json
 {
   "mcpServers": {
@@ -92,95 +139,84 @@ Se a IDE não suportar URLs MCP remotas, use o modo local:
     }
   }
 }
+
 ```
-
-### Uso na Conversa com a IA
-Após configurar, basta dizer no chat:
-> *"Use o mrcp-engine para analisar a arquitetura do repositório https://github.com/..."*
-
-A IA chamará automaticamente as ferramentas do MRCP-Engine.
 
 ---
 
-## 🌐 API REST (Serverless)
+## 🌐 API REST & Serverless
 
 Para agentes em nuvem (LangChain, LlamaIndex, Dify, GPTs Customizados):
 
-| Endpoint | Descrição |
-|---|---|
-| `GET /api/analyze?repo=<url>` | Retorna a AST estruturada do repositório |
-| `GET /api/skills?repo=<url>` | Retorna contratos de skills para hotspots |
-| `POST /api/mcp` | Endpoint MCP (JSON-RPC 2.0) |
-| `GET /api/mcp` | Discovery — lista ferramentas disponíveis |
+| Endpoint | Método | Descrição |
+| --- | --- | --- |
+| `/api/analyze?repo=<url>` | `GET` | Retorna o grafo e AST estruturada do repositório |
+| `/api/skills?repo=<url>` | `GET` | Retorna contratos de refatoração para hotspots |
+| `/api/mcp` | `POST` | Endpoint central MCP (JSON-RPC 2.0) |
+| `/api/mcp` | `GET` | Discovery — lista ferramentas e schemas disponíveis |
 
 **Base URL:** `https://mrcp-engine.vercel.app`
 
-### Exemplos
+### Exemplos de Chamada
+
 ```bash
 # Analisar repositório
 curl "https://mrcp-engine.vercel.app/api/analyze?repo=https://github.com/usuario/repo"
 
-# Obter skills de hotspots
-curl "https://mrcp-engine.vercel.app/api/skills?repo=https://github.com/usuario/repo"
-
-# Listar ferramentas MCP (em bash/zsh)
+# Listar ferramentas MCP (JSON-RPC)
 curl -X POST https://mrcp-engine.vercel.app/api/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
 
-# No PowerShell:
-# Invoke-RestMethod -Uri https://mrcp-engine.vercel.app/api/mcp -Method Post -Body '{"jsonrpc":"2.0","method":"tools/list","id":1}' -ContentType "application/json"
 ```
 
 ### ChatGPT Custom GPT
-Use os manifestos já disponíveis:
-- **OpenAPI:** `https://mrcp-engine.vercel.app/openapi.json`
-- **AI Plugin:** `https://mrcp-engine.vercel.app/.well-known/ai-plugin.json`
+
+* **OpenAPI:** `https://mrcp-engine.vercel.app/openapi.json`
+* **AI Plugin:** `https://mrcp-engine.vercel.app/.well-known/ai-plugin.json`
 
 ---
 
-## 🎯 Skills por Linguagem
+## 🎯 Skills de Arquitetura por Linguagem
 
-O MRCP-Engine possui skills especializadas para cada linguagem, com diretivas e thresholds específicos:
+O motor possui regras de arquitetura e qualidade de código especializadas para cada stack:
 
-| Linguagem | Skill | Foco |
-|---|---|---|
-| TypeScript/JS | `Enterprise_TS_Modularization_Skill` | Modularização, tipagem estrita, barrel exports |
+| Linguagem | Skill | Foco Principal |
+| --- | --- | --- |
+| TypeScript/JS | `Enterprise_TS_Modularization_Skill` | Modularização, tipagem estrita, isolamento de escopo |
 | Python | `Karpathy_Python_Strict_Typing_Skill` | Type hints, dataclasses, PEP 484 |
 | Rust | `Rust_Ownership_Safety_Skill` | Ownership, lifetimes, eliminação de unsafe |
-| Go | `Go_Idiomatic_Concurrency_Skill` | Pacotes idiomáticos, goroutines, context |
-| Java | `Java_SOLID_Enterprise_Skill` | SOLID, Design Patterns, Records |
+| Go | `Go_Idiomatic_Concurrency_Skill` | Pacotes idiomáticos, goroutines, gerenciamento de contexto |
+| Java | `Java_SOLID_Enterprise_Skill` | Princípios SOLID, Design Patterns, Records |
 | C/C++ | `CPP_Memory_Safety_Audit_Skill` | RAII, smart pointers, const correctness |
 | Ruby | `Ruby_Rails_Convention_Skill` | Service Objects, Concerns, CoC |
-| PHP | `PHP_Modern_Architecture_Skill` | strict_types, DI, DTOs tipados |
-
-Cada skill classifica módulos em 3 níveis: **STABLE**, **WARNING**, **CRITICAL_GOD_MODULE** — com diretivas acionáveis para refatoração.
+| PHP | `PHP_Modern_Architecture_Skill` | strict_types, injeção de dependência, DTOs |
 
 ---
 
-## 🏗️ Arquitetura
+## 🏗️ Arquitetura do Sistema
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  Usuário / IA                    │
-├──────────┬──────────┬──────────┬────────────────┤
-│  CLI     │  MCP     │  MCP     │  REST API      │
-│  (npx)   │  (stdio) │  (HTTP)  │  (curl/fetch)  │
-├──────────┴──────────┴──────────┴────────────────┤
-│         https://mrcp-engine.vercel.app           │
-├─────────────────────────────────────────────────┤
-│  Pipeline: GitHub API → Tree-Sitter AST →       │
-│  Graph Builder → Metrics → Skill Injector       │
-└─────────────────────────────────────────────────┘
-```
+┌─────────────────────────────────────────────────────────────┐
+│                       Clientes / IAs                        │
+├──────────────┬──────────────┬──────────────┬────────────────┤
+│  CLI (npx)   │  MCP (stdio) │  MCP (HTTP)  │    REST API    │
+├──────────────┴──────────────┴──────────────┴────────────────┤
+│               [https://mrcp-engine.vercel.app](https://mrcp-engine.vercel.app)                │
+├─────────────────────────────────────────────────────────────┤
+│  [Core Engine]    → Tree-sitter AST | Metrics | Hotspots    │
+│  [Web Scraper]    → Search | Smart Ranking | Clean Scraper  │
+│  [Triage & HR]    → Resume Parser | Set Matching | Report   │
+└─────────────────────────────────────────────────────────────┘
 
-- **CLI** → Cliente HTTP puro, faz fetch para a API e salva JSON local
-- **MCP stdio** → Bridge local para IDEs que requerem processo
-- **MCP HTTP** → Endpoint JSON-RPC 2.0 stateless na Vercel
-- **REST API** → Endpoints GET diretos para integração de backend
+```
 
 ---
 
 ## 📄 Licença
 
 MIT
+
+```
+
+```
