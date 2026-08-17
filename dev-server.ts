@@ -27,7 +27,18 @@ const ROUTES: Record<string, string> = {
   "/api/skills": "./api/skills.ts",
   "/api/read": "./api/read.ts",
   "/api/search": "./api/search.ts",
-  "/api/node": "./api/node"
+  "/api/node": "./api/node",
+  "/api/impact-analysis": "./api/impact-analysis.ts",
+  "/api/security-audit": "./api/security-audit.ts",
+  "/api/architecture-drift": "./api/architecture-drift.ts",
+  "/api/test-gap-analysis": "./api/test-gap-analysis.ts",
+  "/api/context-pack": "./api/context-pack.ts",
+  "/api/refactor-applier": "./api/refactor-applier.ts",
+  "/api/type-signature-extractor": "./api/type-signature-extractor.ts",
+  "/api/diff-summarizer": "./api/diff-summarizer.ts",
+  "/api/dependency-resolver": "./api/dependency-resolver.ts",
+  "/api/dead-code-pruner": "./api/dead-code-pruner.ts",
+  "/api/sql-orm-contract": "./api/sql-orm-contract.ts"
 };
 
 function parseBody(req: IncomingMessage): Promise<any> {

@@ -70,3 +70,29 @@ export async function setCachedAnalysis(repoUrl: string, data: any, isLocalCLI: 
     }
   }
 }
+
+export function saveEndpointOutput(endpointName: string, repoUrl: string, data: any): void {
+  try {
+    const cacheFile = path.resolve('mrcp-analysis.json');
+    let currentData: any = { repoUrl, updatedAt: new Date().toISOString(), endpoints: {} };
+
+    if (fs.existsSync(cacheFile)) {
+      try {
+        currentData = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+        if (!currentData.endpoints) currentData.endpoints = {};
+      } catch (e) {
+        /* ignore invalid json */
+      }
+    }
+
+    currentData.repoUrl = repoUrl || currentData.repoUrl;
+    currentData.updatedAt = new Date().toISOString();
+    currentData.endpoints[endpointName] = data;
+
+    fs.writeFileSync(cacheFile, JSON.stringify(currentData, null, 2), 'utf-8');
+    console.log(`[MRCP Auto-Save] Resultado de ${endpointName} salvo em ${cacheFile}`);
+  } catch (e) {
+    console.error(`[MRCP Auto-Save Error] Falha ao salvar resultado de ${endpointName}:`, e);
+  }
+}
+
