@@ -81,6 +81,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       }
     },
     {
+<<<<<<< HEAD
+      name: "mrcp_run_full_repository_suite",
+      description: "Runs all 12 repository intelligence tools in a single automated pipeline (AST Graph, Skills Contracts, Code Health, Security Audit, Architecture Drift, Test Gaps, Dead Code, Env Validator, API Contracts, Monorepo Topology, Docstrings, SQL Schema).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: {
+            type: "string",
+            description: "Full URL of the GitHub repository or local directory"
+          },
+          taskContext: {
+            type: "string",
+            description: "Optional context or task description"
+          }
+        },
+        required: ["repo"]
+      }
+    },
+    {
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
       name: "mrcp_impact_analysis",
       description: "Calculates the AST Blast Radius of code changes before committing.",
       inputSchema: {
@@ -203,6 +224,64 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           repo: { type: "string", description: "Full URL of the GitHub repository" }
         }
       }
+<<<<<<< HEAD
+    },
+    {
+      name: "mrcp_api_contract_generator",
+      description: "Extracts API routes and generates OpenAPI 3.0 specs and TypeScript client SDKs.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Full URL of the GitHub repository" }
+        },
+        required: ["repo"]
+      }
+    },
+    {
+      name: "mrcp_code_metrics_health_scorer",
+      description: "Calculates Maintainability Index (MI 0-100), technical debt score, and top 5 hotspot refactoring priorities.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Full URL of the GitHub repository" }
+        },
+        required: ["repo"]
+      }
+    },
+    {
+      name: "mrcp_env_secret_contract_validator",
+      description: "Scans codebase for environment variables, validates against .env.example, checks leaks, and generates typed Zod schemas.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Full URL of the GitHub repository" }
+        },
+        required: ["repo"]
+      }
+    },
+    {
+      name: "mrcp_monorepo_package_graph_analyzer",
+      description: "Maps monorepo workspace packages, internal dependencies, topological build order, and affected packages.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Full URL of the GitHub repository" }
+        },
+        required: ["repo"]
+      }
+    },
+    {
+      name: "mrcp_docstring_api_doc_generator",
+      description: "Generates standardized TSDoc / JSDoc / Python docstrings and markdown API reference tables for undocumented public functions.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Full URL of the GitHub repository" }
+        },
+        required: ["repo"]
+      }
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
     }
   ]
 }));
@@ -250,6 +329,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
   }
 
+<<<<<<< HEAD
+  if (toolName === "mrcp_run_full_repository_suite") {
+    try {
+      const taskContext = request.params.arguments.taskContext ? `&task=${encodeURIComponent(request.params.arguments.taskContext)}` : "";
+      const response = await fetch(`${MRCP_API_BASE}/api/full-analysis?repo=${encodeURIComponent(repoUrl)}${taskContext}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
   if (toolName === "mrcp_impact_analysis") {
     try {
       const response = await fetch(`${MRCP_API_BASE}/api/impact-analysis`, {
@@ -374,6 +467,60 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
   }
 
+<<<<<<< HEAD
+  if (toolName === "mrcp_api_contract_generator") {
+    try {
+      const response = await fetch(`${MRCP_API_BASE}/api/api-contract?repo=${encodeURIComponent(repoUrl)}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_code_metrics_health_scorer") {
+    try {
+      const response = await fetch(`${MRCP_API_BASE}/api/code-health?repo=${encodeURIComponent(repoUrl)}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_env_secret_contract_validator") {
+    try {
+      const response = await fetch(`${MRCP_API_BASE}/api/env-validator?repo=${encodeURIComponent(repoUrl)}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_monorepo_package_graph_analyzer") {
+    try {
+      const response = await fetch(`${MRCP_API_BASE}/api/monorepo-graph?repo=${encodeURIComponent(repoUrl)}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_docstring_api_doc_generator") {
+    try {
+      const targetFile = request.params.arguments.targetFilePath ? `&file=${encodeURIComponent(request.params.arguments.targetFilePath)}` : "";
+      const response = await fetch(`${MRCP_API_BASE}/api/doc-generator?repo=${encodeURIComponent(repoUrl)}${targetFile}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
   throw new Error(`Tool not found: ${toolName}`);
 });
 

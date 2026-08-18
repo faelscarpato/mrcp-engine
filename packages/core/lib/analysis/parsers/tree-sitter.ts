@@ -392,6 +392,17 @@ const CALL_KEYWORDS = new Set([
   "eval",
 ]);
 
+function getField(node: any, fieldName: string): any {
+  if (!node) return null;
+  if (typeof node.childForFieldName === "function") {
+    return node.childForFieldName(fieldName);
+  }
+  if (typeof node.field === "function") {
+    return node.field(fieldName);
+  }
+  return null;
+}
+
 /**
  * Check if a node represents a call expression and extract callee info.
  * Returns null if the node is not a relevant call expression.
@@ -401,7 +412,7 @@ function extractCallFromNode(
 ): { name: string; isMethod: boolean } | null {
   // JS/TS/Python: call_expression — function child is the callee
   if (node.type === "call_expression") {
-    const fn = node.field("function") ?? node.namedChildren[0];
+    const fn = getField(node, "function") ?? node.namedChildren?.[0];
     if (!fn) return null;
 
     // Simple identifier: foo()
@@ -413,7 +424,7 @@ function extractCallFromNode(
 
     // Member expression: obj.foo() or this.foo()
     if (fn.type === "member_expression" || fn.type === "member_access") {
-      const prop = fn.field("property") ?? fn.namedChildren[1];
+      const prop = getField(fn, "property") ?? fn.namedChildren?.[1];
       if (
         prop &&
         (prop.type === "identifier" || prop.type === "property_identifier")
@@ -569,7 +580,7 @@ function collectStrings(node: TreeSitterNode, maxDepth = 3): string[] {
  * string literal text without quotes, or null.
  */
 function findSourceField(node: TreeSitterNode): string | null {
-  const src = node.field("source");
+  const src = getField(node, "source");
   if (!src) return null;
   // src is a string node; strip quotes
   const t = src.text;
@@ -582,9 +593,9 @@ function findSourceField(node: TreeSitterNode): string | null {
  */
 function isDynamicImport(node: TreeSitterNode): string | null {
   if (node.type !== "call_expression") return null;
-  const fn = node.field("function");
+  const fn = getField(node, "function");
   if (!fn) return null;
-  const firstArg = node.field("arguments");
+  const firstArg = getField(node, "arguments");
   if (!firstArg) return null;
   // `import(...)`: the function node is the keyword `import`.
   if (fn.type === "import") {
@@ -696,9 +707,9 @@ export async function extractImportsWithTreeSitter(
         }
         // require("...") — common JS
         if (node.type === "call_expression") {
-          const fn = node.field("function");
+          const fn = getField(node, "function");
           if (fn && fn.type === "identifier" && fn.text === "require") {
-            const args = node.field("arguments");
+            const args = getField(node, "arguments");
             const strs = args ? collectStrings(args, 1) : [];
             for (const s of strs) push(s);
             return;
@@ -710,7 +721,7 @@ export async function extractImportsWithTreeSitter(
       // dotted name in its children.
       if (treeSitterLang === "python") {
         if (node.type === "import_from") {
-          const mod = node.field("module");
+          const mod = getField(node, "module");
           if (mod) push(mod.text);
           return;
         }

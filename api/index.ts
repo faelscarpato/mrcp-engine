@@ -194,6 +194,73 @@ export default async function handler(req: any, res: any) {
       return res.status(200).json(result);
     }
 
+<<<<<<< HEAD
+    // 18. /api/api-contract
+    if (urlPath === "/api/api-contract") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { generateApiContract } = await import("../packages/core/lib/analysis/api-contract-generator.js");
+      const result = await generateApiContract({ repoUrl, frameworkHint: req.query.framework || req.body?.frameworkHint });
+      saveEndpointOutput("api_contract_generator", repoUrl, result);
+      return res.status(200).json({ status: "success", api_contract: result });
+    }
+
+    // 19. /api/code-health
+    if (urlPath === "/api/code-health") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { calculateCodeHealth } = await import("../packages/core/lib/analysis/code-health.js");
+      const result = await calculateCodeHealth({ repoUrl });
+      saveEndpointOutput("code_metrics_health_scorer", repoUrl, result);
+      return res.status(200).json({ status: "success", code_health: result });
+    }
+
+    // 20. /api/env-validator
+    if (urlPath === "/api/env-validator") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { validateEnvironmentContract } = await import("../packages/core/lib/analysis/env-validator.js");
+      const result = await validateEnvironmentContract({ repoUrl });
+      saveEndpointOutput("env_secret_contract_validator", repoUrl, result);
+      return res.status(200).json({ status: "success", env_contract: result });
+    }
+
+    // 21. /api/monorepo-graph
+    if (urlPath === "/api/monorepo-graph") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      const changedFiles = req.body?.changedFiles || (req.query.changedFiles ? String(req.query.changedFiles).split(",") : []);
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { analyzeMonorepoGraph } = await import("../packages/core/lib/analysis/monorepo-graph.js");
+      const result = await analyzeMonorepoGraph({ repoUrl, changedFiles });
+      saveEndpointOutput("monorepo_package_graph_analyzer", repoUrl, result);
+      return res.status(200).json({ status: "success", monorepo_graph: result });
+    }
+
+    // 22. /api/doc-generator
+    if (urlPath === "/api/doc-generator") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { generateDocumentation } = await import("../packages/core/lib/analysis/doc-generator.js");
+      const result = await generateDocumentation({ repoUrl, targetFilePath: req.query.file || req.body?.targetFilePath, format: req.query.format || req.body?.format });
+      saveEndpointOutput("docstring_api_doc_generator", repoUrl, result);
+      return res.status(200).json({ status: "success", doc_generator: result });
+    }
+
+    // 23. /api/full-analysis (All-in-One Deep Code Diagnostic Pipeline)
+    if (urlPath === "/api/full-analysis" || urlPath === "/api/deep-analysis") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { runFullRepositoryDiagnostic } = await import("../packages/core/lib/analysis/full-suite.js");
+      const result = await runFullRepositoryDiagnostic({
+        repoUrl,
+        taskContext: req.query.task || req.body?.task,
+        generateStubs: req.query.stubs !== "false"
+      });
+      return res.status(200).json({ status: "success", full_diagnostic: result });
+    }
+
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
     // Endpoint não encontrado
     return res.status(404).json({
       status: "error",

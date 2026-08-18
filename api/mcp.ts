@@ -49,6 +49,243 @@ const TOOLS = [
       required: ["repo"],
     },
   },
+  {
+    name: "mrcp_run_full_repository_suite",
+    description:
+      "[Category: Core Engine / Full Suite] Runs all 12 repository intelligence tools in a single automated pipeline (AST Graph, Skills Contracts, Code Health, Security Audit, Architecture Drift, Test Gaps, Dead Code, Env Validator, API Contracts, Monorepo Topology, Docstrings, SQL Schema). Progressively saves results to mrcp-analysis.json and returns a complete executive dashboard report.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: {
+          type: "string",
+          description: "Full URL or path of the GitHub repository or local directory",
+        },
+        taskContext: {
+          type: "string",
+          description: "Optional context or task description to guide the diagnostic focus",
+        },
+      },
+      required: ["repo"],
+    },
+  },
+
+  // --- Category: Predictive & Security Engineering ---
+  {
+    name: "mrcp_impact_analysis",
+    description:
+      "[Category: Predictive & Security Engineering] Calculates the AST Blast Radius of code changes. Traces downstream impacted files, functions, and unit tests before committing.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        modifiedFiles: { type: "array", items: { type: "string" }, description: "List of modified file paths" },
+        diffContent: { type: "string", description: "Optional git diff string" }
+      },
+      required: ["repo", "modifiedFiles"]
+    }
+  },
+  {
+    name: "mrcp_security_compliance_audit",
+    description:
+      "[Category: Predictive & Security Engineering] Performs static AST security audit (OWASP, hardcoded secrets, unsafe execution, package licenses).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        severityThreshold: { type: "string", enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"], default: "LOW" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_architectural_drift_detector",
+    description:
+      "[Category: Predictive & Security Engineering] Detects architectural drift, circular dependencies, and cross-layer violations against Clean Architecture.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        architectureType: { type: "string", enum: ["CLEAN_ARCHITECTURE", "HEXAGONAL", "FEATURE_FIRST", "LAYERED"], default: "CLEAN_ARCHITECTURE" },
+        maxAllowedCyclicDependencies: { type: "number", default: 0 }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_auto_test_coverage_gap_finder",
+    description:
+      "[Category: Predictive & Security Engineering] Maps high-complexity function nodes against tests to identify uncovered gaps and generate Vitest/Jest stubs.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        targetHotspotsOnly: { type: "boolean", default: true },
+        generateStubs: { type: "boolean", default: true }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_context_pruning_pack",
+    description:
+      "[Category: Predictive & Security Engineering] Slices a minimal, hyper-focused AST context prompt pack for a specific task to optimize LLM token budget.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        taskDescription: { type: "string", description: "Description of the user task for the LLM" },
+        maxTokenBudget: { type: "number", default: 8000 }
+      },
+      required: ["repo", "taskDescription"]
+    }
+  },
+
+  // --- Category: High-Efficiency Agent Offloading ---
+  {
+    name: "mrcp_ast_refactor_applier",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Applies deterministic AST refactoring (rename symbols, extract interfaces, update imports) in batch without LLM token cost.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        action: { type: "string", enum: ["RENAME_SYMBOL", "EXTRACT_INTERFACE", "UPDATE_IMPORT"] },
+        targetSymbol: { type: "string", description: "Target symbol name or import specifier to refactor" },
+        newSymbolName: { type: "string", description: "New name or replacement import path" },
+        targetFilePath: { type: "string", description: "Path to the file to modify" },
+        dryRun: { type: "boolean", default: true, description: "Whether to simulate changes without writing to disk (default: true for safety)" }
+      },
+      required: ["action", "targetSymbol", "targetFilePath"]
+    }
+  },
+  {
+    name: "mrcp_type_signature_extractor",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Extracts only TypeScript, Python, Go, Rust, or JS type signatures and interfaces, eliminating implementation body tokens.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" },
+        targetFilePath: { type: "string", description: "Optional specific file path to extract signatures from" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_git_diff_semantic_summarizer",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Strips whitespace/formatting noise from git diffs and summarizes changes by domain and modified functions.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        diffContent: { type: "string", description: "Git diff output string" },
+        stripFormattingNoise: { type: "boolean", default: true }
+      },
+      required: ["diffContent"]
+    }
+  },
+  {
+    name: "mrcp_dependency_compatibility_resolver",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Queries the real NPM Registry to resolve package versions, peer dependency conflicts, deprecations, and breaking change risks.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        packageName: { type: "string", description: "NPM package name (e.g. react, typescript)" },
+        targetVersion: { type: "string", default: "latest", description: "Target SemVer version or tag (default: latest)" },
+        repo: { type: "string", description: "Optional repository URL or path to check against local package.json" },
+        manifestFilePath: { type: "string", description: "Optional path to package.json (default: package.json)" }
+      },
+      required: ["packageName"]
+    }
+  },
+  {
+    name: "mrcp_dead_code_pruner",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Performs AST tree-shaking reachability analysis to identify unreferenced exports, dead variables, and unused imports.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL of the GitHub repository" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_sql_schema_orm_contract_generator",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Parses real Prisma schemas, SQL DDL, or Drizzle/TypeORM models to expose typed DB tables, columns, foreign keys, and TypeScript interfaces.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" },
+        schemaFilePath: { type: "string", description: "Optional path to schema file (e.g., schema.prisma, schema.sql)" }
+      }
+    }
+  },
+  {
+    name: "mrcp_api_contract_generator",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Scans codebase for API route handlers (Next.js, Express, Fastify, Hono, FastAPI, Flask) and outputs OpenAPI 3.0 specs and typed TypeScript SDK client.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" },
+        frameworkHint: { type: "string", description: "Optional framework hint" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_code_metrics_health_scorer",
+    description:
+      "[Category: Predictive & Security Engineering] Calculates Maintainability Index (MI 0-100), technical debt score, cognitive load distribution, and top 5 hotspot refactoring priorities.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_env_secret_contract_validator",
+    description:
+      "[Category: Predictive & Security Engineering] Scans codebase for environment variables (process.env, os.environ), validates against .env.example, checks leaks, and generates typed Zod schemas.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_monorepo_package_graph_analyzer",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Maps monorepo workspace packages (pnpm, turbo, lerna, nx), internal dependencies, circular links, topological build order, and affected packages.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" },
+        changedFiles: { type: "array", items: { type: "string" }, description: "Optional list of modified files" }
+      },
+      required: ["repo"]
+    }
+  },
+  {
+    name: "mrcp_docstring_api_doc_generator",
+    description:
+      "[Category: High-Efficiency Agent Offloading] Generates standardized TSDoc / JSDoc / Python docstrings and markdown API reference tables for undocumented public functions.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository" },
+        targetFilePath: { type: "string", description: "Optional single file path" },
+        format: { type: "string", enum: ["TSDOC", "JSDOC", "PYTHON_DOCSTRING", "MARKDOWN"], default: "TSDOC" }
+      },
+      required: ["repo"]
+    }
+  },
 
   // --- Category: Predictive & Security Engineering ---
   {
@@ -206,12 +443,12 @@ const TOOLS = [
   {
     name: "mrcp_triage_parse_resume",
     description:
-      "[Category: Triage & HR] Extrai nome, email e skills de um currículo em texto bruto via regex.",
+      "[Category: Triage & HR] Deterministically extracts candidate name, email, and skills from raw resume text via regex and dictionary parsing.",
     inputSchema: {
       type: "object",
       properties: {
-        content: { type: "string" },
-        contentType: { type: "string" },
+        content: { type: "string", description: "Raw resume text content" },
+        contentType: { type: "string", description: "MIME or file type hint" },
       },
       required: ["content"],
     },
@@ -219,12 +456,12 @@ const TOOLS = [
   {
     name: "mrcp_triage_score_candidate",
     description:
-      "[Category: Triage & HR] Calcula a aderência entre um candidato e uma vaga via teoria de conjuntos.",
+      "[Category: Triage & HR] Calculates candidate match score against a job description using deterministic set theory and keyword overlap.",
     inputSchema: {
       type: "object",
       properties: {
-        resumeData: { type: "object" },
-        jobDescription: { type: "string" },
+        resumeData: { type: "object", description: "Parsed resume object from mrcp_triage_parse_resume" },
+        jobDescription: { type: "string", description: "Job description text" },
       },
       required: ["resumeData", "jobDescription"],
     },
@@ -232,7 +469,7 @@ const TOOLS = [
   {
     name: "mrcp_triage_generate_hr_report",
     description:
-      "[Category: Triage & HR] Gera um parecer de triagem formatado (PDF simulado).",
+      "[Category: Triage & HR] Generates formatted HR triage report summary from AI dossier evaluation.",
     inputSchema: {
       type: "object",
       properties: {
@@ -248,11 +485,11 @@ const TOOLS = [
   {
     name: "mrcp_web_search",
     description:
-      "[Category: Web Scraper] Pesquisa na web e retorna títulos, URLs e snippets. Útil para descobrir links relevantes sem ler a página toda.",
+      "[Category: Web Scraper] Searches DuckDuckGo for relevant links, titles, and snippets without downloading full page bodies.",
     inputSchema: {
       type: "object",
       properties: {
-        query: { type: "string", description: "A pergunta ou tema para buscar no motor de busca." },
+        query: { type: "string", description: "Search query string" },
       },
       required: ["query"],
     },
@@ -260,11 +497,11 @@ const TOOLS = [
   {
     name: "mrcp_web_scrape",
     description:
-      "[Category: Web Scraper] Abre uma URL e extrai APENAS o texto limpo, eliminando navegação e anúncios. Use para ler o conteúdo de um link.",
+      "[Category: Web Scraper] Fetches a URL and extracts clean sanitized text content, stripping navigation, ads, and scripts.",
     inputSchema: {
       type: "object",
       properties: {
-        url: { type: "string", description: "A URL completa da página a ser lida." },
+        url: { type: "string", description: "Full URL to scrape" },
       },
       required: ["url"],
     },
@@ -272,13 +509,13 @@ const TOOLS = [
   {
     name: "mrcp_web_smart_search",
     description:
-      "[Category: Web Scraper] Faz busca, ranqueia os links mais relevantes por palavras-chave e já extrai o texto completo das 'topN' páginas. Orquestrador definitivo.",
+      "[Category: Web Scraper] Orchestrates search, keyword relevance ranking, and scrapes top N matching pages simultaneously.",
     inputSchema: {
       type: "object",
       properties: {
-        query: { type: "string", description: "O tema a ser pesquisado profundamente." },
-        topN: { type: "number", description: "Quantos links abrir simultaneamente. Default: 2" },
-        minScore: { type: "number", description: "Score mínimo aceitável. Default: 0" },
+        query: { type: "string", description: "Deep search topic" },
+        topN: { type: "number", description: "Number of top links to scrape (default: 2)" },
+        minScore: { type: "number", description: "Minimum relevance score threshold (default: 0)" },
       },
       required: ["query"],
     },
@@ -314,6 +551,24 @@ async function executeTool(toolName: string, args: any): Promise<any> {
     }
   }
 
+<<<<<<< HEAD
+  if (toolName === "mrcp_run_full_repository_suite") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { runFullRepositoryDiagnostic } = await import("../packages/core/lib/analysis/full-suite.js");
+      const result = await runFullRepositoryDiagnostic({
+        repoUrl,
+        taskContext: args?.taskContext
+      });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error executing full repository diagnostic suite: ${error.message}` }], isError: true };
+    }
+  }
+
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
   // Predictive & Security Engineering Tools
   if (toolName === "mrcp_impact_analysis") {
     const repoUrl = String(args?.repo || "");
@@ -405,9 +660,15 @@ async function executeTool(toolName: string, args: any): Promise<any> {
         targetSymbol: args.targetSymbol,
         newSymbolName: args.newSymbolName,
         targetFilePath: args.targetFilePath,
+<<<<<<< HEAD
+        dryRun: args.dryRun !== undefined ? args.dryRun : true
+      });
+      saveEndpointOutput(toolName, args.repoUrl || args.repo || "local", result);
+=======
         dryRun: args.dryRun
       });
       saveEndpointOutput(toolName, args.repoUrl || "local", result);
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       return { content: [{ type: "text", text: `Error applying AST refactoring: ${error.message}` }], isError: true };
@@ -415,7 +676,11 @@ async function executeTool(toolName: string, args: any): Promise<any> {
   }
 
   if (toolName === "mrcp_type_signature_extractor") {
+<<<<<<< HEAD
+    const repoUrl = String(args?.repo || args?.repoUrl || "");
+=======
     const repoUrl = String(args?.repo || "");
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
     if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
     try {
       const { extractTypeSignatures } = await import("../packages/core/lib/analysis/type-signature-extractor.js");
@@ -445,7 +710,16 @@ async function executeTool(toolName: string, args: any): Promise<any> {
     if (!packageName) return { content: [{ type: "text", text: "Error: 'packageName' parameter is required." }], isError: true };
     try {
       const { resolveDependencyCompatibility } = await import("../packages/core/lib/analysis/dependency-resolver.js");
+<<<<<<< HEAD
+      const result = await resolveDependencyCompatibility({
+        packageName,
+        targetVersion: args.targetVersion,
+        repoUrl: args.repo || args.repoUrl,
+        manifestFilePath: args.manifestFilePath
+      });
+=======
       const result = await resolveDependencyCompatibility({ packageName, targetVersion: args.targetVersion });
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
       saveEndpointOutput(toolName, packageName, result);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
@@ -477,6 +751,64 @@ async function executeTool(toolName: string, args: any): Promise<any> {
     }
   }
 
+<<<<<<< HEAD
+  if (toolName === "mrcp_api_contract_generator") {
+    try {
+      const { generateApiContract } = await import("../packages/core/lib/analysis/api-contract-generator.js");
+      const result = await generateApiContract({ repoUrl: args.repo, frameworkHint: args.frameworkHint });
+      saveEndpointOutput(toolName, args.repo || "local", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error generating API contract: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_code_metrics_health_scorer") {
+    try {
+      const { calculateCodeHealth } = await import("../packages/core/lib/analysis/code-health.js");
+      const result = await calculateCodeHealth({ repoUrl: args.repo });
+      saveEndpointOutput(toolName, args.repo || "local", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error scoring code health: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_env_secret_contract_validator") {
+    try {
+      const { validateEnvironmentContract } = await import("../packages/core/lib/analysis/env-validator.js");
+      const result = await validateEnvironmentContract({ repoUrl: args.repo });
+      saveEndpointOutput(toolName, args.repo || "local", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error validating environment contract: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_monorepo_package_graph_analyzer") {
+    try {
+      const { analyzeMonorepoGraph } = await import("../packages/core/lib/analysis/monorepo-graph.js");
+      const result = await analyzeMonorepoGraph({ repoUrl: args.repo, changedFiles: args.changedFiles });
+      saveEndpointOutput(toolName, args.repo || "local", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error analyzing monorepo graph: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_docstring_api_doc_generator") {
+    try {
+      const { generateDocumentation } = await import("../packages/core/lib/analysis/doc-generator.js");
+      const result = await generateDocumentation({ repoUrl: args.repo, targetFilePath: args.targetFilePath, format: args.format });
+      saveEndpointOutput(toolName, args.repo || "local", result);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error generating docstrings/documentation: ${error.message}` }], isError: true };
+    }
+  }
+
+=======
+>>>>>>> bf27a4ca35ecf7a0a9b0f4e1680cca22cc24f407
   // Triage & HR Tools
   if (toolName === "mrcp_triage_parse_resume") {
     const { parseResume } = await import("../packages/core/lib/triage/mcp-tools.js");
