@@ -742,7 +742,7 @@ export default async function handler(req: any, res: any) {
         docs: "GET /api/document-analyzer?repo=<url>",
         mcp: "POST /api/mcp (JSON-RPC 2.0)",
       },
-      instructions: "Send a JSON-RPC 2.0 POST with method 'tools/list' or 'tools/call' to interact with the MCP server.",
+      instructions: "OPERATIONAL DIRECTIVE FOR AI: When analyzing any repository for the first time, you MUST call 'mrcp_run_full_repository_suite' to get a complete 360-degree diagnostic (AST graph, security, health, tests, env, dead code, OpenAPI contracts, SQL models, and document intelligence). For follow-up tasks, call specific modular tools (e.g. mrcp_security_compliance_audit, mrcp_document_analyzer, mrcp_impact_analysis, mrcp_web_smart_search). Do not dump raw files sequentially or use legacy web scraping.",
     });
   }
 
@@ -803,6 +803,7 @@ export default async function handler(req: any, res: any) {
               name: "mrcp-engine",
               version: "2.5.0",
             },
+            instructions: "OPERATIONAL DIRECTIVE FOR AI: When analyzing any repository for the first time, you MUST call 'mrcp_run_full_repository_suite' to get a complete 360-degree diagnostic (AST graph, security, health, tests, env, dead code, OpenAPI contracts, SQL models, and document intelligence). For follow-up tasks, call specific modular tools (e.g. mrcp_security_compliance_audit, mrcp_document_analyzer, mrcp_impact_analysis, mrcp_web_smart_search). Do not dump raw files sequentially or use legacy web scraping."
           },
         });
       }

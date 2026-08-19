@@ -41,6 +41,19 @@ export default async function handler(req: any, res: any) {
       return sendFormattedResponse(req, res, "full_repository_diagnostic_suite", repoUrl, analysisData);
     }
 
+    // 0.1 /api/guidelines & /api/instructions (AI Operational Protocol & Skill)
+    if (urlPath === "/api/guidelines" || urlPath === "/api/instructions" || urlPath === "/api/skill") {
+      const guidelinesPath = path.resolve("MRCP_AI_GUIDELINES.md");
+      let guidelinesContent = "";
+      if (fs.existsSync(guidelinesPath)) {
+        guidelinesContent = fs.readFileSync(guidelinesPath, "utf-8");
+      } else {
+        guidelinesContent = "# MRCP Engine AI Guidelines\nExecute mrcp_run_full_repository_suite for first-time repository analysis.";
+      }
+      res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+      return res.status(200).send(guidelinesContent);
+    }
+
     // 1. /api/analyze
     if (urlPath === "/api/analyze") {
       const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
