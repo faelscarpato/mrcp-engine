@@ -250,7 +250,27 @@ export default async function handler(req: any, res: any) {
       return sendFormattedResponse(req, res, "docstring_api_doc_generator", repoUrl, { status: "success", doc_generator: result });
     }
 
+<<<<<<< HEAD
+    // 23. /api/document-analyzer, /api/document-analysis, /api/doc-analyzer (Document Intelligence & Knowledge Graph)
+    if (urlPath === "/api/document-analyzer" || urlPath === "/api/document-analysis" || urlPath === "/api/doc-analyzer") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { analyzeDocumentRepository } = await import("../packages/core/lib/analysis/document-analyzer.js");
+      const filterExtensions = req.query.ext ? String(req.query.ext).split(",") : req.body?.filterExtensions;
+      const maxFiles = req.query.maxFiles ? parseInt(String(req.query.maxFiles), 10) : req.body?.maxFiles;
+      const result = await analyzeDocumentRepository({
+        repoUrl,
+        filterExtensions,
+        maxFiles,
+        githubToken: process.env.GITHUB_TOKEN
+      });
+      return sendFormattedResponse(req, res, "document_analyzer", repoUrl, { status: "success", document_analysis: result });
+    }
+
+    // 24. /api/full-suite, /api/full-analysis, /api/deep-analysis (All-in-One Deep Code Diagnostic Pipeline)
+=======
     // 23. /api/full-suite, /api/full-analysis, /api/deep-analysis (All-in-One Deep Code Diagnostic Pipeline)
+>>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
     if (urlPath === "/api/full-suite" || urlPath === "/api/full-analysis" || urlPath === "/api/deep-analysis") {
       const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
       if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
@@ -263,6 +283,8 @@ export default async function handler(req: any, res: any) {
       return sendFormattedResponse(req, res, "full_repository_diagnostic_suite", repoUrl, { status: "success", full_diagnostic: result });
     }
 
+<<<<<<< HEAD
+=======
     // 24. /api/document-analyzer
     if (urlPath === "/api/document-analyzer") {
       const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
@@ -273,6 +295,7 @@ export default async function handler(req: any, res: any) {
       return sendFormattedResponse(req, res, "document_analyzer", repoUrl, { status: "success", documents: documentNodes });
     }
 
+>>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
     // Endpoint não encontrado
     return res.status(404).json({
       status: "error",

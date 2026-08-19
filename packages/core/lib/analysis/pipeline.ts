@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import type { Analysis, AnalysisSourceId } from "@/lib/graph-types";
 import type {
   AnalysisContext,
@@ -82,9 +84,16 @@ export function parseTargetUrl(
 ): { owner: string; repo: string; targetType: "github" | "local" | "website" } | null {
   const trimmed = url.trim();
   
-  if (trimmed.match(/^[a-zA-Z]:\\/) || trimmed.match(/^[a-zA-Z]:\//) || trimmed.startsWith("/")) {
-    const parts = trimmed.replace(/\\/g, "/").split("/");
-    const repo = parts[parts.length - 1] || "local-project";
+  if (
+    trimmed === "." ||
+    trimmed.startsWith("./") ||
+    trimmed.startsWith("../") ||
+    trimmed.match(/^[a-zA-Z]:\\/) ||
+    trimmed.match(/^[a-zA-Z]:\//) ||
+    trimmed.startsWith("/")
+  ) {
+    const abs = path.resolve(trimmed);
+    const repo = path.basename(abs) || "local-project";
     return { owner: "local", repo, targetType: "local" };
   }
   
@@ -108,6 +117,12 @@ export function parseTargetUrl(
     
     return null;
   } catch {
+    // If not a URL, check if directory exists on local disk
+    if (fs.existsSync(trimmed)) {
+      const abs = path.resolve(trimmed);
+      const repo = path.basename(abs) || "local-project";
+      return { owner: "local", repo, targetType: "local" };
+    }
     return null;
   }
 }

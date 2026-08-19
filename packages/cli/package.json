@@ -1,6 +1,10 @@
 {
   "name": "@mrcp/cli",
+<<<<<<< HEAD
+  "version": "2.5.0",
+=======
   "version": "2.4.1",
+>>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   "type": "module",
   "bin": {
     "mrcp-engine": "./bin/mrcp.js"

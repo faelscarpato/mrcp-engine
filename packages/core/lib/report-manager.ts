@@ -279,6 +279,93 @@ export function formatEndpointToMarkdown(endpointName: string, repoUrl: string, 
     return lines.join('\n');
   }
 
+<<<<<<< HEAD
+  // 11. Document Intelligence & Non-Code Knowledge Base Analyzer
+  if (endpointName === 'document_analyzer' || endpointName === 'document_repository_intelligence' || data.document_analysis || data.masterKnowledgeIndex) {
+    const da = data.document_analysis || data;
+    const lines = [
+      header,
+      `## 📑 Inteligência Documental & Base de Conhecimento Estruturada`,
+      ``,
+      `* **Total de Documentos Analisados:** ${da.totalDocumentsAnalyzed ?? da.documents?.length ?? 0}`,
+      `* **Total de Palavras:** ${(da.totalWords ?? 0).toLocaleString()} (~${Math.ceil((da.totalWords || 0) / 200)} min de leitura total)`,
+      `* **Tabelas / Datasets Extraídos:** ${da.totalTables ?? 0}`,
+      `* **Document Quality Index (DQI):** **${da.documentQualityIndex?.overallScore ?? 100}/100** (Nota **${da.documentQualityIndex?.letterGrade ?? 'A'}**)`,
+      ``,
+      `### 📊 Distribuição por Formato & Categoria`,
+      ``
+    ];
+
+    if (da.formatsDistribution) {
+      const activeFormats = Object.entries(da.formatsDistribution)
+        .filter(([_, count]: any) => count > 0)
+        .map(([fmt, count]) => `\`${fmt}\`: ${count}`)
+        .join(' | ');
+      lines.push(`* **Formatos:** ${activeFormats || 'N/A'}`);
+    }
+
+    if (da.categoriesDistribution) {
+      const activeCategories = Object.entries(da.categoriesDistribution)
+        .filter(([_, count]: any) => count > 0)
+        .map(([cat, count]) => `\`${cat}\`: ${count}`)
+        .join(' | ');
+      lines.push(`* **Categorias:** ${activeCategories || 'N/A'}`);
+    }
+
+    lines.push(``, `### 🗂️ Master Knowledge Index (Mapeamento Completo de Documentos)`, ``);
+    lines.push(`| Arquivo | Formato | Categoria | Palavras | DQI | Tópicos Principais / Schemas |`);
+    lines.push(`| :--- | :-: | :--- | :-: | :-: | :--- |`);
+
+    if (da.masterKnowledgeIndex && da.masterKnowledgeIndex.length > 0) {
+      for (const doc of da.masterKnowledgeIndex) {
+        const topics = doc.mainTopics?.slice(0, 3).join(', ') || doc.schemaOrTables?.join(', ') || 'Geral';
+        lines.push(
+          `| \`${doc.filePath}\` | **${doc.format}** | \`${doc.category}\` | ${doc.wordCount.toLocaleString()} | **${doc.qualityScore}** | ${topics} |`
+        );
+      }
+    } else {
+      lines.push(`| - | - | *Nenhum documento mapeado* | - | - | - |`);
+    }
+
+    // Datasets / Schemas details
+    const docsWithTables = (da.documents || []).filter((d: any) => d.tables && d.tables.length > 0);
+    if (docsWithTables.length > 0) {
+      lines.push(``, `### 🗄️ Schemas de Dados Tabulares Extraídos`, ``);
+      for (const d of docsWithTables) {
+        for (const t of d.tables) {
+          lines.push(`#### 📋 Tabela: \`${t.tableName}\` (${t.totalRows} registros x ${t.totalColumns} colunas em \`${d.path}\`)`);
+          lines.push(`| Coluna | Tipo Inferido | Nulos (%) | Amostra |`);
+          lines.push(`| :--- | :-: | :-: | :--- |`);
+          for (const col of t.columns || []) {
+            lines.push(`| **\`${col.name}\`** | \`${col.inferredType}\` | ${col.nullPercentage}% | \`${col.sampleValues?.slice(0, 3).join(', ') || '-'}\` |`);
+          }
+          if (t.generatedTypeScriptSchema) {
+            lines.push(``, `\`\`\`typescript`, t.generatedTypeScriptSchema, `\`\`\``, ``);
+          }
+        }
+      }
+    }
+
+    // Quality Alerts
+    const allIssues = (da.documents || []).flatMap((d: any) => d.qualityIssues || []);
+    if (allIssues.length > 0) {
+      lines.push(``, `### ⚠️ Alertas de Qualidade & Inconsistências Detectadas`, ``);
+      for (const issue of allIssues.slice(0, 15)) {
+        lines.push(`* **[${issue.severity}]** \`${issue.type}\`: ${issue.description} ${issue.line ? `(Linha ${issue.line})` : ''}`);
+      }
+    }
+
+    // LLM Directives
+    if (da.llmQueryDirectives?.systemDirective) {
+      lines.push(``, `### 🤖 Diretivas do MRCP para Agentes de IA`, ``);
+      lines.push(`> ${da.llmQueryDirectives.systemDirective}`);
+    }
+
+    return lines.join('\n');
+  }
+
+=======
+>>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   // Generic JSON dump in markdown block
   return [
     header,
