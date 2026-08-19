@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 # 🧠 MRCP-Engine v2.3.0
 
 **Machine-Readable Context Protocol Engine**
@@ -147,6 +150,8 @@ Se a sua IA ou agente não suportar o protocolo MCP, você pode realizar chamada
 ## 📄 Licença
 
 MIT
+<<<<<<< HEAD
+=======
 =======
 <<<<<<< HEAD
 # 🧠 MRCP-Engine v2.3.0
@@ -399,3 +404,4 @@ Se a sua IA ou agente não suportar o protocolo MCP, você pode realizar chamada
 
 MIT
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
