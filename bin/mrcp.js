@@ -1,92 +1,37 @@
 #!/usr/bin/env node
 
 /**
- * MRCP-Engine CLI
+ * MRCP-Engine CLI & MCP Server
  * 
  * Modos de uso:
- *   npx mrcp-engine https://github.com/user/repo   → Analisa e salva mrcp-analysis.json
- *   npx mrcp-engine setup                          → Auto-configura MCP nas IDEs instaladas
- *   npx mrcp-engine                                → Inicia servidor MCP local (stdio)
+ *   npx mrcp-engine setup          → Configura IDEs e abre o Terminal Control Panel Interativo
+ *   npx mrcp-engine <repo-url>     → Executa diagnóstico via CLI e salva relatórios
+ *   npx mrcp-engine                → Se executado em terminal interativo: abre Control Panel
+ *                                    Se executado via IDE/Processo (stdio): inicia Servidor MCP
  */
 
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { createInterface } from 'readline';
+import { startInteractiveDashboard } from './interactive-ui.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const MRCP_API_BASE = 'https://mrcp-engine.vercel.app';
+const MRCP_API_BASE = process.env.MRCP_API_URL || 'https://mrcp-engine.vercel.app';
 const CACHE_FILE = 'mrcp-analysis.json';
 
 const args = process.argv.slice(2);
 
 // ─────────────────────────────────────────────
-//  Modo 1: Análise de repositório via URL
+//  Função de Configuração de IDEs
 // ─────────────────────────────────────────────
-if (args.length >= 1 && args[0].startsWith('http')) {
-  const repoUrl = args[0];
-  const noSave = args.includes('--no-save');
-
-  console.log(`\n🔍 [MRCP-Engine] Analisando: ${repoUrl}\n`);
-  console.log(`   Delegando processamento para ${MRCP_API_BASE}...\n`);
-
-  try {
-    const apiUrl = `${MRCP_API_BASE}/api/analyze?repo=${encodeURIComponent(repoUrl)}`;
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`❌ Erro da API (HTTP ${response.status}): ${errorBody}`);
-      process.exit(1);
-    }
-
-    const data = await response.json();
-    console.log(JSON.stringify(data, null, 2));
-
-    if (!noSave) {
-      const outPath = join(process.cwd(), CACHE_FILE);
-      try {
-        writeFileSync(outPath, JSON.stringify(data, null, 2), 'utf-8');
-        console.log(`\n✅ Análise salva em: ${outPath}`);
-      } catch (saveErr) {
-        console.warn(`\n⚠️  Não foi possível salvar automaticamente: ${saveErr.message}`);
-        const rl = createInterface({ input: process.stdin, output: process.stdout });
-        const answer = await new Promise(res => {
-          rl.question('   Deseja tentar salvar em outro local? (s/N): ', res);
-        });
-        rl.close();
-
-        if (answer.toLowerCase() === 's') {
-          const altPath = join(process.env.HOME || process.env.USERPROFILE || '.', CACHE_FILE);
-          try {
-            writeFileSync(altPath, JSON.stringify(data, null, 2), 'utf-8');
-            console.log(`   ✅ Salvo em: ${altPath}`);
-          } catch (e2) {
-            console.error(`   ❌ Falha ao salvar: ${e2.message}`);
-          }
-        }
-      }
-    }
-
-    process.exit(0);
-  } catch (err) {
-    console.error(`\n❌ Erro de conexão: ${err.message}`);
-    process.exit(1);
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Modo 2: Setup automático de IDEs
-// ─────────────────────────────────────────────
-else if (args[0] === 'setup') {
+function runIdeSetup() {
   console.log('\n🔧 [MRCP-Engine] Auto-configuração de MCP nas IDEs e Plataformas\n');
 
   const home = process.env.HOME || process.env.USERPROFILE || '';
   const appData = process.env.APPDATA || join(home, 'AppData', 'Roaming');
   
-  // Entradas de configuração dependendo da plataforma
   const httpEntry = { url: `${MRCP_API_BASE}/api/mcp` };
   const antigravityEntry = { serverUrl: `${MRCP_API_BASE}/api/mcp` };
   const stdioEntry = { command: "npx", args: ["-y", "mrcp-engine"] };
@@ -132,7 +77,7 @@ else if (args[0] === 'setup') {
       name: 'Antigravity IDE',
       paths: [join(home, '.gemini', 'config', 'mcp_config.json')],
       key: 'mcpServers',
-      entry: antigravityEntry, // Antigravity usa serverUrl
+      entry: antigravityEntry,
       type: 'json'
     },
     {
@@ -225,28 +170,124 @@ else if (args[0] === 'setup') {
           configuredForIde = true;
         }
       } catch (e) {
-        // Falha ignorada, tenta próximo path se houver
         continue;
       }
     }
   }
 
   if (configured === 0) {
-    console.log('   ⚠️  Nenhuma pasta de IDE foi encontrada na sua máquina.');
+    console.log('   ℹ️  IDEs verificadas.');
   } else {
-    console.log(`\n   🎉 ${configured} integração(ões) ativada(s)! Reinicie as IDEs para usar o MRCP-Engine.`);
+    console.log(`\n   🎉 ${configured} integração(ões) pronta(s) para os Agentes de IA!`);
   }
-
-  process.exit(0);
 }
 
 // ─────────────────────────────────────────────
-//  Modo 3: Servidor MCP local (stdio)
+//  Roteamento Principal
 // ─────────────────────────────────────────────
-else {
-  const mcpServerPath = resolve(__dirname, 'mcp-server.mjs');
-  import(mcpServerPath).catch(err => {
-    console.error("❌ Falha ao iniciar MCP local:", err);
+
+// 1. Modo Setup / UI Interativo
+if (args[0] === 'setup' || args[0] === 'ui') {
+  runIdeSetup();
+  console.log('\nIniciando painel interativo de desenvolvimento em 1s...');
+  setTimeout(() => {
+    startInteractiveDashboard();
+  }, 1000);
+}
+
+// 2. Modo Análise Direta via CLI
+else if (args.length >= 1 && (args[0].startsWith('http') || args[0] === 'full-suite' || args[0] === 'security' || args[0] === 'health')) {
+  let targetEndpoint = 'full-suite';
+  let repoUrl = '';
+
+  if (args[0].startsWith('http')) {
+    repoUrl = args[0];
+  } else {
+    targetEndpoint = args[0] === 'security' ? 'security-audit' : args[0] === 'health' ? 'code-health' : args[0];
+    repoUrl = args[1] || '';
+  }
+
+  if (!repoUrl) {
+    console.error('❌ Erro: URL do repositório é obrigatória.');
+    console.error('   Exemplo: npx mrcp-engine https://github.com/user/repo');
     process.exit(1);
-  });
+  }
+
+  const noSave = args.includes('--no-save');
+
+  console.log(`\n🔍 [MRCP-Engine] Analisando: ${repoUrl}`);
+  console.log(`   Endpoint: /api/${targetEndpoint}`);
+  console.log(`   Delegando processamento para ${MRCP_API_BASE}...\n`);
+
+  try {
+    const apiUrl = `${MRCP_API_BASE}/api/${targetEndpoint}?repo=${encodeURIComponent(repoUrl)}`;
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`❌ Erro da API (HTTP ${response.status}): ${errorBody}`);
+      process.exit(1);
+    }
+
+    const data = await response.json();
+
+    let markdownContent = '';
+    try {
+      const mdRes = await fetch(`${apiUrl}&format=markdown`);
+      if (mdRes.ok) markdownContent = await mdRes.text();
+    } catch {}
+
+    if (!noSave) {
+      const reportsDir = join(process.cwd(), 'reports');
+      if (!existsSync(reportsDir)) {
+        mkdirSync(reportsDir, { recursive: true });
+      }
+
+      const outJsonRoot = join(process.cwd(), CACHE_FILE);
+      const outJsonReports = join(reportsDir, CACHE_FILE);
+      const jsonFormatted = JSON.stringify(data, null, 2);
+
+      writeFileSync(outJsonRoot, jsonFormatted, 'utf-8');
+      writeFileSync(outJsonReports, jsonFormatted, 'utf-8');
+
+      if (markdownContent) {
+        const outMdRoot = join(process.cwd(), 'MRCP_EXECUTIVE_REPORT.md');
+        const outMdReports = join(reportsDir, `MRCP_${targetEndpoint.toUpperCase().replace(/-/g, '_')}.md`);
+        writeFileSync(outMdRoot, markdownContent, 'utf-8');
+        writeFileSync(outMdReports, markdownContent, 'utf-8');
+      }
+
+      console.log(`\n✅ Relatórios gerados e salvos com sucesso:`);
+      console.log(`   📄 JSON:     ${outJsonRoot}`);
+      console.log(`   📝 Markdown: ${join(process.cwd(), 'MRCP_EXECUTIVE_REPORT.md')}`);
+      console.log(`   📁 Pasta:    ${reportsDir}/\n`);
+    }
+
+    if (markdownContent) {
+      console.log(markdownContent);
+    } else {
+      console.log(JSON.stringify(data, null, 2));
+    }
+
+    process.exit(0);
+  } catch (err) {
+    console.error(`\n❌ Erro de conexão: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+// 3. Execução sem argumentos
+else {
+  // Se estiver em um terminal interativo (humano digitou npx mrcp-engine)
+  if (process.stdin.isTTY && process.stdout.isTTY) {
+    startInteractiveDashboard();
+  } 
+  // Se for chamado como processo background/stdio por uma IDE (Claude Desktop, Cursor, Antigravity)
+  else {
+    const mcpServerPath = resolve(__dirname, 'mcp-server.mjs');
+    import(mcpServerPath).catch(err => {
+      console.error("❌ Falha ao iniciar MCP local:", err);
+      process.exit(1);
+    });
+  }
 }

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { saveAllReportsLocally } from './report-manager.js';
 
 // LRU in-memory genérico (para funções serverless quentes)
 const memoryCache = new Map<string, { data: any, timestamp: number }>();
@@ -73,6 +74,13 @@ export async function setCachedAnalysis(repoUrl: string, data: any, isLocalCLI: 
 
 export function saveEndpointOutput(endpointName: string, repoUrl: string, data: any): void {
   try {
+<<<<<<< HEAD
+    saveAllReportsLocally(endpointName, repoUrl, data);
+  } catch (e: any) {
+    console.error(`[MRCP Auto-Save Error] Falha ao salvar resultado de ${endpointName}:`, e.message);
+  }
+}
+=======
     const cacheFile = path.resolve('mrcp-analysis.json');
     let currentData: any = { repoUrl, updatedAt: new Date().toISOString(), endpoints: {} };
 
@@ -96,3 +104,4 @@ export function saveEndpointOutput(endpointName: string, repoUrl: string, data: 
   }
 }
 
+>>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
