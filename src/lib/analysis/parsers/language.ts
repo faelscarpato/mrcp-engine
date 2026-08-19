@@ -70,14 +70,6 @@ const EXT_LANG: Record<string, string> = {
   pas: "Pascal",
   pp: "Pascal",
   inc: "Pascal",
-  // Document extensions
-  pdf: "PDF",
-  doc: "Word",
-  docx: "Word",
-  csv: "CSV",
-  xls: "Excel",
-  xlsx: "Excel",
-  txt: "Text",
 };
 
 export const SOURCE_EXTS = new Set([
@@ -139,15 +131,6 @@ export const SOURCE_EXTS = new Set([
   "pas",
   "pp",
   "inc",
-  // Document extensions
-  "md",
-  "pdf",
-  "doc",
-  "docx",
-  "csv",
-  "xls",
-  "xlsx",
-  "txt",
 ]);
 
 export const CONFIG_FILES = new Set([

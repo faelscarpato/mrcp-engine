@@ -196,14 +196,14 @@ if (args[0] === 'setup' || args[0] === 'ui') {
 }
 
 // 2. Modo Análise Direta via CLI
-else if (args.length >= 1 && (args[0].startsWith('http') || args[0] === 'full-suite' || args[0] === 'security' || args[0] === 'health')) {
+else if (args.length >= 1 && (args[0].startsWith('http') || args[0] === 'full-suite' || args[0] === 'security' || args[0] === 'health' || args[0] === 'docs' || args[0] === 'document-analyzer')) {
   let targetEndpoint = 'full-suite';
   let repoUrl = '';
 
   if (args[0].startsWith('http')) {
     repoUrl = args[0];
   } else {
-    targetEndpoint = args[0] === 'security' ? 'security-audit' : args[0] === 'health' ? 'code-health' : args[0];
+    targetEndpoint = args[0] === 'security' ? 'security-audit' : args[0] === 'health' ? 'code-health' : (args[0] === 'docs' || args[0] === 'document-analyzer') ? 'document-analyzer' : args[0];
     repoUrl = args[1] || '';
   }
 

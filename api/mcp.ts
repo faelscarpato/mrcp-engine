@@ -286,7 +286,6 @@ const TOOLS = [
       required: ["repo"]
     }
   },
-<<<<<<< HEAD
   {
     name: "mrcp_document_analyzer",
     description:
@@ -301,8 +300,6 @@ const TOOLS = [
       required: ["repo"]
     }
   },
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
 
   // --- Category: Triage & HR ---
   {
@@ -385,18 +382,6 @@ const TOOLS = [
       required: ["query"],
     },
   },
-  {
-    name: "mrcp_document_analyzer",
-    description:
-      "[Category: Document Analysis] Parses and extracts structural semantic data, topics, and metrics from document files (.md, .pdf, .docx, .csv, .xls, .xlsx, .txt). Outputs a JSON DocumentSemanticTree.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        repo: { type: "string", description: "Full URL or path of the repository containing documents" },
-      },
-      required: ["repo"],
-    },
-  },
 ];
 
 // ─── Tool Execution ─────────────────────────────
@@ -445,24 +430,6 @@ async function executeTool(toolName: string, args: any): Promise<any> {
     }
   }
 
-<<<<<<< HEAD
-=======
-  if (toolName === "mrcp_document_analyzer") {
-    const repoUrl = String(args?.repo || "");
-    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
-    try {
-      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
-      const result = await runAnalysis({ repoUrl, githubToken: process.env.GITHUB_TOKEN, maxFiles: 2000 });
-      // Filter out only document nodes
-      const documentNodes = ((result as any).analysis?.nodes || (result as any).nodes || []).filter((n: any) => n.kind === "document");
-      saveEndpointOutput(toolName, repoUrl, documentNodes);
-      return { content: [{ type: "text", text: JSON.stringify(documentNodes, null, 2) }] };
-    } catch (error: any) {
-      return { content: [{ type: "text", text: `Error analyzing documents: ${error.message}` }], isError: true };
-    }
-  }
-
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   // Predictive & Security Engineering Tools
   if (toolName === "mrcp_impact_analysis") {
     const repoUrl = String(args?.repo || "");
@@ -686,7 +653,6 @@ async function executeTool(toolName: string, args: any): Promise<any> {
     }
   }
 
-<<<<<<< HEAD
   if (toolName === "mrcp_document_analyzer") {
     const repoUrl = String(args?.repo || args?.repoUrl || "");
     if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
@@ -705,8 +671,6 @@ async function executeTool(toolName: string, args: any): Promise<any> {
     }
   }
 
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   // Triage & HR Tools
   if (toolName === "mrcp_triage_parse_resume") {
     const { parseResume } = await import("../packages/core/lib/triage/mcp-tools.js");
@@ -768,11 +732,7 @@ export default async function handler(req: any, res: any) {
   if (req.method === "GET") {
     return res.status(200).json({
       name: "mrcp-engine",
-<<<<<<< HEAD
       version: "2.5.0",
-=======
-      version: "2.4.1",
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
       description: "Machine-Readable Context Protocol Engine — Structural intelligence for AI agents",
       protocol: "MCP/Streamable-HTTP",
       tools: TOOLS,
@@ -841,11 +801,7 @@ export default async function handler(req: any, res: any) {
             capabilities: { tools: {} },
             serverInfo: {
               name: "mrcp-engine",
-<<<<<<< HEAD
               version: "2.5.0",
-=======
-              version: "2.4.1",
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
             },
           },
         });

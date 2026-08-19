@@ -9,9 +9,15 @@ const AVAILABLE_TOOLS = [
   {
     id: 'full_suite',
     endpoint: 'full-suite',
-    name: '🚀 EXECUTAR SUÍTE COMPLETA (12 Ferramentas em Sequência)',
-    desc: 'Diagnóstico estrutural total, AST, segurança, débito técnico e contratos.',
+    name: '🚀 EXECUTAR SUÍTE COMPLETA (13 Ferramentas em Sequência)',
+    desc: 'Diagnóstico estrutural total, AST, segurança, documentos, débito e contratos.',
     isSuite: true
+  },
+  {
+    id: 'document_analyzer',
+    endpoint: 'document-analyzer',
+    name: '📑  Inteligência Documental & Parser (CSV, TXT, MD, DOCX, XLSX, PDF)',
+    desc: 'Extrai grafo de conhecimento, schemas tabulares, DQI e contratos para IA.'
   },
   {
     id: 'security_compliance_audit',
@@ -104,7 +110,7 @@ const c = {
 function renderHeader() {
   console.clear();
   console.log(`${c.cyan}${c.bold}╔════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
-  console.log(`${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.4.1             ║${c.reset}`);
+  console.log(`${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.5.0             ║${c.reset}`);
   console.log(`${c.cyan}${c.bold}║       Machine-Readable Context Protocol • Engenharia de AST Sem Alucinação ║${c.reset}`);
   console.log(`${c.cyan}${c.bold}╚════════════════════════════════════════════════════════════════════════════╝${c.reset}\n`);
 }

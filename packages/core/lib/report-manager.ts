@@ -279,7 +279,6 @@ export function formatEndpointToMarkdown(endpointName: string, repoUrl: string, 
     return lines.join('\n');
   }
 
-<<<<<<< HEAD
   // 11. Document Intelligence & Non-Code Knowledge Base Analyzer
   if (endpointName === 'document_analyzer' || endpointName === 'document_repository_intelligence' || data.document_analysis || data.masterKnowledgeIndex) {
     const da = data.document_analysis || data;
@@ -364,8 +363,6 @@ export function formatEndpointToMarkdown(endpointName: string, repoUrl: string, 
     return lines.join('\n');
   }
 
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   // Generic JSON dump in markdown block
   return [
     header,

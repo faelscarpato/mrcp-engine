@@ -10,10 +10,7 @@ import { generateApiContract, ApiContractResult } from "./api-contract-generator
 import { analyzeMonorepoGraph, MonorepoGraphResult } from "./monorepo-graph.js";
 import { generateDocumentation, DocGeneratorResult } from "./doc-generator.js";
 import { generateSqlOrmContract, SqlOrmContractResult } from "./sql-orm-contract.js";
-<<<<<<< HEAD
 import { analyzeDocumentRepository, DocumentRepositoryAnalysis } from "./document-analyzer.js";
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
 import { saveEndpointOutput, setCachedAnalysis } from "../cache.js";
 
 export interface FullSuiteOptions {
@@ -50,11 +47,8 @@ export interface FullSuiteResult {
     monorepoTool: string;
     totalFilesAnalyzed: number;
     totalLinesOfCode: number;
-<<<<<<< HEAD
     totalDocumentsAnalyzed?: number;
     documentQualityScore?: number;
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   };
   executiveDashboardMarkdown: string;
   reports: {
@@ -70,10 +64,7 @@ export interface FullSuiteResult {
     monorepoGraph?: MonorepoGraphResult;
     documentation?: DocGeneratorResult;
     sqlOrmContract?: SqlOrmContractResult;
-<<<<<<< HEAD
     documentIntelligence?: DocumentRepositoryAnalysis;
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   };
 }
 
@@ -115,11 +106,7 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
   reports.astGraph = astResult;
   const nodes = astResult?.analysis?.nodes || astResult?.nodes || [];
 
-<<<<<<< HEAD
   // 2-13. Execução Paralela Concorrente Ultra-Rápida de todas as ferramentas de diagnóstico
-=======
-  // 2-12. Execução Paralela Concorrente Ultra-Rápida de todas as ferramentas de diagnóstico
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   const [
     skillRes,
     healthRes,
@@ -131,12 +118,8 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     apiRes,
     monoRes,
     docRes,
-<<<<<<< HEAD
     sqlRes,
     docIntelRes
-=======
-    sqlRes
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   ] = await Promise.all([
     runStep("Skill Contracts Generation", "skills_contract", async () => (nodes.length > 0 ? processRepositoryHotspots(nodes) : [])),
     runStep("Code Health & Maintainability Scoring", "code_metrics_health_scorer", async () => calculateCodeHealth({ repoUrl })),
@@ -148,12 +131,8 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     runStep("API Contract & OpenAPI 3.0 Extraction", "api_contract_generator", async () => generateApiContract({ repoUrl })),
     runStep("Monorepo Topology & Build Pipeline Analysis", "monorepo_package_graph_analyzer", async () => analyzeMonorepoGraph({ repoUrl })),
     runStep("Docstring & API Reference Generation", "docstring_api_doc_generator", async () => generateDocumentation({ repoUrl })),
-<<<<<<< HEAD
     runStep("SQL / ORM Schema Contract Analysis", "sql_schema_orm_contract_generator", async () => generateSqlOrmContract({ repoUrl })),
     runStep("Document Intelligence & Knowledge Graph", "document_analyzer", async () => analyzeDocumentRepository({ repoUrl, githubToken }))
-=======
-    runStep("SQL / ORM Schema Contract Analysis", "sql_schema_orm_contract_generator", async () => generateSqlOrmContract({ repoUrl }))
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   ]);
 
   if (skillRes) reports.skillContracts = skillRes;
@@ -167,10 +146,7 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
   if (monoRes) reports.monorepoGraph = monoRes;
   if (docRes) reports.documentation = docRes;
   if (sqlRes) reports.sqlOrmContract = sqlRes;
-<<<<<<< HEAD
   if (docIntelRes) reports.documentIntelligence = docIntelRes;
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
 
   const totalDuration = Date.now() - startTime;
 
@@ -189,11 +165,8 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
   const monorepoTool = reports.monorepoGraph?.monorepoTool ?? "NONE";
   const totalFiles = reports.codeHealth?.summary?.totalFiles ?? nodes.filter((n: any) => n.kind === "file").length;
   const totalLoc = reports.codeHealth?.summary?.totalLinesOfCode ?? 0;
-<<<<<<< HEAD
   const totalDocs = reports.documentIntelligence?.totalDocumentsAnalyzed ?? 0;
   const docScore = reports.documentIntelligence?.documentQualityIndex?.overallScore ?? 100;
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
 
   const executiveSummary = {
     maintainabilityIndex: mi,
@@ -209,13 +182,9 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     envVariablesCount: envCount,
     monorepoTool,
     totalFilesAnalyzed: totalFiles,
-<<<<<<< HEAD
     totalLinesOfCode: totalLoc,
     totalDocumentsAnalyzed: totalDocs,
     documentQualityScore: docScore
-=======
-    totalLinesOfCode: totalLoc
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   };
 
   // Gerar Dashboard Executivo em Markdown
@@ -266,10 +235,7 @@ function generateExecutiveDashboardMarkdown(
     `| **Rotas de API Mapeadas** | **${summary.totalApiRoutes} endpoints** | OpenAPI 3.0 e SDK TypeScript gerados |`,
     `| **Variáveis de Ambiente** | **${summary.envVariablesCount} variáveis** | Schema Zod tipado disponível |`,
     `| **Topologia de Monorepo** | **${summary.monorepoTool}** | ${reports.monorepoGraph?.packagesCount ?? 1} pacotes |`,
-<<<<<<< HEAD
     `| **Base Documental & Conhecimento** | **${summary.totalDocumentsAnalyzed ?? 0} documentos** | DQI: **${summary.documentQualityScore ?? 100}/100** |`,
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
     ``,
     `---`,
     ``,
@@ -277,7 +243,6 @@ function generateExecutiveDashboardMarkdown(
     ``
   ];
 
-<<<<<<< HEAD
   if (reports.documentIntelligence && reports.documentIntelligence.totalDocumentsAnalyzed > 0) {
     lines.push(
       `## 📑 Base de Conhecimento & Documentação Mapeada`,
@@ -291,8 +256,6 @@ function generateExecutiveDashboardMarkdown(
     );
   }
 
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   if (reports.codeHealth?.topRefactoringPriorities && reports.codeHealth.topRefactoringPriorities.length > 0) {
     for (const h of reports.codeHealth.topRefactoringPriorities.slice(0, 3)) {
       lines.push(`* **\`${h.file}\`** (Complexidade: ${h.cyclomaticComplexity}, LOC: ${h.linesOfCode})`);

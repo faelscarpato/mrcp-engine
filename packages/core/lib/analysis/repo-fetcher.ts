@@ -7,16 +7,12 @@ export interface FetchedFile {
   content: string;
   size: number;
   isCorrupted?: boolean;
-<<<<<<< HEAD
   rawBuffer?: Buffer;
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
   error?: string;
 }
 
 const fileContentCache = new Map<string, FetchedFile>();
 
-<<<<<<< HEAD
 export async function fetchRepoBuffer(
   repoUrl: string,
   filePath: string,
@@ -28,8 +24,6 @@ export async function fetchRepoBuffer(
   return Buffer.from(file.content, "utf-8");
 }
 
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
 export async function fetchRepoFile(
   repoUrl: string,
   filePath: string,
@@ -63,20 +57,13 @@ export async function fetchRepoFile(
       const rawBuffer = await fs.promises.readFile(fullPath);
       // Check for binary or corrupted utf-8 content
       const content = rawBuffer.toString("utf-8");
-<<<<<<< HEAD
       const isCorrupted = !/\.(pdf|docx|xlsx|xls|doc|png|jpg|jpeg|zip|wasm)$/i.test(filePath) && content.includes("\u0000");
-=======
-      const isCorrupted = content.includes("\u0000");
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
 
       const file: FetchedFile = {
         path: filePath,
         content,
         size: stat.size,
-<<<<<<< HEAD
         rawBuffer,
-=======
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
         isCorrupted
       };
       fileContentCache.set(cacheKey, file);
@@ -106,7 +93,6 @@ export async function fetchRepoFile(
         const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filePath}`;
         const res = await fetch(rawUrl, { headers });
         if (res.ok) {
-<<<<<<< HEAD
           const arrayBuffer = await res.arrayBuffer();
           const rawBuffer = Buffer.from(arrayBuffer);
           const content = rawBuffer.toString("utf-8");
@@ -116,14 +102,6 @@ export async function fetchRepoFile(
             content,
             size: rawBuffer.length,
             rawBuffer,
-=======
-          const content = await res.text();
-          const isCorrupted = content.includes("\u0000");
-          const file: FetchedFile = {
-            path: filePath,
-            content,
-            size: Buffer.byteLength(content, "utf-8"),
->>>>>>> 1cf5a33b621e387ba881b9d8fd08a0f9f524dfc7
             isCorrupted
           };
           fileContentCache.set(cacheKey, file);

@@ -46,7 +46,7 @@ function setCachedResult(repoUrl, type, content) {
 
 // ─── MCP Server ──────────────────────────────────
 const server = new Server(
-  { name: "mrcp-engine", version: "2.4.1" },
+  { name: "mrcp-engine", version: "2.5.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -276,6 +276,19 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         },
         required: ["repo"]
       }
+    },
+    {
+      name: "mrcp_document_analyzer",
+      description: "Parses non-code document repositories (CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF, JSON, YAML, XML, LOG). Extracts structured knowledge graph, tabular schemas, data quality metrics, broken links, and LLM context contracts without requiring OCR.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repo: { type: "string", description: "Full URL or path of the document repository or local directory" },
+          filterExtensions: { type: "array", items: { type: "string" }, description: "Optional array of file extensions to include (e.g. ['csv', 'md', 'docx', 'pdf'])" },
+          maxFiles: { type: "number", default: 500, description: "Maximum number of document files to analyze (default: 500)" }
+        },
+        required: ["repo"]
+      }
     }
   ]
 }));
@@ -502,6 +515,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     try {
       const targetFile = request.params.arguments.targetFilePath ? `&file=${encodeURIComponent(request.params.arguments.targetFilePath)}` : "";
       const response = await fetch(`${MRCP_API_BASE}/api/doc-generator?repo=${encodeURIComponent(repoUrl)}${targetFile}`);
+      const data = await response.json();
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_document_analyzer") {
+    try {
+      const maxFiles = request.params.arguments.maxFiles ? `&maxFiles=${encodeURIComponent(request.params.arguments.maxFiles)}` : "";
+      const ext = request.params.arguments.filterExtensions ? `&ext=${encodeURIComponent(request.params.arguments.filterExtensions.join(","))}` : "";
+      const response = await fetch(`${MRCP_API_BASE}/api/document-analyzer?repo=${encodeURIComponent(repoUrl)}${maxFiles}${ext}`);
       const data = await response.json();
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (error) {
