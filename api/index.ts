@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 import { trackEngineUsage } from "../src/services/analytics.js";
 import { saveEndpointOutput } from "../packages/core/lib/cache.js";
 import { sendFormattedResponse, formatEndpointToMarkdown } from "../packages/core/lib/report-manager.js";
@@ -275,6 +278,8 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ status: "error", details: error.message || "Erro interno do servidor." });
   }
 }
+<<<<<<< HEAD
+=======
 =======
 import { trackEngineUsage } from "../src/services/analytics.js";
 import { saveEndpointOutput } from "../packages/core/lib/cache.js";
@@ -551,3 +556,4 @@ export default async function handler(req: any, res: any) {
   }
 }
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770

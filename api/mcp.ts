@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -701,7 +704,11 @@ export default async function handler(req: any, res: any) {
   if (req.method === "GET") {
     return res.status(200).json({
       name: "mrcp-engine",
+<<<<<<< HEAD
+      version: "2.4.1",
+=======
       version: "2.4.0",
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
       description: "Machine-Readable Context Protocol Engine — Structural intelligence for AI agents",
       protocol: "MCP/Streamable-HTTP",
       tools: TOOLS,
@@ -769,7 +776,11 @@ export default async function handler(req: any, res: any) {
             capabilities: { tools: {} },
             serverInfo: {
               name: "mrcp-engine",
+<<<<<<< HEAD
+              version: "2.4.1",
+=======
               version: "2.4.0",
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
             },
           },
         });
@@ -797,6 +808,8 @@ export default async function handler(req: any, res: any) {
 
   return res.status(405).json({ error: "Method Not Allowed" });
 }
+<<<<<<< HEAD
+=======
 =======
 import {
   CallToolRequestSchema,
@@ -1767,3 +1780,4 @@ export default async function handler(req: any, res: any) {
   return res.status(405).json({ error: "Method Not Allowed" });
 }
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770

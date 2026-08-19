@@ -10,7 +10,7 @@ import { generateApiContract, ApiContractResult } from "./api-contract-generator
 import { analyzeMonorepoGraph, MonorepoGraphResult } from "./monorepo-graph.js";
 import { generateDocumentation, DocGeneratorResult } from "./doc-generator.js";
 import { generateSqlOrmContract, SqlOrmContractResult } from "./sql-orm-contract.js";
-import { saveEndpointOutput } from "../cache.js";
+import { saveEndpointOutput, setCachedAnalysis } from "../cache.js";
 
 export interface FullSuiteOptions {
   repoUrl: string;
@@ -70,7 +70,7 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
   const pipelineStatus: PipelineStepStatus[] = [];
   const reports: FullSuiteResult["reports"] = {};
 
-  console.log(`[MRCP Suite] 🚀 Iniciando Diagnóstico Completo Sequencial para: ${repoUrl}`);
+  console.log(`[MRCP Suite] 🚀 Iniciando Diagnóstico Completo Otimizado para: ${repoUrl}`);
 
   // Helper para executar etapa com medição de tempo e persistência progressiva
   async function runStep<T>(
@@ -80,7 +80,6 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
   ): Promise<T | null> {
     const stepStart = Date.now();
     try {
-      console.log(`[MRCP Suite] ▶ Executando etapa: ${stepName}...`);
       const res = await fn();
       const duration = Date.now() - stepStart;
       saveEndpointOutput(endpointKey, repoUrl, res);
@@ -88,85 +87,58 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
       return res;
     } catch (err: any) {
       const duration = Date.now() - stepStart;
-      console.error(`[MRCP Suite] ⚠️ Erro na etapa ${stepName}:`, err.message);
+      console.warn(`[MRCP Suite] ⚠️ Aviso na etapa ${stepName}:`, err.message);
       pipelineStatus.push({ step: stepName, status: "ERROR", durationMs: duration, message: err.message });
       return null;
     }
   }
 
-  // 1. AST Graph Pipeline
+  // 1. AST Graph Pipeline (Base fundamental para todas as análises)
   const astResult = await runStep("AST Graph Analysis", "analyze_repository", async () => {
-    return await runAnalysis({ repoUrl, githubToken, maxFiles: 2000 });
+    const res = await runAnalysis({ repoUrl, githubToken, maxFiles: 2000 });
+    await setCachedAnalysis(repoUrl, res);
+    return res;
   });
   reports.astGraph = astResult;
   const nodes = astResult?.analysis?.nodes || astResult?.nodes || [];
 
-  // 2. Skill Contracts & Hotspots Directives
-  if (nodes.length > 0) {
-    const skillRes = await runStep("Skill Contracts Generation", "skills_contract", async () => {
-      return processRepositoryHotspots(nodes);
-    });
-    reports.skillContracts = skillRes || [];
-  }
+  // 2-12. Execução Paralela Concorrente Ultra-Rápida de todas as ferramentas de diagnóstico
+  const [
+    skillRes,
+    healthRes,
+    secRes,
+    driftRes,
+    testRes,
+    deadRes,
+    envRes,
+    apiRes,
+    monoRes,
+    docRes,
+    sqlRes
+  ] = await Promise.all([
+    runStep("Skill Contracts Generation", "skills_contract", async () => (nodes.length > 0 ? processRepositoryHotspots(nodes) : [])),
+    runStep("Code Health & Maintainability Scoring", "code_metrics_health_scorer", async () => calculateCodeHealth({ repoUrl })),
+    runStep("Security & Compliance Audit", "security_compliance_audit", async () => runSecurityAudit({ repoUrl })),
+    runStep("Architecture Drift & Dependency Cycle Detection", "architectural_drift_detector", async () => detectArchitectureDrift({ repoUrl })),
+    runStep("Test Coverage Gap Analysis", "auto_test_coverage_gap_finder", async () => findTestCoverageGaps({ repoUrl, generateStubs })),
+    runStep("Dead Code & Unused Exports Detection", "dead_code_pruner", async () => findDeadCode({ repoUrl })),
+    runStep("Environment Variables & Secrets Contract", "env_secret_contract_validator", async () => validateEnvironmentContract({ repoUrl })),
+    runStep("API Contract & OpenAPI 3.0 Extraction", "api_contract_generator", async () => generateApiContract({ repoUrl })),
+    runStep("Monorepo Topology & Build Pipeline Analysis", "monorepo_package_graph_analyzer", async () => analyzeMonorepoGraph({ repoUrl })),
+    runStep("Docstring & API Reference Generation", "docstring_api_doc_generator", async () => generateDocumentation({ repoUrl })),
+    runStep("SQL / ORM Schema Contract Analysis", "sql_schema_orm_contract_generator", async () => generateSqlOrmContract({ repoUrl }))
+  ]);
 
-  // 3. Code Health & Maintainability Index
-  const healthRes = await runStep("Code Health & Maintainability Scoring", "code_metrics_health_scorer", async () => {
-    return await calculateCodeHealth({ repoUrl });
-  });
+  if (skillRes) reports.skillContracts = skillRes;
   if (healthRes) reports.codeHealth = healthRes;
-
-  // 4. Static Security Audit
-  const secRes = await runStep("Security & Compliance Audit", "security_compliance_audit", async () => {
-    return await runSecurityAudit({ repoUrl });
-  });
   if (secRes) reports.securityAudit = secRes;
-
-  // 5. Architectural Drift Detector
-  const driftRes = await runStep("Architecture Drift & Dependency Cycle Detection", "architectural_drift_detector", async () => {
-    return await detectArchitectureDrift({ repoUrl });
-  });
   if (driftRes) reports.architectureDrift = driftRes;
-
-  // 6. Test Gap Analysis
-  const testRes = await runStep("Test Coverage Gap Analysis", "auto_test_coverage_gap_finder", async () => {
-    return await findTestCoverageGaps({ repoUrl, generateStubs });
-  });
   if (testRes) reports.testGaps = testRes;
-
-  // 7. Dead Code Pruner
-  const deadRes = await runStep("Dead Code & Unused Exports Detection", "dead_code_pruner", async () => {
-    return await findDeadCode({ repoUrl });
-  });
   if (deadRes) reports.deadCode = deadRes;
-
-  // 8. Environment & Secret Contract Validator
-  const envRes = await runStep("Environment Variables & Secrets Contract", "env_secret_contract_validator", async () => {
-    return await validateEnvironmentContract({ repoUrl });
-  });
   if (envRes) reports.envValidator = envRes;
-
-  // 9. API Contract & OpenAPI Generator
-  const apiRes = await runStep("API Contract & OpenAPI 3.0 Extraction", "api_contract_generator", async () => {
-    return await generateApiContract({ repoUrl });
-  });
   if (apiRes) reports.apiContract = apiRes;
-
-  // 10. Monorepo Package Graph Analyzer
-  const monoRes = await runStep("Monorepo Topology & Build Pipeline Analysis", "monorepo_package_graph_analyzer", async () => {
-    return await analyzeMonorepoGraph({ repoUrl });
-  });
   if (monoRes) reports.monorepoGraph = monoRes;
-
-  // 11. Docstrings & API Reference Generator
-  const docRes = await runStep("Docstring & API Reference Generation", "docstring_api_doc_generator", async () => {
-    return await generateDocumentation({ repoUrl });
-  });
   if (docRes) reports.documentation = docRes;
-
-  // 12. SQL / ORM Schema Contract Generator
-  const sqlRes = await runStep("SQL / ORM Schema Contract Analysis", "sql_schema_orm_contract_generator", async () => {
-    return await generateSqlOrmContract({ repoUrl });
-  });
   if (sqlRes) reports.sqlOrmContract = sqlRes;
 
   const totalDuration = Date.now() - startTime;

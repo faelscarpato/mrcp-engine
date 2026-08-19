@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 export interface DiffSummarizerOptions {
   diffContent: string;
   stripFormattingNoise?: boolean;
@@ -143,6 +146,8 @@ export async function summarizeGitDiff(options: DiffSummarizerOptions): Promise<
     warnings
   };
 }
+<<<<<<< HEAD
+=======
 =======
 export interface DiffSummarizerOptions {
   diffContent: string;
@@ -331,3 +336,4 @@ export async function summarizeGitDiff(options: DiffSummarizerOptions): Promise<
   };
 }
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770

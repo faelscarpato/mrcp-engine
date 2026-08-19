@@ -99,14 +99,21 @@ const c = {
   magenta: '\x1b[35m',
   red: '\x1b[31m',
   gray: '\x1b[90m',
+<<<<<<< HEAD
+=======
   bgCyan: '\x1b[46m\x1b[30m',
   bgBlue: '\x1b[44m\x1b[37m'
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 };
 
 function renderHeader() {
   console.clear();
   console.log(`${c.cyan}${c.bold}╔════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
+<<<<<<< HEAD
+  console.log(`${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.4.1             ║${c.reset}`);
+=======
   console.log(`${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.4.0             ║${c.reset}`);
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
   console.log(`${c.cyan}${c.bold}║       Machine-Readable Context Protocol • Engenharia de AST Sem Alucinação ║${c.reset}`);
   console.log(`${c.cyan}${c.bold}╚════════════════════════════════════════════════════════════════════════════╝${c.reset}\n`);
 }
@@ -141,7 +148,10 @@ async function selectToolsInteractive() {
     const selected = new Set([0]);
 
     function draw() {
+<<<<<<< HEAD
+=======
       // Move cursor up or clear
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
       readline.cursorTo(process.stdout, 0, 8);
       readline.clearScreenDown(process.stdout);
 
@@ -167,17 +177,29 @@ async function selectToolsInteractive() {
       console.log(`${c.bold}Ferramentas selecionadas:${c.reset} ${c.green}${count}${c.reset} de ${AVAILABLE_TOOLS.length} | ${c.yellow}Pressione ENTER para iniciar${c.reset}`);
     }
 
+<<<<<<< HEAD
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode(true);
+    }
+=======
     // Set raw mode
     process.stdin.setRawMode(true);
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
 
     draw();
 
     function onKeypress(key) {
+<<<<<<< HEAD
+      // Ctrl+C / Escape to exit safely
+      if (key === '\u0003' || key === '\u001b\u001b') {
+        if (process.stdin.isTTY) process.stdin.setRawMode(false);
+=======
       // Ctrl+C / Escape to exit
       if (key === '\u0003' || key === '\u001b\u001b') {
         process.stdin.setRawMode(false);
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
         process.stdin.pause();
         process.exit(0);
       }
@@ -195,7 +217,11 @@ async function selectToolsInteractive() {
       // Spacebar
       else if (key === ' ') {
         if (cursor === 0) {
+<<<<<<< HEAD
+          // If toggling Full Suite
+=======
           // If toggling Full Suite, clear others or toggle full suite
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
           if (selected.has(0)) {
             selected.delete(0);
           } else {
@@ -203,7 +229,11 @@ async function selectToolsInteractive() {
             selected.add(0);
           }
         } else {
+<<<<<<< HEAD
+          selected.delete(0);
+=======
           selected.delete(0); // If selecting specific tool, deselect full suite option
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
           if (selected.has(cursor)) {
             selected.delete(cursor);
           } else {
@@ -215,11 +245,20 @@ async function selectToolsInteractive() {
       // Enter
       else if (key === '\r' || key === '\n') {
         process.stdin.removeListener('data', onKeypress);
+<<<<<<< HEAD
+        if (process.stdin.isTTY) {
+          process.stdin.setRawMode(false);
+        }
+        process.stdin.resume();
+
+        const selectedTools = Array.from(selected).map((idx) => AVAILABLE_TOOLS[idx]);
+=======
         process.stdin.setRawMode(false);
         process.stdin.pause();
 
         const selectedTools = Array.from(selected).map((idx) => AVAILABLE_TOOLS[idx]);
         // If nothing selected, default to full suite
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
         if (selectedTools.length === 0) {
           selectedTools.push(AVAILABLE_TOOLS[0]);
         }
@@ -255,7 +294,12 @@ async function executeSelectedTools(repoUrl, tools) {
       const res = await fetch(url);
 
       if (!res.ok) {
+<<<<<<< HEAD
+        const errText = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} ${errText}`.trim());
+=======
         throw new Error(`HTTP ${res.status}`);
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
       }
 
       const json = await res.json();
@@ -293,7 +337,11 @@ async function executeSelectedTools(repoUrl, tools) {
     }
   }
 
+<<<<<<< HEAD
+  console.log(`\n${c.green}${c.bold}🎉 TODAS AS ETAPAS SELECIONADAS FORAM PROCESSADAS!${c.reset}`);
+=======
   console.log(`\n${c.green}${c.bold}🎉 TODAS AS ETAPAS SELECIONADAS FORAM CONCLUÍDAS COM SUCESSO!${c.reset}`);
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
   console.log(`${c.gray}────────────────────────────────────────────────────────────────────────${c.reset}`);
   console.log(`📁 ${c.bold}Relatórios Gravados em:${c.reset} ${c.cyan}${reportsDir}/${c.reset}`);
   console.log(`📄 ${c.bold}Arquivo Consolidado JSON:${c.reset} ${c.cyan}${join(process.cwd(), CACHE_FILE)}${c.reset}`);
@@ -326,5 +374,17 @@ export async function startInteractiveDashboard(initialRepo = '') {
   await executeSelectedTools(repoUrl, selectedTools);
 
   console.log(`${c.cyan}Dica: Você pode reexecutar a qualquer momento com:${c.reset} ${c.bold}npx mrcp-engine setup${c.reset} ou ${c.bold}npx mrcp-engine <url>${c.reset}\n`);
+<<<<<<< HEAD
+
+  // Safe exit without libuv assertion race conditions on Windows
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(false);
+  }
+  process.stdin.unref();
+  setTimeout(() => {
+    process.exit(0);
+  }, 50);
+=======
   process.exit(0);
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 }

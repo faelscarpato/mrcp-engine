@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 import { describe, it, expect } from 'vitest';
 import { calculateImpactAnalysis } from '../../../packages/core/lib/analysis/impact-analysis.js';
 import { runSecurityAudit } from '../../../packages/core/lib/analysis/security-audit.js';
@@ -140,6 +143,8 @@ describe('MRCP Engine - Real Intelligence & Non-Applicable Handling', () => {
     expect(drift.complianceScore).toBeGreaterThanOrEqual(0);
   });
 });
+<<<<<<< HEAD
+=======
 =======
 import { describe, it, expect } from 'vitest';
 import { calculateImpactAnalysis } from '../../../packages/core/lib/analysis/impact-analysis.js';
@@ -405,3 +410,4 @@ describe('MRCP Engine - 11 New Predictive, Security & Offloading Endpoints', () 
   });
 });
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770

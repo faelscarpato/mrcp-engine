@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 import { fetchRepoFile, findRepoFiles } from "./repo-fetcher.js";
 
 export interface SqlOrmContractOptions {
@@ -353,6 +356,8 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
     warnings
   };
 }
+<<<<<<< HEAD
+=======
 =======
 <<<<<<< HEAD
 import { fetchRepoFile, findRepoFiles } from "./repo-fetcher.js";
@@ -756,3 +761,4 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
   };
 }
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770

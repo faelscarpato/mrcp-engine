@@ -1,6 +1,10 @@
 {
   "name": "@mrcp/core",
+<<<<<<< HEAD
+  "version": "2.4.1",
+=======
   "version": "2.4.0",
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
   "type": "module",
   "main": "src/analysis/pipeline.js",
   "dependencies": {

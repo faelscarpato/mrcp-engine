@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 import fs from "fs";
 import path from "path";
 
@@ -244,6 +247,8 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
     warnings
   };
 }
+<<<<<<< HEAD
+=======
 =======
 import fs from "fs";
 import path from "path";
@@ -533,3 +538,4 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
   };
 }
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770

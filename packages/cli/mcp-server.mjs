@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
 #!/usr/bin/env node
 
 /**
@@ -517,6 +520,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 const transport = new StdioServerTransport();
 await server.connect(transport);
 console.error("MRCP-Engine MCP Server running on stdio (bridge mode)");
+<<<<<<< HEAD
+=======
 =======
 #!/usr/bin/env node
 
@@ -1049,3 +1054,4 @@ const transport = new StdioServerTransport();
 await server.connect(transport);
 console.error("MRCP-Engine MCP Server running on stdio (bridge mode)");
 >>>>>>> d6b6b143eac7885322e1cb04fd8155dc5ebb9b9e
+>>>>>>> 0a10f0543a8d313cd48c6d2ae1e9fdefdee2a770
