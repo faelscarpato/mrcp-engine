@@ -263,6 +263,16 @@ export default async function handler(req: any, res: any) {
       return sendFormattedResponse(req, res, "full_repository_diagnostic_suite", repoUrl, { status: "success", full_diagnostic: result });
     }
 
+    // 24. /api/document-analyzer
+    if (urlPath === "/api/document-analyzer") {
+      const repoUrl = req.query.repo || req.body?.repoUrl || req.body?.repo;
+      if (!repoUrl) return res.status(400).json({ status: "error", error_code: "MISSING_TARGET_URL" });
+      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
+      const result = await runAnalysis({ repoUrl, githubToken: process.env.GITHUB_TOKEN, maxFiles: 2000 });
+      const documentNodes = ((result as any).analysis?.nodes || (result as any).nodes || []).filter((n: any) => n.kind === "document");
+      return sendFormattedResponse(req, res, "document_analyzer", repoUrl, { status: "success", documents: documentNodes });
+    }
+
     // Endpoint não encontrado
     return res.status(404).json({
       status: "error",

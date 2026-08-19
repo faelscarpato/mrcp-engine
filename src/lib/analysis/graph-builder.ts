@@ -33,6 +33,7 @@ import {
   extractFunctionsWithTreeSitter,
   extractImportsWithTreeSitter,
 } from "./parsers/tree-sitter.js";
+import { parseDocument } from "./parsers/document.js";
 
 const ENTRYPOINT_PATTERNS = [
   /^src\/(main|index)\.(ts|tsx|js|jsx)$/,
@@ -45,6 +46,7 @@ const ENTRYPOINT_PATTERNS = [
 export interface FileEntry {
   path: string;
   content?: string; // may be undefined when only tree was fetched
+  buffer?: Buffer;
   size?: number;
 }
 
@@ -100,7 +102,8 @@ export async function buildGraph(files: FileEntry[]): Promise<PartialAnalysis> {
     const loc = f.content ? countLines(f.content) : undefined;
     const complexity = f.content ? estimateComplexity(f.content) : undefined;
     const isEntry = ENTRYPOINT_PATTERNS.some((r) => r.test(f.path));
-    const kind: NodeKind = isConfigFile(f.path) ? "config" : "file";
+    const isDoc = ["pdf", "doc", "docx", "csv", "xls", "xlsx", "txt", "md"].includes(f.path.split(".").pop()?.toLowerCase() || "");
+    const kind: NodeKind = isConfigFile(f.path) ? "config" : isDoc ? "document" : "file";
 
     const node: GraphNode = {
       id: `file:${f.path}`,
@@ -127,6 +130,22 @@ export async function buildGraph(files: FileEntry[]): Promise<PartialAnalysis> {
   const functionMap = new Map<string, GraphNode>();
 
   for (const f of files) {
+    const ext = f.path.split('.').pop()?.toLowerCase() || "";
+    const isDoc = ["pdf", "doc", "docx", "csv", "xls", "xlsx", "txt", "md"].includes(ext);
+
+    if (isDoc) {
+      const node = nodes.find(n => n.id === `file:${f.path}`);
+      if (node) {
+        try {
+          const docData = await parseDocument(f.path, f.content, f.buffer);
+          if (docData) {
+            node.documentData = docData;
+          }
+        } catch(e) {}
+      }
+      continue;
+    }
+
     if (!f.content) continue;
 
     const lang = detectLanguage(f.path) || "";

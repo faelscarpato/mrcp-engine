@@ -368,6 +368,18 @@ const TOOLS = [
       required: ["query"],
     },
   },
+  {
+    name: "mrcp_document_analyzer",
+    description:
+      "[Category: Document Analysis] Parses and extracts structural semantic data, topics, and metrics from document files (.md, .pdf, .docx, .csv, .xls, .xlsx, .txt). Outputs a JSON DocumentSemanticTree.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        repo: { type: "string", description: "Full URL or path of the repository containing documents" },
+      },
+      required: ["repo"],
+    },
+  },
 ];
 
 // ─── Tool Execution ─────────────────────────────
@@ -413,6 +425,21 @@ async function executeTool(toolName: string, args: any): Promise<any> {
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       return { content: [{ type: "text", text: `Error executing full repository diagnostic suite: ${error.message}` }], isError: true };
+    }
+  }
+
+  if (toolName === "mrcp_document_analyzer") {
+    const repoUrl = String(args?.repo || "");
+    if (!repoUrl) return { content: [{ type: "text", text: "Error: 'repo' parameter is required." }], isError: true };
+    try {
+      const { runAnalysis } = await import("../packages/core/lib/analysis/pipeline.js");
+      const result = await runAnalysis({ repoUrl, githubToken: process.env.GITHUB_TOKEN, maxFiles: 2000 });
+      // Filter out only document nodes
+      const documentNodes = ((result as any).analysis?.nodes || (result as any).nodes || []).filter((n: any) => n.kind === "document");
+      saveEndpointOutput(toolName, repoUrl, documentNodes);
+      return { content: [{ type: "text", text: JSON.stringify(documentNodes, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: "text", text: `Error analyzing documents: ${error.message}` }], isError: true };
     }
   }
 

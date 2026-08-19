@@ -69,10 +69,21 @@ export const localDirSource: AnalysisSource = {
       try {
         const stat = await fs.promises.stat(item);
         if (stat.size <= maxBytes) {
-          const content = await fs.promises.readFile(item, "utf-8");
+          const ext = item.split('.').pop()?.toLowerCase();
+          const isBinaryDoc = ext && ["pdf", "doc", "docx", "xls", "xlsx"].includes(ext);
+          
+          let content: string | undefined;
+          let buffer: Buffer | undefined;
+
+          if (isBinaryDoc) {
+            buffer = await fs.promises.readFile(item);
+          } else {
+            content = await fs.promises.readFile(item, "utf-8");
+          }
+
           // Convert absolute to relative path for the graph
           const relPath = path.relative(targetPath, item).split(path.sep).join("/");
-          files.push({ path: relPath, content, size: stat.size });
+          files.push({ path: relPath, content, buffer, size: stat.size });
         }
       } catch (e) {
         // Ignore files that fail to read

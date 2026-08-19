@@ -1,4 +1,4 @@
-export type NodeKind = "module" | "file" | "function" | "external" | "config";
+export type NodeKind = "module" | "file" | "function" | "external" | "config" | "document";
 
 export type AnalysisQuality = "full" | "partial" | "degraded";
 export type AnalysisSourceId = "github-api" | "github-raw" | "deterministic" | "local-dir" | "website";
@@ -32,6 +32,8 @@ export interface GraphNode {
     className?: string;
     line?: number;
   };
+  // Metadata for documents
+  documentData?: import("./analysis/parsers/document").DocumentSemanticTree;
 }
 
 export interface GraphEdge {
