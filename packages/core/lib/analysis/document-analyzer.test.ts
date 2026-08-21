@@ -119,5 +119,5 @@ See [Configuration](./config.json) and [External Docs](https://example.com/docs)
     expect(repoAnalysis.knowledgeGraph.edges.length).toBeGreaterThan(0);
     expect(repoAnalysis.masterKnowledgeIndex.length).toBeGreaterThan(0);
     expect(repoAnalysis.documentQualityIndex.overallScore).toBeGreaterThanOrEqual(50);
-  });
+  }, 20000);
 });

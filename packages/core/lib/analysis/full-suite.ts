@@ -1,16 +1,16 @@
 import { runAnalysis } from "./pipeline.js";
 import { processRepositoryHotspots } from "./mrcp-skill-injector.js";
-import { calculateCodeHealth, CodeHealthResult } from "./code-health.js";
-import { runSecurityAudit, SecurityAuditResult } from "./security-audit.js";
-import { detectArchitectureDrift, ArchitectureDriftResult } from "./architecture-drift.js";
-import { findTestCoverageGaps, TestCoverageGapResult } from "./test-gap-analysis.js";
-import { findDeadCode, DeadCodePrunerResult } from "./dead-code-pruner.js";
-import { validateEnvironmentContract, EnvValidatorResult } from "./env-validator.js";
-import { generateApiContract, ApiContractResult } from "./api-contract-generator.js";
-import { analyzeMonorepoGraph, MonorepoGraphResult } from "./monorepo-graph.js";
-import { generateDocumentation, DocGeneratorResult } from "./doc-generator.js";
-import { generateSqlOrmContract, SqlOrmContractResult } from "./sql-orm-contract.js";
-import { analyzeDocumentRepository, DocumentRepositoryAnalysis } from "./document-analyzer.js";
+import { calculateCodeHealth, type CodeHealthResult } from "./code-health.js";
+import { runSecurityAudit, type SecurityAuditResult } from "./security-audit.js";
+import { detectArchitectureDrift, type ArchitectureDriftResult } from "./architecture-drift.js";
+import { findTestCoverageGaps, type TestGapAnalysisResult } from "./test-gap-analysis.js";
+import { findDeadCode, type DeadCodePrunerResult } from "./dead-code-pruner.js";
+import { validateEnvironmentContract, type EnvValidatorResult } from "./env-validator.js";
+import { generateApiContract, type ApiContractResult } from "./api-contract-generator.js";
+import { analyzeMonorepoGraph, type MonorepoGraphResult } from "./monorepo-graph.js";
+import { generateDocumentation, type DocGeneratorResult } from "./doc-generator.js";
+import { generateSqlOrmContract, type SqlOrmContractResult } from "./sql-orm-contract.js";
+import { analyzeDocumentRepository, type DocumentRepositoryAnalysis } from "./document-analyzer.js";
 import { saveEndpointOutput, setCachedAnalysis } from "../cache.js";
 
 export interface FullSuiteOptions {
@@ -57,7 +57,7 @@ export interface FullSuiteResult {
     codeHealth?: CodeHealthResult;
     securityAudit?: SecurityAuditResult;
     architectureDrift?: ArchitectureDriftResult;
-    testGaps?: TestCoverageGapResult;
+    testGaps?: TestGapAnalysisResult;
     deadCode?: DeadCodePrunerResult;
     envValidator?: EnvValidatorResult;
     apiContract?: ApiContractResult;
@@ -104,7 +104,7 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     return res;
   });
   reports.astGraph = astResult;
-  const nodes = astResult?.analysis?.nodes || astResult?.nodes || [];
+  const nodes = (astResult as any)?.analysis?.nodes || (astResult as any)?.nodes || [];
 
   // 2-13. Execução Paralela Concorrente Ultra-Rápida de todas as ferramentas de diagnóstico
   const [

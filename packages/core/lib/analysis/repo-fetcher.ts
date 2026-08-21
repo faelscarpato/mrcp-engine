@@ -137,7 +137,18 @@ export async function findRepoFiles(
     async function scan(dir: string) {
       const entries = await fs.promises.readdir(dir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist" || entry.name === "build") {
+        if (
+          entry.name === "node_modules" ||
+          entry.name === ".git" ||
+          entry.name === "dist" ||
+          entry.name === "out" ||
+          entry.name === "build" ||
+          entry.name === ".next" ||
+          entry.name === ".turbo" ||
+          entry.name === ".gemini" ||
+          entry.name === "coverage" ||
+          entry.name === ".cache"
+        ) {
           continue;
         }
         const full = path.join(dir, entry.name);
