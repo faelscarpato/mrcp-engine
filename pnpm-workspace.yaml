@@ -3,7 +3,9 @@ packages:
   - 'apps/*'
   - 'api'
 allowBuilds:
+  '@vscode/vsce-sign': false
   esbuild: false
+  keytar: false
   puppeteer: false
   tree-sitter-c: false
   tree-sitter-cobol: false

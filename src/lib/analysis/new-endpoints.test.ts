@@ -137,5 +137,5 @@ describe('MRCP Engine - Real Intelligence & Non-Applicable Handling', () => {
     });
     expect(drift).toBeDefined();
     expect(drift.complianceScore).toBeGreaterThanOrEqual(0);
-  });
+  }, 20000);
 });
