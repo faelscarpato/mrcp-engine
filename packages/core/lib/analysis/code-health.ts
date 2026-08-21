@@ -1,48 +1,90 @@
 import { runAnalysis } from "./pipeline.js";
 import { getCachedAnalysis } from "../cache.js";
+import { fetchRepoFile } from "./repo-fetcher.js";
 
-export interface CodeHealthOptions {
+export interface ContextPackOptions {
   repoUrl: string;
+  taskDescription: string;
+  maxTokenBudget?: number;
 }
 
-export interface RefactoringHotspot {
-  file: string;
-  cyclomaticComplexity: number;
-  linesOfCode: number;
-  couplingDegree: number;
-  cognitiveLoad: "LOW" | "MODERATE" | "HIGH" | "EXTREME";
-  estimatedEffortHours: number;
-  primaryIssue: string;
-  recommendedAction: string;
+export interface ContextItem {
+  filePath: string;
+  relevanceReason: string;
+  extractedCodeSnippet: string;
+  tokenCount: number;
 }
 
-export interface CodeHealthResult {
+export interface ContextPackResult {
   repoUrl: string;
-  maintainabilityIndex: number; // 0 - 100
-  maintainabilityRating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL";
-  technicalDebtScore: number; // 0 - 100 (lower is better)
-  letterGrade: "A" | "B" | "C" | "D" | "F";
-  summary: {
-    totalFiles: number;
-    totalLinesOfCode: number;
-    totalFunctions: number;
-    averageComplexityPerFile: number;
-    testToCodeRatio: number;
-    godModulesCount: number;
-  };
-  cognitiveLoadDistribution: {
-    low: number; // %
-    moderate: number; // %
-    high: number; // %
-    extreme: number; // %
-  };
-  topRefactoringPriorities: RefactoringHotspot[];
+  taskDescription: string;
   isApplicable: boolean;
   message?: string;
+  estimatedTotalTokens: number;
+  pruningEfficiency: string;
+  contextPack: ContextItem[];
+  compactPromptPayload: string;
+  warnings: string[];
 }
 
-export async function calculateCodeHealth(options: CodeHealthOptions): Promise<CodeHealthResult> {
-  const { repoUrl } = options;
+function sliceRelevantCode(content: string, keywords: string[]): string {
+  const lines = content.split("\n");
+  if (lines.length <= 60) {
+    return content;
+  }
+
+  const selectedLines = new Set<number>();
+
+  // 1. Mantém os imports do topo
+  for (let i = 0; i < Math.min(15, lines.length); i++) {
+    if (lines[i].startsWith("import ") || lines[i].startsWith("from ") || lines[i].startsWith("require(")) {
+      selectedLines.add(i);
+    }
+  }
+
+  // 2. Busca linhas que contêm palavras-chave da tarefa ou declarações de tipos/funções
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const matchesKw = keywords.some((kw) => line.toLowerCase().includes(kw));
+    const isDeclaration =
+      line.includes("export ") ||
+      line.includes("interface ") ||
+      line.includes("type ") ||
+      line.includes("function ") ||
+      line.includes("class ");
+
+    if (matchesKw || isDeclaration) {
+      // Pega uma janela de contexto ao redor da linha
+      const start = Math.max(0, i - 1);
+      const end = Math.min(lines.length - 1, i + 6);
+      for (let j = start; j <= end; j++) {
+        selectedLines.add(j);
+      }
+    }
+  }
+
+  const sortedIndices = Array.from(selectedLines).sort((a, b) => a - b);
+  if (sortedIndices.length === 0) {
+    return lines.slice(0, 40).join("\n") + "\n// ... [restante do arquivo omitido pelo MRCP Context Pruner]";
+  }
+
+  const resultSnippets: string[] = [];
+  let prevIdx = -1;
+
+  for (const idx of sortedIndices) {
+    if (prevIdx !== -1 && idx > prevIdx + 1) {
+      resultSnippets.push("\n  // ... [linhas intermediárias filtradas pelo MRCP Engine]\n");
+    }
+    resultSnippets.push(lines[idx]);
+    prevIdx = idx;
+  }
+
+  return resultSnippets.join("\n");
+}
+
+export async function buildContextPack(options: ContextPackOptions): Promise<ContextPackResult> {
+  const { repoUrl, taskDescription, maxTokenBudget = 8000 } = options;
+  const warnings: string[] = [];
 
   let graphData = await getCachedAnalysis(repoUrl, false);
   if (!graphData) {
@@ -54,159 +96,101 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
   }
 
   const nodes: any[] = graphData?.analysis?.nodes || graphData?.nodes || [];
-  const edges: any[] = graphData?.analysis?.edges || graphData?.edges || [];
+  const taskKeywords = taskDescription
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 3)
+    .map((w) => w.replace(/[^a-z0-9]/g, ""));
 
-  if (nodes.length === 0) {
+  const matchedNodes: any[] = [];
+  for (const node of nodes) {
+    if (node.kind !== "file" && node.kind !== "module") continue;
+
+    const label = (node.label || "").toLowerCase();
+    const path = (node.path || "").toLowerCase();
+
+    const matches = taskKeywords.some((kw) => label.includes(kw) || path.includes(kw));
+    if (matches || (node.complexity && node.complexity > 40)) {
+      matchedNodes.push(node);
+    }
+  }
+
+  if (matchedNodes.length === 0 && nodes.length > 0) {
+    // Pega os arquivos de maior relevância / complexidade
+    const sortedByComplexity = [...nodes]
+      .filter((n) => n.kind === "file")
+      .sort((a, b) => (b.complexity || 0) - (a.complexity || 0));
+    if (sortedByComplexity.length > 0) {
+      matchedNodes.push(sortedByComplexity[0]);
+    }
+  }
+
+  if (matchedNodes.length === 0) {
     return {
       repoUrl,
-      maintainabilityIndex: 100,
-      maintainabilityRating: "EXCELLENT",
-      technicalDebtScore: 0,
-      letterGrade: "A",
-      summary: {
-        totalFiles: 0,
-        totalLinesOfCode: 0,
-        totalFunctions: 0,
-        averageComplexityPerFile: 0,
-        testToCodeRatio: 0,
-        godModulesCount: 0
-      },
-      cognitiveLoadDistribution: { low: 100, moderate: 0, high: 0, extreme: 0 },
-      topRefactoringPriorities: [],
+      taskDescription,
       isApplicable: false,
-      message: "Nenhum nó de código foi encontrado para avaliar a saúde do repositório."
+      message: `Não se aplica a esse repositório: Nenhum arquivo de código foi encontrado para gerar o pacote de contexto para a tarefa '${taskDescription}'.`,
+      estimatedTotalTokens: 0,
+      pruningEfficiency: "0%",
+      contextPack: [],
+      compactPromptPayload: "",
+      warnings
     };
   }
 
-  const fileNodes = nodes.filter((n) => n.kind === "file");
-  const testNodes = fileNodes.filter((n) => {
-    const p = (n.path || n.label || "").toLowerCase();
-    return p.includes(".test.") || p.includes(".spec.") || p.includes("__tests__") || p.includes("tests/");
-  });
+  const selectedNodes = matchedNodes.slice(0, 6);
+  const contextPack: ContextItem[] = [];
+  let totalRawChars = 0;
+  let totalSnippetChars = 0;
 
-  let totalLoc = 0;
-  let totalComplexity = 0;
-  let godModulesCount = 0;
-  let lowCount = 0;
-  let modCount = 0;
-  let highCount = 0;
-  let extremeCount = 0;
+  for (const node of selectedNodes) {
+    const filePath = node.path || node.label || "";
+    const fetched = await fetchRepoFile(repoUrl, filePath);
 
-  const hotspots: RefactoringHotspot[] = [];
-
-  for (const f of fileNodes) {
-    const loc = f.metrics?.loc || f.loc || 50;
-    const complexity = f.metrics?.cyclomaticComplexity || f.metrics?.complexity || (f.complexity ? f.complexity : 5);
-    const coupling = f.metrics?.fanIn || f.fanIn || 1;
-
-    totalLoc += loc;
-    totalComplexity += complexity;
-
-    let cognitiveLoad: "LOW" | "MODERATE" | "HIGH" | "EXTREME" = "LOW";
-    if (complexity > 50 || loc > 800) {
-      cognitiveLoad = "EXTREME";
-      extremeCount++;
-    } else if (complexity > 25 || loc > 400) {
-      cognitiveLoad = "HIGH";
-      highCount++;
-    } else if (complexity > 10 || loc > 150) {
-      cognitiveLoad = "MODERATE";
-      modCount++;
-    } else {
-      lowCount++;
+    if (!fetched || !fetched.content) {
+      warnings.push(`Arquivo '${filePath}' não pôde ser recuperado para inclusão no Context Pack.`);
+      continue;
     }
 
-    if (f.isGodModule || (complexity > 40 && loc > 500)) {
-      godModulesCount++;
+    if (fetched.isCorrupted) {
+      warnings.push(`Arquivo '${filePath}' está corrompido.`);
     }
 
-    if (complexity >= 15 || loc >= 250) {
-      const hours = Math.round((complexity * 0.15 + (loc / 100) * 0.5) * 10) / 10;
-      let issue = "Alta densidade de complexidade ciclomática";
-      let action = "Decompor funções longas e extrair módulos auxiliares";
+    totalRawChars += fetched.content.length;
+    const realSnippet = sliceRelevantCode(fetched.content, taskKeywords);
+    totalSnippetChars += realSnippet.length;
 
-      if (loc > 600) {
-        issue = "Arquivo monolítico com excesso de responsabilidades";
-        action = "Dividir em sub-módulos coesos seguindo o Princípio da Responsabilidade Única (SRP)";
-      } else if (coupling > 15) {
-        issue = "Alto acoplamento e dependências excessivas";
-        action = "Injetar dependências via interfaces e introduzir camadas de abstração";
-      }
+    const tokens = Math.max(1, Math.round(realSnippet.length / 3.8));
 
-      hotspots.push({
-        file: f.path || f.label || "unknown",
-        cyclomaticComplexity: complexity,
-        linesOfCode: loc,
-        couplingDegree: coupling,
-        cognitiveLoad,
-        estimatedEffortHours: hours,
-        primaryIssue: issue,
-        recommendedAction: action
-      });
-    }
+    contextPack.push({
+      filePath,
+      relevanceReason: `Módulo relevante para '${taskDescription}' (Complexidade: ${node.complexity || 1})`,
+      extractedCodeSnippet: realSnippet,
+      tokenCount: tokens
+    });
   }
 
-  hotspots.sort((a, b) => (b.cyclomaticComplexity * 2 + b.linesOfCode) - (a.cyclomaticComplexity * 2 + a.linesOfCode));
-  const topRefactoringPriorities = hotspots.slice(0, 5);
+  const totalTokens = contextPack.reduce((acc, item) => acc + item.tokenCount, 0);
+  const rawTokensEstimate = Math.max(totalTokens, Math.round(totalRawChars / 3.8));
+  const reductionPct = rawTokensEstimate > 0 ? Math.round(((rawTokensEstimate - totalTokens) / rawTokensEstimate) * 100) : 0;
+  const pruningEfficiency = `${Math.max(0, Math.min(95, reductionPct))}% token reduction vs full files`;
 
-  const fileCount = Math.max(1, fileNodes.length);
-  const avgComplexity = Math.round((totalComplexity / fileCount) * 10) / 10;
-  const testRatio = Math.round((testNodes.length / fileCount) * 100) / 100;
-
-  // Maintainability Index (MI) computation
-  // Simplified Halstead Volume estimation = N * log2(n) ~ LOC * 4.5
-  const estimatedVolume = Math.max(1, totalLoc * 4.5);
-  const rawMI = 171 - 5.2 * Math.log(estimatedVolume / fileCount) - 0.23 * avgComplexity - 16.2 * Math.log(Math.max(1, totalLoc / fileCount));
-  const normalizedMI = Math.max(0, Math.min(100, Math.round((rawMI * 100) / 171)));
-
-  let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" = "EXCELLENT";
-  let letterGrade: "A" | "B" | "C" | "D" | "F" = "A";
-  let techDebt = Math.max(0, Math.min(100, 100 - normalizedMI + (godModulesCount * 5)));
-
-  if (normalizedMI >= 80) {
-    rating = "EXCELLENT";
-    letterGrade = "A";
-  } else if (normalizedMI >= 65) {
-    rating = "GOOD";
-    letterGrade = "B";
-  } else if (normalizedMI >= 50) {
-    rating = "MODERATE";
-    letterGrade = "C";
-  } else if (normalizedMI >= 35) {
-    rating = "POOR";
-    letterGrade = "D";
-  } else {
-    rating = "CRITICAL";
-    letterGrade = "F";
-  }
-
-  const lowPct = Math.round((lowCount / fileCount) * 100);
-  const modPct = Math.round((modCount / fileCount) * 100);
-  const highPct = Math.round((highCount / fileCount) * 100);
-  const extPct = Math.round((extremeCount / fileCount) * 100);
+  const compactPromptPayload = `=== MRCP AST CONTEXT PACK ===
+Task Objective: ${taskDescription}
+Repository: ${repoUrl}
+Target Modules Sliced (${contextPack.length}):
+${contextPack.map((item) => `--- File: ${item.filePath} (${item.relevanceReason}) ---\n${item.extractedCodeSnippet}`).join("\n\n")}
+=== END AST CONTEXT PACK ===`;
 
   return {
     repoUrl,
-    maintainabilityIndex: normalizedMI,
-    maintainabilityRating: rating,
-    technicalDebtScore: techDebt,
-    letterGrade,
-    summary: {
-      totalFiles: fileNodes.length,
-      totalLinesOfCode: totalLoc,
-      totalFunctions: nodes.filter((n) => n.kind === "function" || n.kind === "method").length,
-      averageComplexityPerFile: avgComplexity,
-      testToCodeRatio: testRatio,
-      godModulesCount
-    },
-    cognitiveLoadDistribution: {
-      low: lowPct,
-      moderate: modPct,
-      high: highPct,
-      extreme: extPct
-    },
-    topRefactoringPriorities,
+    taskDescription,
     isApplicable: true,
-    message: `Índice de Manutenibilidade: ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`
+    estimatedTotalTokens: totalTokens,
+    pruningEfficiency,
+    contextPack,
+    compactPromptPayload,
+    warnings
   };
 }
