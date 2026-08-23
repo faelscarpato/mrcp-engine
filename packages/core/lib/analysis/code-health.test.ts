@@ -4,7 +4,7 @@ import { calculateCodeHealth } from './code-health.js';
 describe('MRCP Code Health & Maintainability Index Suite', () => {
   it('should score local repository health accurately', async () => {
     const result = await calculateCodeHealth({
-      repoUrl: '/home/scarpatoweb/mrcp-engine'
+      repoUrl: '.'
     });
 
     expect(result).toBeDefined();

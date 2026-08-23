@@ -4,7 +4,7 @@ import { generateApiContract } from './api-contract-generator.js';
 describe('MRCP API Contract & OpenAPI Spec Generator Suite', () => {
   it('should discover API routes and generate valid OpenAPI 3.0 spec', async () => {
     const result = await generateApiContract({
-      repoUrl: '/home/scarpatoweb/mrcp-engine'
+      repoUrl: '.'
     });
 
     expect(result).toBeDefined();

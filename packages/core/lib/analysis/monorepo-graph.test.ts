@@ -4,7 +4,7 @@ import { analyzeMonorepoGraph } from './monorepo-graph.js';
 describe('MRCP Monorepo Package Graph Analyzer Suite', () => {
   it('should detect pnpm workspaces and package relationships in local engine', async () => {
     const result = await analyzeMonorepoGraph({
-      repoUrl: '/home/scarpatoweb/mrcp-engine'
+      repoUrl: '.'
     });
 
     expect(result).toBeDefined();

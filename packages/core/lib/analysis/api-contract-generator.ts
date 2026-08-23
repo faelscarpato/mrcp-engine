@@ -112,12 +112,22 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
       let routePath = "/" + filePath.replace(/\.(ts|js|mjs)$/, "").replace(/\[(\w+)\]/g, "{$1}");
       if (routePath.endsWith("/index")) routePath = routePath.replace(/\/index$/, "") || "/";
 
-      // Check if it's the consolidated index router
-      if (filePath === "api/index.ts" || filePath === "api/index.js") {
+      // Check if it's the consolidated index router or the new routes dictionary
+      const normalizedPath = filePath.replace(/\\/g, '/');
+      if (normalizedPath.endsWith("api/index.ts") || normalizedPath.endsWith("api/index.js") || normalizedPath.endsWith("api/routes.ts")) {
+        // Fallback para index legado
         const subRouteRegex = /urlPath\s*===?\s*["']([^"']+)["']/g;
+        // Nova versão dicionário routes.ts
+        const dictRouteRegex = /["'](\/api\/[^"']+)["']\s*:/g;
+
         let match;
+        const foundRoutes = new Set<string>();
+
         while ((match = subRouteRegex.exec(content)) !== null) {
           const subPath = match[1];
+          if (foundRoutes.has(subPath)) continue;
+          foundRoutes.add(subPath);
+
           const hasPost = content.slice(match.index, match.index + 500).includes("req.body");
           const method = hasPost ? "POST" : "GET";
           routes.push({
@@ -128,6 +138,24 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
             handlerName: subPath.replace(/^\/api\//, ""),
             parameters: extractParamsFromBlock(content.slice(match.index, match.index + 800), subPath),
             summary: `Consolidated API endpoint for ${subPath}`
+          });
+        }
+
+        while ((match = dictRouteRegex.exec(content)) !== null) {
+          const subPath = match[1];
+          if (foundRoutes.has(subPath)) continue;
+          foundRoutes.add(subPath);
+
+          const hasPost = content.slice(match.index, match.index + 500).includes("req.body");
+          const method = hasPost ? "POST" : "GET";
+          routes.push({
+            path: subPath,
+            method,
+            framework: "Next.js",
+            sourceFile: filePath,
+            handlerName: subPath.replace(/^\/api\//, ""),
+            parameters: extractParamsFromBlock(content.slice(match.index, match.index + 800), subPath),
+            summary: `Dictionary API endpoint for ${subPath}`
           });
         }
       } else {

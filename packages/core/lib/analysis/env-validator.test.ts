@@ -4,7 +4,7 @@ import { validateEnvironmentContract } from './env-validator.js';
 describe('MRCP Environment & Secret Contract Validator Suite', () => {
   it('should validate workspace env definitions without false positives', async () => {
     const result = await validateEnvironmentContract({
-      repoUrl: '/home/scarpatoweb/mrcp-engine'
+      repoUrl: '.'
     });
 
     expect(result).toBeDefined();
