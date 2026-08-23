@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { parseTargetUrl } from "./pipeline.js";
+import { isIgnoredPath } from "./parsers/language.js";
 
 export interface FetchedFile {
   path: string;
@@ -29,6 +30,10 @@ export async function fetchRepoFile(
   filePath: string,
   githubToken?: string
 ): Promise<FetchedFile | null> {
+  if (isIgnoredPath(filePath)) {
+    return null;
+  }
+
   const cacheKey = `${repoUrl}::${filePath}`;
   if (fileContentCache.has(cacheKey)) {
     return fileContentCache.get(cacheKey)!;
@@ -137,22 +142,14 @@ export async function findRepoFiles(
     async function scan(dir: string) {
       const entries = await fs.promises.readdir(dir, { withFileTypes: true });
       for (const entry of entries) {
-        if (
-          entry.name === "node_modules" ||
-          entry.name === ".git" ||
-          entry.name === "dist" ||
-          entry.name === "out" ||
-          entry.name === "build" ||
-          entry.name === ".next" ||
-          entry.name === ".turbo" ||
-          entry.name === ".gemini" ||
-          entry.name === "coverage" ||
-          entry.name === ".cache"
-        ) {
+        if (isIgnoredPath(entry.name)) {
           continue;
         }
         const full = path.join(dir, entry.name);
         const rel = path.relative(baseDir, full).split(path.sep).join("/");
+        if (isIgnoredPath(rel)) {
+          continue;
+        }
         if (entry.isDirectory()) {
           await scan(full);
         } else if (entry.isFile()) {
@@ -189,7 +186,7 @@ export async function findRepoFiles(
           const data: any = await res.json();
           const tree: any[] = data.tree || [];
           return tree
-            .filter((item) => item.type === "blob")
+            .filter((item) => item.type === "blob" && !isIgnoredPath(item.path))
             .map((item) => item.path)
             .filter((p) => !filterPattern || filterPattern(p));
         }

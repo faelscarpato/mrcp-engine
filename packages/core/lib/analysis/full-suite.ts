@@ -132,7 +132,7 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     runStep("Monorepo Topology & Build Pipeline Analysis", "monorepo_package_graph_analyzer", async () => analyzeMonorepoGraph({ repoUrl })),
     runStep("Docstring & API Reference Generation", "docstring_api_doc_generator", async () => generateDocumentation({ repoUrl })),
     runStep("SQL / ORM Schema Contract Analysis", "sql_schema_orm_contract_generator", async () => generateSqlOrmContract({ repoUrl })),
-    runStep("Document Intelligence & Knowledge Graph", "document_analyzer", async () => analyzeDocumentRepository({ repoUrl, githubToken }))
+    runStep("Document Intelligence & Knowledge Graph", "document_analyzer", async () => analyzeDocumentRepository({ repoUrl, githubToken, maxFiles: 30 }))
   ]);
 
   if (skillRes) reports.skillContracts = skillRes;

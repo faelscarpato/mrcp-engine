@@ -1,14 +1,15 @@
 import type { AnalysisSource, AnalysisContext, PartialAnalysis, ProgressEvent } from "../types.js";
 import { buildGraph, type FileEntry } from "../graph-builder.js";
-import { isSourceFile, isConfigFile } from "../parsers/language.js";
+import { isSourceFile, isConfigFile, isIgnoredPath } from "../parsers/language.js";
 import * as fs from "fs";
 import * as path from "path";
 
 async function walkDir(dir: string, fileList: string[] = []): Promise<string[]> {
   const files = await fs.promises.readdir(dir);
   for (const file of files) {
-    if (file === "node_modules" || file === ".git" || file === "dist" || file === "build") continue;
+    if (isIgnoredPath(file)) continue;
     const filePath = path.join(dir, file);
+    if (isIgnoredPath(filePath)) continue;
     const stat = await fs.promises.stat(filePath);
     if (stat.isDirectory()) {
       await walkDir(filePath, fileList);

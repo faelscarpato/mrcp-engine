@@ -96,70 +96,76 @@ export async function analyzeDocumentRepository(
     GENERAL_DOCUMENT: 0
   };
 
-  // 2. Fetch and parse each document file
-  for (const filePath of cappedFiles) {
-    const ext = filePath.split(".").pop()?.toLowerCase() || "";
-    try {
-      if (ext === "md" || ext === "markdown" || ext === "mdx") {
-        const file = await fetchRepoFile(repoUrl, filePath, githubToken);
-        if (file) {
-          const doc = parseMarkdown(file.content, filePath, cappedFiles);
-          parsedDocs.push(doc);
-          formatsDistribution.MARKDOWN++;
-          categoriesDistribution[doc.category]++;
+  // 2. Fetch and parse document files in concurrent batches
+  const BATCH_SIZE = 15;
+  for (let i = 0; i < cappedFiles.length; i += BATCH_SIZE) {
+    const batch = cappedFiles.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map(async (filePath) => {
+        const ext = filePath.split(".").pop()?.toLowerCase() || "";
+        try {
+          if (ext === "md" || ext === "markdown" || ext === "mdx") {
+            const file = await fetchRepoFile(repoUrl, filePath, githubToken);
+            if (file) {
+              const doc = parseMarkdown(file.content, filePath, cappedFiles);
+              parsedDocs.push(doc);
+              formatsDistribution.MARKDOWN++;
+              categoriesDistribution[doc.category]++;
+            }
+          } else if (ext === "csv" || ext === "tsv" || ext === "tab" || ext === "psv") {
+            const file = await fetchRepoFile(repoUrl, filePath, githubToken);
+            if (file) {
+              const doc = parseTabular(file.content, filePath);
+              parsedDocs.push(doc);
+              formatsDistribution[doc.format]++;
+              categoriesDistribution[doc.category]++;
+            }
+          } else if (ext === "docx") {
+            const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
+            if (buffer) {
+              const doc = parseDocx(buffer, filePath);
+              parsedDocs.push(doc);
+              formatsDistribution.DOCX++;
+              categoriesDistribution[doc.category]++;
+            }
+          } else if (ext === "xlsx" || ext === "xls") {
+            const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
+            if (buffer) {
+              const doc = parseXlsx(buffer, filePath);
+              parsedDocs.push(doc);
+              formatsDistribution.XLSX++;
+              categoriesDistribution[doc.category]++;
+            }
+          } else if (ext === "pdf") {
+            const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
+            if (buffer) {
+              const doc = parsePdfText(buffer, filePath);
+              parsedDocs.push(doc);
+              formatsDistribution.PDF++;
+              categoriesDistribution[doc.category]++;
+            }
+          } else if (ext === "json" || ext === "jsonl" || ext === "yaml" || ext === "yml" || ext === "xml") {
+            const file = await fetchRepoFile(repoUrl, filePath, githubToken);
+            if (file) {
+              const doc = parseStructuredData(file.content, filePath);
+              parsedDocs.push(doc);
+              formatsDistribution[doc.format]++;
+              categoriesDistribution[doc.category]++;
+            }
+          } else {
+            const file = await fetchRepoFile(repoUrl, filePath, githubToken);
+            if (file) {
+              const doc = parsePlainText(file.content, filePath);
+              parsedDocs.push(doc);
+              formatsDistribution[doc.format]++;
+              categoriesDistribution[doc.category]++;
+            }
+          }
+        } catch (err: any) {
+          console.warn(`[Document Analyzer] Erro ao analisar ${filePath}:`, err.message);
         }
-      } else if (ext === "csv" || ext === "tsv" || ext === "tab" || ext === "psv") {
-        const file = await fetchRepoFile(repoUrl, filePath, githubToken);
-        if (file) {
-          const doc = parseTabular(file.content, filePath);
-          parsedDocs.push(doc);
-          formatsDistribution[doc.format]++;
-          categoriesDistribution[doc.category]++;
-        }
-      } else if (ext === "docx") {
-        const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
-        if (buffer) {
-          const doc = parseDocx(buffer, filePath);
-          parsedDocs.push(doc);
-          formatsDistribution.DOCX++;
-          categoriesDistribution[doc.category]++;
-        }
-      } else if (ext === "xlsx" || ext === "xls") {
-        const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
-        if (buffer) {
-          const doc = parseXlsx(buffer, filePath);
-          parsedDocs.push(doc);
-          formatsDistribution.XLSX++;
-          categoriesDistribution[doc.category]++;
-        }
-      } else if (ext === "pdf") {
-        const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
-        if (buffer) {
-          const doc = parsePdfText(buffer, filePath);
-          parsedDocs.push(doc);
-          formatsDistribution.PDF++;
-          categoriesDistribution[doc.category]++;
-        }
-      } else if (ext === "json" || ext === "jsonl" || ext === "yaml" || ext === "yml" || ext === "xml") {
-        const file = await fetchRepoFile(repoUrl, filePath, githubToken);
-        if (file) {
-          const doc = parseStructuredData(file.content, filePath);
-          parsedDocs.push(doc);
-          formatsDistribution[doc.format]++;
-          categoriesDistribution[doc.category]++;
-        }
-      } else {
-        const file = await fetchRepoFile(repoUrl, filePath, githubToken);
-        if (file) {
-          const doc = parsePlainText(file.content, filePath);
-          parsedDocs.push(doc);
-          formatsDistribution[doc.format]++;
-          categoriesDistribution[doc.category]++;
-        }
-      }
-    } catch (err: any) {
-      console.warn(`[Document Analyzer] Erro ao analisar ${filePath}:`, err.message);
-    }
+      })
+    );
   }
 
   // 3. Build Knowledge Graph (Nodes and Edges)

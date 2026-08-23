@@ -158,17 +158,47 @@ export const CONFIG_FILES = new Set([
   "lerna.json",
 ]);
 
+export const IGNORED_DIRECTORIES = new Set([
+  "node_modules",
+  "dist",
+  "build",
+  "out",
+  ".next",
+  ".turbo",
+  ".cache",
+  ".vercel",
+  ".git",
+  ".gemini",
+  "coverage",
+  ".nuget",
+  "vendor",
+  "obj",
+  ".output",
+  "temp",
+  "tmp"
+]);
+
+export function isIgnoredPath(filePath: string): boolean {
+  if (!filePath) return false;
+  const normalized = filePath.replace(/\\/g, "/");
+  const segments = normalized.split("/");
+  return segments.some((segment) => IGNORED_DIRECTORIES.has(segment.toLowerCase()));
+}
+
 export function detectLanguage(path: string): string | undefined {
+  if (isIgnoredPath(path)) return undefined;
   const ext = path.split(".").pop()?.toLowerCase();
   return ext ? EXT_LANG[ext] : undefined;
 }
 
 export function isSourceFile(path: string): boolean {
+  if (isIgnoredPath(path)) return false;
   const ext = path.split(".").pop()?.toLowerCase();
   return !!ext && SOURCE_EXTS.has(ext);
 }
 
 export function isConfigFile(path: string): boolean {
+  if (isIgnoredPath(path)) return false;
   const name = path.split("/").pop()?.toLowerCase() ?? "";
   return CONFIG_FILES.has(name);
 }
