@@ -19,7 +19,10 @@
     "lint": "eslint .",
     "format": "prettier --write ."
   },
-  "bin": "bin/mrcp.js",
+  "bin": {
+    "mrcp": "bin/mrcp.js",
+    "mrcp-engine": "bin/mrcp.js"
+  },
   "files": [
     "bin/",
     "README.md",
