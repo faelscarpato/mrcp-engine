@@ -117,6 +117,29 @@ Se a sua IA ou agente não suportar o protocolo MCP, você pode realizar chamada
 
 ---
 
+## 🧩 Extensão Oficial para VS Code, Cursor & Windsurf (`apps/vscode`)
+
+O MRCP-Engine conta com uma **extensão nativa para VS Code, Cursor e Windsurf** que leva todo o poder de análise determinística e otimização de tokens diretamente para dentro da IDE.
+
+### 🌟 Principais Recursos da Extensão:
+* **🌲 Activity Bar Sidebar (MRCP Engine):** Painel lateral com 6 visões estruturadas: Ações Rápidas, Métricas de Saúde (A-F / MI 0-100), Auditoria de Segurança & `.env`, Arquitetura & Dependências, Gaps de Testes & Código Morto e Inteligência Documental (DQI).
+* **📊 MRCP Cockpit (Webview Dashboard):** Dashboard visual com gráficos de distribuição de complexidade, KPIs em tempo real, visualizador do grafo AST e tabelas de rotas e segurança com jump-to-code.
+* **🔍 CodeLens no Editor:** Exibição da complexidade ciclomática em tempo real (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e botão `📋 Copiar para IA` diretamente sobre funções, classes e métodos.
+* **🛡️ Integração com o Painel "Problems":** Alertas nativos de segurança (tokens expostos) e variáveis ausentes no `.env` sublinhados com precisão no editor.
+* **📋 AI Context Packer (Economia de 95% de Tokens):** Empacotamento de contratos e assinaturas do projeto ou arquivo ativo com 1 clique para colar no ChatGPT, Claude ou Cursor.
+
+Para compilar e instalar a extensão:
+```bash
+# Compilar extensão
+pnpm --filter mrcp-vscode compile
+
+# Empacotar arquivo .vsix
+cd apps/vscode && npx @vscode/vsce package --no-dependencies
+# ou: npm run package
+```
+
+---
+
 ## 🤖 Como Instalar o MCP nas LLMs e Plataformas de IA
 
 ### 1. Claude Desktop (`claude_desktop_config.json`)

@@ -58,6 +58,13 @@ const LANGUAGE_WASM_MAP: Record<string, string> = {
   ruby: "/tree-sitter/tree-sitter-ruby.wasm",
   cobol: "/tree-sitter/tree-sitter-cobol.wasm",
   pascal: "/tree-sitter/tree-sitter-pascal.wasm",
+  cds: "/tree-sitter/tree-sitter-sap_cds.wasm",
+  sap_cds: "/tree-sitter/tree-sitter-sap_cds.wasm",
+  abap: "/tree-sitter/tree-sitter-sap_abap.wasm",
+  sap_abap: "/tree-sitter/tree-sitter-sap_abap.wasm",
+  plsql: "/tree-sitter/tree-sitter-oracle_plsql.wasm",
+  oracle_plsql: "/tree-sitter/tree-sitter-oracle_plsql.wasm",
+  oracle: "/tree-sitter/tree-sitter-oracle_plsql.wasm",
 };
 
 // Function node types by language
@@ -93,6 +100,26 @@ const FUNCTION_NODE_TYPES: Record<string, string[]> = {
   ruby: ["method", "def", "defs", "defp"],
   cobol: ["paragraph", "section"],
   pascal: ["function_declaration", "procedure_declaration"],
+  cds: ["view_entity_definition", "view_definition"],
+  sap_cds: ["view_entity_definition", "view_definition"],
+  abap: ["method_implementation", "method_definition_item", "report_statement"],
+  sap_abap: ["method_implementation", "method_definition_item", "report_statement"],
+  plsql: [
+    "package_definition",
+    "package_body_definition",
+    "procedure_definition",
+    "function_definition",
+    "trigger_definition",
+    "anonymous_block",
+  ],
+  oracle_plsql: [
+    "package_definition",
+    "package_body_definition",
+    "procedure_definition",
+    "function_definition",
+    "trigger_definition",
+    "anonymous_block",
+  ],
 };
 
 let parser: TreeSitterParser | null = null;
@@ -190,9 +217,23 @@ export async function extractFunctionsWithTreeSitter(
     pas: "pascal", // Pascal
     pp: "pascal",
     inc: "pascal",
-    cob: "cobol", // COBOL
+    cobol: "cobol", // COBOL
     cbl: "cobol",
     cpy: "cobol",
+    cds: "cds", // SAP CDS
+    abap: "abap", // SAP ABAP
+    clas: "abap",
+    intf: "abap",
+    prog: "abap",
+    sql: "oracle_plsql", // Oracle PL/SQL & SQL
+    pls: "oracle_plsql",
+    pks: "oracle_plsql",
+    pkb: "oracle_plsql",
+    pck: "oracle_plsql",
+    plb: "oracle_plsql",
+    trg: "oracle_plsql",
+    fnc: "oracle_plsql",
+    prc: "oracle_plsql",
   };
 
   const treeSitterLang = langMap[ext] || language.toLowerCase();
@@ -227,7 +268,10 @@ export async function extractFunctionsWithTreeSitter(
         // Find the name node
         const nameNode = node.namedChildren.find(
           (child) =>
-            child.type === "identifier" || child.type === "property_identifier",
+            child.type === "identifier" ||
+            child.type === "property_identifier" ||
+            child.type === "qualified_identifier" ||
+            child.type === "type_identifier",
         );
         if (nameNode) {
           name = nameNode.text;
