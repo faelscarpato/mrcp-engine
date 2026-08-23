@@ -12,7 +12,7 @@ import { findDeadCode } from '../../../packages/core/lib/analysis/dead-code-prun
 import { generateSqlOrmContract } from '../../../packages/core/lib/analysis/sql-orm-contract.js';
 
 describe('MRCP Engine - Real Intelligence & Non-Applicable Handling', () => {
-  const localRepo = '/home/scarpatoweb/mrcp-engine';
+  const localRepo = '.';
 
   it('1. mrcp_dependency_compatibility_resolver should query real NPM registry and resolve react latest (19.2.8)', async () => {
     const result = await resolveDependencyCompatibility({
@@ -97,7 +97,7 @@ describe('MRCP Engine - Real Intelligence & Non-Applicable Handling', () => {
       action: 'RENAME_SYMBOL',
       targetSymbol: 'nonExistentFunctionSymbol123',
       newSymbolName: 'newSymbolName',
-      targetFilePath: '/home/scarpatoweb/mrcp-engine/package.json'
+      targetFilePath: './package.json'
     });
 
     expect(result).toBeDefined();
