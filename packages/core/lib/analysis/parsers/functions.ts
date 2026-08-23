@@ -18,393 +18,8 @@ export interface ExtractedFunction {
   className?: string; // For class methods
 }
 
-// Regex patterns for function detection in various languages
-const FUNCTION_PATTERNS: Record<
-  string,
-  Array<{
-    regex: RegExp;
-    extract: (match: RegExpMatchArray) => ExtractedFunction | null;
-  }>
-> = {
-  // TypeScript/JavaScript
-  ts: [
-    // Function declaration: function name(params) {}
-    {
-      regex: /function\s+([a-zA-Z_$][\w$]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "TypeScript",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // Arrow function: const name = (params) => {}
-    {
-      regex: /(?:const|let|var)\s+([a-zA-Z_$][\w$]*)\s*=\s*\(([^)]*)\)\s*=>/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "TypeScript",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // Class method: methodName(params) {}
-    {
-      regex: /([a-zA-Z_$][\w$]*)\s*\(([^)]*)\)\s*\{(?:\s*\/\/|\s*\/\*|\s*\*)?/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "TypeScript",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // ES6 class method: methodName(params) {}
-    {
-      regex: /([a-zA-Z_$][\w$]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "TypeScript",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-  js: [
-    // Same as TypeScript
-    {
-      regex: /function\s+([a-zA-Z_$][\w$]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "JavaScript",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    {
-      regex: /(?:const|let|var)\s+([a-zA-Z_$][\w$]*)\s*=\s*\(([^)]*)\)\s*=>/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "JavaScript",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // Python
-  py: [
-    // def function_name(params):
-    {
-      regex: /def\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*:/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Python",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // Class method: def method_name(self, params):
-    {
-      regex: /def\s+([a-zA-Z_][\w]*)\s*\(self[^)]*\)\s*:/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Python",
-        parameters: [],
-        isMethod: true,
-      }),
-    },
-    // Async def
-    {
-      regex: /async\s+def\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*:/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Python",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // Go
-  go: [
-    // func functionName(params) returnType {
-    {
-      regex: /func\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*[^{]*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Go",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // Method: func (r Receiver) methodName(params) {
-    {
-      regex: /func\s*\([^)]+\)\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*[^{]*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Go",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: true,
-      }),
-    },
-  ],
-
-  // Rust
-  rs: [
-    // fn function_name(params) -> ReturnType {
-    {
-      regex: /fn\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*(?:->\s*[^{]+)?\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Rust",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // impl Block methods
-    {
-      regex: /fn\s+([a-zA-Z_][\w]*)\s*\((&?[^)]*)\)\s*(?:->\s*[^{]+)?\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Rust",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: true,
-      }),
-    },
-  ],
-
-  // Java
-  java: [
-    // public/private/protected returnType functionName(params) {
-    {
-      regex:
-        /(?:public|private|protected|static|final|native|synchronized|\s)\s*[\w<>[]\s]+\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Java",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // C/C++
-  c: [
-    // returnType functionName(params) {
-    {
-      regex: /[\w\s*]+\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "C",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-  cpp: [
-    // Same as C but with more keywords
-    {
-      regex:
-        /(?:[\w:\s<>]+\s+)+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*(?:const)?\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "C++",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // PHP
-  php: [
-    // function functionName($params) {
-    {
-      regex: /function\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "PHP",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-    // Class method: public function methodName($params) {
-    {
-      regex:
-        /(?:public|private|protected|static|final|abstract|\s)\s+function\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "PHP",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: true,
-      }),
-    },
-  ],
-
-  // Ruby
-  rb: [
-    // def function_name(params)
-    {
-      regex: /def\s+([a-zA-Z_][\w?]*)\s*\(?([^)]*)\)?/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Ruby",
-        parameters: m[2]
-          ? m[2]
-              .split(",")
-              .map((p) => p.trim())
-              .filter((p) => p)
-          : [],
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // Swift
-  swift: [
-    // func functionName(params) -> ReturnType {
-    {
-      regex: /func\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*(?:->\s*[^{]+)?\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Swift",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // Kotlin
-  kt: [
-    // fun functionName(params): ReturnType {
-    {
-      regex: /fun\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*(?::\s*[^{]+)?\s*\{/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Kotlin",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-
-  // Scala
-  scala: [
-    // def functionName(params): ReturnType = {
-    {
-      regex: /def\s+([a-zA-Z_][\w]*)\s*\(([^)]*)\)\s*(?::\s*[^=]+)?\s*=/g,
-      extract: (m) => ({
-        name: m[1],
-        path: "",
-        line: 0,
-        language: "Scala",
-        parameters: m[2]
-          .split(",")
-          .map((p) => p.trim())
-          .filter((p) => p),
-        isMethod: false,
-      }),
-    },
-  ],
-};
+import { FUNCTION_PATTERNS } from "./function-patterns.js";
+export { FUNCTION_PATTERNS } from "./function-patterns.js";
 
 /**
  * Extract functions from source code using Tree-sitter (preferred) or regex patterns (fallback)
@@ -419,11 +34,12 @@ export async function extractFunctionsFromCode(
   // Try Tree-sitter first if available
   if (isTreeSitterAvailable(ext) || isTreeSitterAvailable(language)) {
     try {
-      const treeSitterFunctions = await extractFunctionsWithTreeSitter(
+      const tsRes = await extractFunctionsWithTreeSitter(
         path,
         content,
         ext,
       );
+      const treeSitterFunctions = Array.isArray(tsRes) ? tsRes : (tsRes?.functions ?? []);
       if (treeSitterFunctions.length > 0) {
         return treeSitterFunctions;
       }
@@ -479,24 +95,26 @@ export async function extractFunctionsFromCode(
  * Convert extracted functions to GraphNode format
  */
 export function functionsToNodes(functions: ExtractedFunction[]): GraphNode[] {
-  return functions.map((f) => ({
-    id: `func:${f.path}:${f.name}:${f.line}`,
-    label: f.name,
-    kind: "function",
-    path: f.path,
-    loc: 1, // Will be updated by actual LOC counting
-    complexity: 1, // Base complexity
-    group: f.path.split("/").slice(0, -1).join("/") || "root",
-    language: f.language,
-    entrypoint: false,
-    // Store additional metadata
-    functionData: {
-      parameters: f.parameters,
-      isMethod: f.isMethod,
-      className: f.className,
-      line: f.line,
-    },
-  }));
+  return functions.map((f) => {
+    const fPath = f.path || "unknown";
+    return {
+      id: `func:${fPath}:${f.name}:${f.line}`,
+      label: f.name,
+      kind: "function",
+      path: fPath,
+      loc: f.lines || 1,
+      complexity: f.complexity || 1,
+      group: fPath.split("/").slice(0, -1).join("/") || "root",
+      language: f.language,
+      entrypoint: false,
+      functionData: {
+        parameters: f.parameters,
+        isMethod: f.isMethod,
+        className: f.className,
+        line: f.line,
+      },
+    };
+  });
 }
 
 /**

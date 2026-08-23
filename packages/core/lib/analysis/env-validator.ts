@@ -84,7 +84,7 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
       continue;
     }
 
-    // JS/TS: process.env.VAR_NAME, process.env['VAR_NAME'], import.meta.env.VITE_VAR
+    // JS/TS syntax: process.env.<VARIABLE>, process.env['<VARIABLE>'], import.meta.env.<VARIABLE>
     const jsEnvRegex = /(?:process\.env(?:\?\.|\.)([A-Z0-9_]+)|process\.env\[["']([A-Z0-9_]+)["']|import\.meta\.env(?:\?\.|\.)([A-Z0-9_]+))/g;
     let m;
     while ((m = jsEnvRegex.exec(content)) !== null) {

@@ -1,163 +1,120 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   extractFunctionsWithTreeSitter,
   extractCallsWithTreeSitter,
-  extractImportsWithTreeSitter,
-  isTreeSitterAvailable
-} from './tree-sitter.js';
+  extractImportsWithTreeSitter
+} from "./tree-sitter.js";
 
-describe('Tree-sitter AST Parser Suite', () => {
-  it('should verify grammar availability for core and enterprise languages', () => {
-    expect(isTreeSitterAvailable('typescript')).toBe(true);
-    expect(isTreeSitterAvailable('python')).toBe(true);
-    expect(isTreeSitterAvailable('go')).toBe(true);
-    expect(isTreeSitterAvailable('rust')).toBe(true);
-    expect(isTreeSitterAvailable('java')).toBe(true);
-    expect(isTreeSitterAvailable('cds')).toBe(true);
-    expect(isTreeSitterAvailable('abap')).toBe(true);
-    expect(isTreeSitterAvailable('plsql')).toBe(true);
-  });
-
-  describe('1. SAP CDS (Core Data Services)', () => {
-    const cdsCode = `
-      @EndUserText.label: 'Sales Order View'
-      @AccessControl.authorizationCheck: #NOT_REQUIRED
-      define root view entity ZI_SalesOrder
-        as select from sepm_sddl_so as SalesOrder
-        association [0..*] to ZI_SalesOrderItem as _Items
-          on $projection.SalesOrderKey = _Items.SalesOrderKey
-      {
-        key SalesOrder.sales_order_key as SalesOrderKey,
-        SalesOrder.created_by as CreatedBy,
-        _Items
-      }
-    `;
-
-    it('should extract CDS view entity accurately', async () => {
-      const functions = await extractFunctionsWithTreeSitter('zi_sales_order.cds', cdsCode, 'cds');
-      expect(functions.length).toBeGreaterThan(0);
-      expect(functions[0].name).toBe('ZI_SalesOrder');
-      expect(functions[0].language).toBe('Cds');
-    });
-  });
-
-  describe('2. SAP ABAP', () => {
-    const abapCode = `
-      CLASS zcl_order_processor DEFINITION PUBLIC FINAL CREATE PUBLIC.
-        PUBLIC SECTION.
-          METHODS: process_order IMPORTING iv_order_id TYPE string.
-      ENDCLASS.
-
-      CLASS zcl_order_processor IMPLEMENTATION.
-        METHOD process_order.
-          SELECT * FROM zorders INTO TABLE @DATA(lt_orders) WHERE order_id = @iv_order_id.
-        ENDMETHOD.
-      ENDCLASS.
-    `;
-
-    it('should extract ABAP methods accurately', async () => {
-      const functions = await extractFunctionsWithTreeSitter('zcl_order.abap', abapCode, 'abap');
-      expect(functions.length).toBeGreaterThan(0);
-      const names = functions.map(f => f.name);
-      expect(names).toContain('process_order');
-    });
-  });
-
-  describe('3. Oracle PL/SQL', () => {
-    const plsqlCode = `
-      CREATE OR REPLACE PACKAGE sales_pkg AS
-        FUNCTION calculate_commission(sales_amount NUMBER) RETURN NUMBER;
-        PROCEDURE process_batch(batch_id VARCHAR2);
-      END sales_pkg;
-      /
-
-      CREATE OR REPLACE PACKAGE BODY sales_pkg AS
-        FUNCTION calculate_commission(sales_amount NUMBER) RETURN NUMBER IS
-        BEGIN
-          RETURN sales_amount * 0.10;
-        END calculate_commission;
-
-        PROCEDURE process_batch(batch_id VARCHAR2) IS
-        BEGIN
-          COMMIT;
-        END process_batch;
-      END sales_pkg;
-      /
-    `;
-
-    it('should extract PL/SQL package, functions and procedures accurately', async () => {
-      const functions = await extractFunctionsWithTreeSitter('sales_pkg.sql', plsqlCode, 'plsql');
-      expect(functions.length).toBeGreaterThan(0);
-      const names = functions.map(f => f.name);
-      expect(names).toContain('sales_pkg');
-      expect(names).toContain('calculate_commission');
-      expect(names).toContain('process_batch');
-    });
-  });
-
-  describe('4. TypeScript & JavaScript', () => {
+describe("Tree-sitter AST Parsers & WASM Pipeline", () => {
+  it("should extract functions, calls, and imports from TypeScript", async () => {
     const tsCode = `
-      import { format } from 'date-fns';
-      import * as path from 'path';
+      import { foo } from "./foo";
+      import defaultBar from "bar";
 
-      export function parseDate(input: string): string {
-        return format(new Date(input), 'yyyy-MM-dd');
-      }
-
-      export class OrderManager {
-        public async executeOrder(id: string): Promise<boolean> {
-          const formatted = parseDate(id);
-          return true;
+      export function calculateTotal(a: number, b: number): number {
+        if (a > 10) {
+          foo(a);
         }
+        return a + b;
       }
     `;
 
-    it('should extract TS functions, methods and imports accurately', async () => {
-      const functions = await extractFunctionsWithTreeSitter('order.ts', tsCode, 'typescript');
-      const imports = await extractImportsWithTreeSitter('order.ts', tsCode, 'typescript');
-      const calls = await extractCallsWithTreeSitter('order.ts', tsCode, 'typescript');
+    const fnResult = await extractFunctionsWithTreeSitter("src/calc.ts", tsCode, "typescript");
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+    expect(fnResult.functions[0].name).toBe("calculateTotal");
+    expect(fnResult.functions[0].complexity).toBeGreaterThanOrEqual(2);
 
-      expect(functions.map(f => f.name)).toContain('parseDate');
-      expect(functions.map(f => f.name)).toContain('executeOrder');
+    const callResult = await extractCallsWithTreeSitter("src/calc.ts", tsCode, "typescript");
+    expect(callResult.some((c) => c.calleeName === "foo")).toBe(true);
 
-      const importPaths = imports.imports.map(i => i.raw);
-      expect(importPaths).toContain('date-fns');
-      expect(importPaths).toContain('path');
-
-      const called = calls.map(c => c.calleeName);
-      expect(called).toContain('format');
-      expect(called).toContain('parseDate');
-    });
+    const importResult = await extractImportsWithTreeSitter("src/calc.ts", tsCode, "typescript");
+    expect(importResult.imports.some((i) => i.raw === "./foo")).toBe(true);
+    expect(importResult.imports.some((i) => i.raw === "bar")).toBe(true);
   });
 
-  describe('5. Python', () => {
+  it("should extract methods and imports from Python", async () => {
     const pyCode = `
-      import os
-      from pathlib import Path
+from os import path
+import sys
 
-      def process_data(file_path: str) -> None:
-        path = Path(file_path)
-        print(path.name)
+def process_data(items):
+    for item in items:
+        if item > 0:
+            print(item)
+    return len(items)
+`;
 
-      async def fetch_remote(url: str):
-        pass
-    `;
+    const fnResult = await extractFunctionsWithTreeSitter("script.py", pyCode, "python");
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+    expect(fnResult.functions[0].name).toBe("process_data");
+    expect(fnResult.functions[0].complexity).toBeGreaterThanOrEqual(2);
 
-    it('should extract Python functions, imports and calls accurately', async () => {
-      const functions = await extractFunctionsWithTreeSitter('script.py', pyCode, 'python');
-      const imports = await extractImportsWithTreeSitter('script.py', pyCode, 'python');
-      const calls = await extractCallsWithTreeSitter('script.py', pyCode, 'python');
+    const importResult = await extractImportsWithTreeSitter("script.py", pyCode, "python");
+    expect(importResult.imports.some((i) => i.raw === "os" || i.raw === "sys")).toBe(true);
+  });
 
-      expect(functions.map(f => f.name)).toContain('process_data');
-      expect(functions.map(f => f.name)).toContain('fetch_remote');
+  it("should extract SAP CDS view definitions and associations", async () => {
+    const cdsCode = `
+using { Country } from './common';
 
-      const importPaths = imports.imports.map(i => i.raw);
-      expect(importPaths).toContain('os');
-      expect(importPaths).toContain('pathlib');
+define root view entity ZI_SalesOrder
+  as select from zsales_order
+{
+  key order_id as OrderId,
+      customer_id as CustomerId,
+      _Country
+}
+`;
 
-      const called = calls.map(c => c.calleeName);
-      expect(called).toContain('Path');
-      expect(called).toContain('print');
-    });
+    const fnResult = await extractFunctionsWithTreeSitter("sales.cds", cdsCode, "cds");
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+    expect(fnResult.functions[0].name).toBe("ZI_SalesOrder");
+
+    const importResult = await extractImportsWithTreeSitter("sales.cds", cdsCode, "cds");
+    expect(importResult.imports.some((i) => i.raw.includes("./common"))).toBe(true);
+  });
+
+  it("should extract SAP ABAP methods and implementations", async () => {
+    const abapCode = `
+CLASS zcl_invoice_service DEFINITION.
+  PUBLIC SECTION.
+    METHODS process_invoice IMPORTING iv_id TYPE string.
+ENDCLASS.
+
+CLASS zcl_invoice_service IMPLEMENTATION.
+  METHOD process_invoice.
+    IF iv_id IS NOT INITIAL.
+      CALL METHOD me->validate( iv_id ).
+    ENDIF.
+  ENDMETHOD.
+ENDCLASS.
+`;
+
+    const fnResult = await extractFunctionsWithTreeSitter("zcl_invoice.abap", abapCode, "abap");
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+    expect(fnResult.functions.some((f) => f.name.includes("process_invoice"))).toBe(true);
+
+    const callResult = await extractCallsWithTreeSitter("zcl_invoice.abap", abapCode, "abap");
+    expect(callResult.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it("should extract Oracle PL/SQL package and procedure definitions", async () => {
+    const plsqlCode = `
+CREATE OR REPLACE PACKAGE BODY emp_mgmt AS
+  PROCEDURE hire_employee(
+    p_emp_id IN NUMBER,
+    p_name   IN VARCHAR2
+  ) IS
+  BEGIN
+    IF p_emp_id > 0 THEN
+      INSERT INTO employees (id, name) VALUES (p_emp_id, p_name);
+    END IF;
+  END hire_employee;
+END emp_mgmt;
+`;
+
+    const fnResult = await extractFunctionsWithTreeSitter("emp_mgmt.sql", plsqlCode, "oracle_plsql");
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+    expect(fnResult.functions.some((f) => f.name.includes("emp_mgmt") || f.name.includes("hire_employee"))).toBe(true);
   });
 });

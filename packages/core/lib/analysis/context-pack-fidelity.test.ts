@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { extractTypedAstSymbols, analyzeWorkspaceLocally } from '../../../../apps/vscode/src/engine/local-analyzer.js';
+import { analyzeWorkspaceLocally } from '../../../../apps/vscode/src/engine/local-analyzer.js';
+import { extractTypedAstSymbols } from '../../../../apps/vscode/src/engine/ast-extractors.js';
 import { packWorkspaceContextForAi } from '../../../../apps/vscode/src/engine/context-packer.js';
 import * as path from 'path';
 
@@ -150,7 +151,7 @@ export function complexLogic(items: number[], threshold: number): number {
     const result2 = await analyzeWorkspaceLocally(rootPath, 50);
 
     expect(result1.provenance.workspaceFingerprint).toBe(result2.provenance.workspaceFingerprint);
-    expect(result1.provenance.analyzerVersion).toBe('2.5.0');
+    expect(result1.provenance.analyzerVersion).toBe('2.6.0');
     expect(result1.provenance.cache.used).toBe(false);
   });
 

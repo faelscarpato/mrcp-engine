@@ -104,13 +104,13 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
 
   const matchedNodes: any[] = [];
   for (const node of nodes) {
-    if (node.kind !== "file" && node.kind !== "module") continue;
+    if (node.kind !== "file") continue;
 
     const label = (node.label || "").toLowerCase();
-    const path = (node.path || "").toLowerCase();
+    const nodePath = (node.path || node.id || "").toLowerCase();
 
-    const matches = taskKeywords.some((kw) => label.includes(kw) || path.includes(kw));
-    if (matches || (node.complexity && node.complexity > 40)) {
+    const matches = taskKeywords.some((kw) => label.includes(kw) || nodePath.includes(kw));
+    if (matches || (node.complexity && node.complexity > 30)) {
       matchedNodes.push(node);
     }
   }
@@ -145,7 +145,8 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
   let totalSnippetChars = 0;
 
   for (const node of selectedNodes) {
-    const filePath = node.path || node.label || "";
+    const rawPath = node.path || node.id || node.label || "";
+    const filePath = rawPath.replace(/^file:/, "").replace(/^mod:/, "");
     const fetched = await fetchRepoFile(repoUrl, filePath);
 
     if (!fetched || !fetched.content) {

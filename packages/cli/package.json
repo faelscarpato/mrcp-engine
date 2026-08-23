@@ -3,10 +3,11 @@
   "version": "2.6.0",
   "type": "module",
   "bin": {
+    "mrcp": "./bin/mrcp.js",
     "mrcp-engine": "./bin/mrcp.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@mrcp/core": "^2.6.0"
+    "@mrcp/core": "workspace:*"
   }
 }

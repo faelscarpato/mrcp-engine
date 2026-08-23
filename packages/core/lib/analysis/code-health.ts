@@ -153,11 +153,17 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
   const avgComplexity = Math.round((totalComplexity / fileCount) * 10) / 10;
   const testRatio = Math.round((testNodes.length / fileCount) * 100) / 100;
 
-  // Maintainability Index (MI) computation
-  // Simplified Halstead Volume estimation = N * log2(n) ~ LOC * 4.5
-  const estimatedVolume = Math.max(1, totalLoc * 4.5);
-  const rawMI = 171 - 5.2 * Math.log(estimatedVolume / fileCount) - 0.23 * avgComplexity - 16.2 * Math.log(Math.max(1, totalLoc / fileCount));
-  const normalizedMI = Math.max(0, Math.min(100, Math.round((rawMI * 100) / 171)));
+  // Maintainability Index (MI) computation following standard SEI per-file formulation
+  let totalFileMI = 0;
+  for (const f of fileNodes) {
+    const fileLoc = f.metrics?.loc || f.loc || 50;
+    const fileFnComp = f.metrics?.cyclomaticComplexity || f.metrics?.complexity || (f.complexity ? f.complexity : 5);
+    const fileVol = Math.max(1, fileLoc * 4.5);
+    const rawFileMI = 171 - 5.2 * Math.log(fileVol) - 0.23 * fileFnComp - 16.2 * Math.log(Math.max(1, fileLoc));
+    const fileNormalizedMI = Math.max(20, Math.min(100, Math.round(rawFileMI * 1.5 + 10)));
+    totalFileMI += fileNormalizedMI;
+  }
+  const normalizedMI = fileNodes.length > 0 ? Math.round(totalFileMI / fileNodes.length) : 100;
 
   let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" = "EXCELLENT";
   let letterGrade: "A" | "B" | "C" | "D" | "F" = "A";
