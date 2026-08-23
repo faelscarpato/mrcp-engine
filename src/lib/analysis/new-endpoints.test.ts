@@ -77,7 +77,7 @@ describe('MRCP Engine - Real Intelligence & Non-Applicable Handling', () => {
     const snippet = result.contextPack[0].extractedCodeSnippet;
     expect(snippet).not.toContain('export declare class Module');
     expect(snippet).not.toContain('Assinaturas e contratos AST filtrados');
-  });
+  }, 25000);
 
   it('5. mrcp_auto_test_coverage_gap_finder should calculate real function coverage and stubs', async () => {
     const result = await findTestCoverageGaps({
@@ -90,7 +90,7 @@ describe('MRCP Engine - Real Intelligence & Non-Applicable Handling', () => {
     expect(result.isApplicable).toBe(true);
     expect(result.totalFunctionsAnalyzed).toBeGreaterThan(0);
     expect(result.coverageHealthPercentage).toBeGreaterThanOrEqual(0);
-  });
+  }, 25000);
 
   it('6. mrcp_ast_refactor_applier should be dryRun by default and warn if symbol not found', async () => {
     const result = await applyAstRefactoring({

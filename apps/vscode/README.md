@@ -1,7 +1,7 @@
-# 🧩 MRCP Engine — Extensão para VS Code, Cursor & Windsurf
+# 🧩 MRCP Engine — Extensão para VS Code, Cursor & Windsurf v2.6.0
 
 > **Deterministic AI Context & Code Health Cockpit**  
-> Redução de até 95% no consumo de tokens para LLMs, auditoria de segurança estática, índice de manutenibilidade e visualização de grafos AST diretamente no seu editor de código.
+> Redução de até 95% no consumo de tokens para LLMs, auditoria de segurança estática, índice de manutenibilidade e visualização de grafos AST diretamente no seu editor de código com suporte completo a **TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, SAP CDS, SAP ABAP e Oracle PL/SQL**.
 
 ---
 
@@ -28,7 +28,7 @@ Uma aba visual moderna, totalmente integrada ao tema claro/escuro do seu editor:
 ---
 
 ### 3. 🔍 Superpoderes no Editor (CodeLens & Diagnostics)
-* **CodeLens Dinâmico:** Exibe métricas de complexidade ciclomática (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e atalhos rápidos (`📋 Copiar para IA`) sobre funções, classes e métodos em TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby e C#.
+* **CodeLens Dinâmico:** Exibe métricas de complexidade ciclomática (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e atalhos rápidos (`📋 Copiar para IA`) sobre funções, classes e métodos em **TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, SAP CDS, SAP ABAP e Oracle PL/SQL**.
 * **Painel de Problemas ("Problems"):** Publica alertas de segurança e variáveis de ambiente ausentes no painel nativo do VS Code com realce no código.
 * **Status Bar Item:** Mostra o score consolidado no rodapé do editor (`$(shield) MRCP: A (94/100)`).
 
@@ -79,16 +79,15 @@ pnpm --filter mrcp-vscode compile
 
 # 2. Gerar o arquivo .vsix (utilizando vsce)
 cd apps/vscode
-npx @vscode/vsce package --no-dependencies
-# ou simplesmente:
 npm run package
+# Gera: mrcp-vscode-2.6.0.vsix
 ```
 
 Para instalar o arquivo `.vsix` gerado no VS Code ou Cursor:
 ```bash
-code --install-extension mrcp-vscode-2.5.0.vsix
+code --install-extension mrcp-vscode-2.6.0.vsix
 # ou no Cursor:
-cursor --install-extension mrcp-vscode-2.5.0.vsix
+cursor --install-extension mrcp-vscode-2.6.0.vsix
 ```
 
 ---

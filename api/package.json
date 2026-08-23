@@ -1,11 +1,11 @@
 {
   "name": "@mrcp/api",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "type": "module",
   "dependencies": {
     "@vercel/node": "^5.9.5",
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@mrcp/core": "workspace:*",
+    "@mrcp/core": "^2.6.0",
     "cheerio": "^1.2.0",
     "zod": "^3.24.2",
     "date-fns": "^4.1.0"
