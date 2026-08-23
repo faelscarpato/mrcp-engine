@@ -1,0 +1,23 @@
+{
+  "grammars": [
+    {
+      "name": "sap_cds",
+      "camelcase": "SapCds",
+      "scope": "source.cds",
+      "file-types": [
+        "cds"
+      ],
+      "injection-regex": "^(sap-)?cds$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "SAP CDS grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "MRCP-Engine"
+      }
+    ]
+  }
+}

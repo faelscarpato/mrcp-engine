@@ -304,17 +304,15 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
   // 5. Execução do parsing real de tabelas
   let tables: OrmTableContract[] = [];
   try {
-    const safeContent = fileContent || "";
-    const safeTarget = targetFile || "unknown";
     if (detectedType === "PRISMA") {
-      tables = parsePrismaSchema(safeContent, safeTarget);
+      tables = parsePrismaSchema(fileContent, targetFile);
     } else if (detectedType === "SQL_DDL") {
-      tables = parseSqlDdl(safeContent, safeTarget);
+      tables = parseSqlDdl(fileContent, targetFile);
     } else {
       // Fallback para Drizzle/TypeORM via regex DDL/interfaces
-      tables = parsePrismaSchema(safeContent, safeTarget);
+      tables = parsePrismaSchema(fileContent, targetFile);
       if (tables.length === 0) {
-        tables = parseSqlDdl(safeContent, safeTarget);
+        tables = parseSqlDdl(fileContent, targetFile);
       }
     }
   } catch (err: any) {

@@ -1,0 +1,26 @@
+{
+  "grammars": [
+    {
+      "name": "sap_abap",
+      "camelcase": "SapAbap",
+      "scope": "source.abap",
+      "file-types": [
+        "abap",
+        "clas",
+        "intf",
+        "prog"
+      ],
+      "injection-regex": "^(sap-)?abap$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "SAP ABAP / ABAP OO grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "MRCP-Engine"
+      }
+    ]
+  }
+}

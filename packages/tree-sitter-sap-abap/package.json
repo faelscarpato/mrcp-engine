@@ -1,0 +1,34 @@
+{
+  "name": "tree-sitter-sap-abap",
+  "version": "1.0.0",
+  "description": "SAP ABAP / ABAP OO grammar for tree-sitter",
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "keywords": [
+    "tree-sitter",
+    "sap",
+    "abap",
+    "s4hana",
+    "oop"
+  ],
+  "author": "MRCP-Engine",
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^8.0.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.12"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.abap",
+      "file-types": [
+        "abap",
+        "clas",
+        "intf",
+        "prog"
+      ],
+      "injection-regex": "^(sap-)?abap$"
+    }
+  ]
+}

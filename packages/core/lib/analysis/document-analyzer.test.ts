@@ -66,13 +66,13 @@ See [Configuration](./config.json) and [External Docs](https://example.com/docs)
     expect(table.totalRows).toBe(3);
     expect(table.totalColumns).toBe(5);
 
-    const emailCol = table.columns.find((c: any) => c.name === "email");
+    const emailCol = table.columns.find(c => c.name === "email");
     expect(emailCol?.inferredType).toBe("EMAIL");
 
-    const activeCol = table.columns.find((c: any) => c.name === "is_active");
+    const activeCol = table.columns.find(c => c.name === "is_active");
     expect(activeCol?.inferredType).toBe("BOOLEAN");
 
-    const scoreCol = table.columns.find((c: any) => c.name === "score");
+    const scoreCol = table.columns.find(c => c.name === "score");
     expect(scoreCol?.inferredType).toBe("DECIMAL");
 
     expect(table.generatedTypeScriptSchema).toContain("export interface users");

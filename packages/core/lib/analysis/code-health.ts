@@ -86,7 +86,6 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
 
   let totalLoc = 0;
   let totalComplexity = 0;
-  let totalFileMI = 0;
   let godModulesCount = 0;
   let lowCount = 0;
   let modCount = 0;
@@ -102,14 +101,6 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
 
     totalLoc += loc;
     totalComplexity += complexity;
-
-    // Per-file Maintainability Index (v2.5.0-sei logic)
-    const fileLoc = Math.max(1, loc);
-    const fileAvgComp = Math.max(1, complexity);
-    const fileVol = fileLoc * 4.5;
-    const rawFileMI = 171 - 5.2 * Math.log(fileVol) - 0.23 * fileAvgComp - 16.2 * Math.log(fileLoc);
-    const fileNormalizedMI = Math.max(20, Math.min(100, Math.round(rawFileMI * 1.5 + 10)));
-    totalFileMI += fileNormalizedMI;
 
     let cognitiveLoad: "LOW" | "MODERATE" | "HIGH" | "EXTREME" = "LOW";
     if (complexity > 50 || loc > 800) {
@@ -162,8 +153,11 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
   const avgComplexity = Math.round((totalComplexity / fileCount) * 10) / 10;
   const testRatio = Math.round((testNodes.length / fileCount) * 100) / 100;
 
-  // Maintainability Index (MI) computation (v2.5.0-sei approach)
-  const normalizedMI = fileCount > 0 ? Math.round(totalFileMI / fileCount) : 100;
+  // Maintainability Index (MI) computation
+  // Simplified Halstead Volume estimation = N * log2(n) ~ LOC * 4.5
+  const estimatedVolume = Math.max(1, totalLoc * 4.5);
+  const rawMI = 171 - 5.2 * Math.log(estimatedVolume / fileCount) - 0.23 * avgComplexity - 16.2 * Math.log(Math.max(1, totalLoc / fileCount));
+  const normalizedMI = Math.max(0, Math.min(100, Math.round((rawMI * 100) / 171)));
 
   let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" = "EXCELLENT";
   let letterGrade: "A" | "B" | "C" | "D" | "F" = "A";
@@ -213,6 +207,6 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
     },
     topRefactoringPriorities,
     isApplicable: true,
-    message: `Índice de Manutenibilidade (v2.5.0-sei): ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`
+    message: `Índice de Manutenibilidade: ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`
   };
 }

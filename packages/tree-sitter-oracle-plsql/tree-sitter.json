@@ -1,0 +1,31 @@
+{
+  "grammars": [
+    {
+      "name": "plsql",
+      "camelcase": "Plsql",
+      "scope": "source.plsql",
+      "file-types": [
+        "sql",
+        "pls",
+        "pks",
+        "pkb",
+        "pck",
+        "plb",
+        "trg",
+        "fnc",
+        "prc"
+      ],
+      "injection-regex": "^(oracle-)?plsql$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Oracle PL/SQL grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "MRCP-Engine"
+      }
+    ]
+  }
+}

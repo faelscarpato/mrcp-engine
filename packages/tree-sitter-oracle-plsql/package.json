@@ -1,0 +1,36 @@
+{
+  "name": "tree-sitter-plsql",
+  "version": "1.0.0",
+  "description": "Oracle PL/SQL grammar for tree-sitter",
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "keywords": [
+    "tree-sitter",
+    "oracle",
+    "plsql",
+    "database",
+    "sql"
+  ],
+  "author": "MRCP-Engine",
+  "license": "MIT",
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.12"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.plsql",
+      "file-types": [
+        "sql",
+        "pls",
+        "pks",
+        "pkb",
+        "pck",
+        "plb",
+        "trg",
+        "fnc",
+        "prc"
+      ],
+      "injection-regex": "^(oracle-)?plsql$"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "tree-sitter-sap-cds",
+  "version": "1.0.0",
+  "description": "SAP CDS (Core Data Services) grammar for tree-sitter",
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "keywords": [
+    "tree-sitter",
+    "sap",
+    "cds",
+    "s4hana",
+    "abap"
+  ],
+  "author": "MRCP-Engine",
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^8.0.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.12"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.cds",
+      "file-types": [
+        "cds"
+      ],
+      "injection-regex": "^(sap-)?cds$"
+    }
+  ]
+}
