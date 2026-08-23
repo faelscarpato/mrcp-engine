@@ -1,5 +1,5 @@
-// Tree-sitter based function extraction using web-tree-sitter
-// This provides accurate AST-based function extraction for multiple languages
+// Tree-sitter based AST extraction using web-tree-sitter
+// This provides accurate AST-based function, call, and import extraction for multiple languages
 
 import type { ExtractedFunction } from "./functions.js";
 import type { ImportRef } from "./imports.js";
@@ -44,7 +44,7 @@ interface TreeSitterNode {
 }
 
 // Language to WASM file mapping
-const LANGUAGE_WASM_MAP: Record<string, string> = {
+export const LANGUAGE_WASM_MAP: Record<string, string> = {
   javascript: "/tree-sitter/tree-sitter-javascript.wasm",
   typescript: "/tree-sitter/tree-sitter-typescript.wasm",
   tsx: "/tree-sitter/tree-sitter-tsx.wasm",
@@ -65,6 +65,53 @@ const LANGUAGE_WASM_MAP: Record<string, string> = {
   plsql: "/tree-sitter/tree-sitter-oracle_plsql.wasm",
   oracle_plsql: "/tree-sitter/tree-sitter-oracle_plsql.wasm",
   oracle: "/tree-sitter/tree-sitter-oracle_plsql.wasm",
+};
+
+// Extension to Language mapping
+export const EXTENSION_TO_LANGUAGE_MAP: Record<string, string> = {
+  ts: "typescript",
+  mts: "typescript",
+  cts: "typescript",
+  tsx: "tsx",
+  js: "javascript",
+  mjs: "javascript",
+  cjs: "javascript",
+  jsx: "javascript",
+  py: "python",
+  pyw: "python",
+  go: "go",
+  rs: "rust",
+  java: "java",
+  cpp: "cpp",
+  cc: "cpp",
+  cxx: "cpp",
+  c: "c",
+  h: "c",
+  hpp: "cpp",
+  hxx: "cpp",
+  php: "php",
+  phtml: "php",
+  rb: "ruby",
+  pas: "pascal",
+  pp: "pascal",
+  inc: "pascal",
+  cobol: "cobol",
+  cbl: "cobol",
+  cpy: "cobol",
+  cds: "cds",
+  abap: "abap",
+  clas: "abap",
+  intf: "abap",
+  prog: "abap",
+  sql: "oracle_plsql",
+  pls: "oracle_plsql",
+  pks: "oracle_plsql",
+  pkb: "oracle_plsql",
+  pck: "oracle_plsql",
+  plb: "oracle_plsql",
+  trg: "oracle_plsql",
+  fnc: "oracle_plsql",
+  prc: "oracle_plsql",
 };
 
 // Function node types by language
@@ -134,9 +181,6 @@ async function initTreeSitter(): Promise<void> {
 
   try {
     await webTreeSitter.Parser.init();
-    // web-tree-sitter's Parser type is structurally incompatible with our
-    // TreeSitterParser interface in some TypeScript configurations. Cast to
-    // unknown first to satisfy the compiler, preserving runtime behavior.
     parser = new webTreeSitter.Parser() as unknown as TreeSitterParser;
     initialized = true;
   } catch (error) {
@@ -145,7 +189,7 @@ async function initTreeSitter(): Promise<void> {
 }
 
 /**
- * Load a language from WASM file
+ * Load a language from WASM file with resilient cascading path resolution
  */
 async function loadLanguage(
   languageName: string,
@@ -161,13 +205,36 @@ async function loadLanguage(
 
   try {
     let wasmBytes: Uint8Array;
-    
-    if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-      // Node.js env (Vercel backend)
-      const fs = await import('fs');
-      const path = await import('path');
-      const wasmPathAbsolute = path.join(process.cwd(), 'public', wasmPath);
-      wasmBytes = fs.readFileSync(wasmPathAbsolute);
+
+    if (typeof process !== "undefined" && process.versions && process.versions.node) {
+      const fs = await import("fs");
+      const path = await import("path");
+
+      const cleanRelPath = wasmPath.startsWith("/") ? wasmPath.slice(1) : wasmPath;
+      const possiblePaths = [
+        path.join(process.cwd(), "public", cleanRelPath),
+        path.join(process.cwd(), cleanRelPath),
+        path.join(process.cwd(), "dist", cleanRelPath),
+        path.resolve(process.cwd(), "..", "public", cleanRelPath),
+        path.resolve(process.cwd(), "../..", "public", cleanRelPath),
+        path.resolve(process.cwd(), "../../..", "public", cleanRelPath),
+        path.resolve("/home/scarpatoweb/mrcp-engine/public", cleanRelPath),
+      ];
+
+      let foundPath: string | null = null;
+      for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+          foundPath = p;
+          break;
+        }
+      }
+
+      if (!foundPath) {
+        console.warn(`[MRCP Tree-sitter] WASM file for ${languageName} not found in candidates: ${possiblePaths.join(", ")}`);
+        return null;
+      }
+
+      wasmBytes = fs.readFileSync(foundPath);
     } else {
       // Browser env fallback
       const response = await fetch(wasmPath);
@@ -195,48 +262,7 @@ export async function extractFunctionsWithTreeSitter(
   language: string,
 ): Promise<ExtractedFunction[]> {
   const ext = path.split(".").pop()?.toLowerCase() ?? language.toLowerCase();
-
-  // Map extension to language
-  const langMap: Record<string, string> = {
-    ts: "typescript",
-    tsx: "tsx",
-    js: "javascript",
-    jsx: "javascript",
-    py: "python",
-    go: "go",
-    rs: "rust",
-    java: "java",
-    cpp: "cpp",
-    cc: "cpp",
-    cxx: "cpp",
-    c: "c",
-    h: "c",
-    hpp: "cpp",
-    php: "php",
-    rb: "ruby",
-    pas: "pascal", // Pascal
-    pp: "pascal",
-    inc: "pascal",
-    cobol: "cobol", // COBOL
-    cbl: "cobol",
-    cpy: "cobol",
-    cds: "cds", // SAP CDS
-    abap: "abap", // SAP ABAP
-    clas: "abap",
-    intf: "abap",
-    prog: "abap",
-    sql: "oracle_plsql", // Oracle PL/SQL & SQL
-    pls: "oracle_plsql",
-    pks: "oracle_plsql",
-    pkb: "oracle_plsql",
-    pck: "oracle_plsql",
-    plb: "oracle_plsql",
-    trg: "oracle_plsql",
-    fnc: "oracle_plsql",
-    prc: "oracle_plsql",
-  };
-
-  const treeSitterLang = langMap[ext] || language.toLowerCase();
+  const treeSitterLang = EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
   const nodeTypes = FUNCTION_NODE_TYPES[treeSitterLang];
 
   if (!nodeTypes || nodeTypes.length === 0) {
@@ -257,15 +283,12 @@ export async function extractFunctionsWithTreeSitter(
 
     const functions: ExtractedFunction[] = [];
 
-    // Traverse the AST to find function nodes
     function visit(node: TreeSitterNode, parentClassName?: string) {
       if (nodeTypes.includes(node.type)) {
-        // Extract function name
         let name = "";
         let params: string[] = [];
         let isMethod = false;
 
-        // Find the name node
         const nameNode = node.namedChildren.find(
           (child) =>
             child.type === "identifier" ||
@@ -277,7 +300,6 @@ export async function extractFunctionsWithTreeSitter(
           name = nameNode.text;
         }
 
-        // Find parameters
         const paramsNode = node.namedChildren.find(
           (child) =>
             child.type === "formal_parameters" || child.type === "parameters",
@@ -291,12 +313,10 @@ export async function extractFunctionsWithTreeSitter(
             .map((child) => child.text);
         }
 
-        // Check if it's a method (inside a class)
         if (parentClassName) {
           isMethod = true;
         }
 
-        // Check for class context
         let currentClass = parentClassName;
         if (node.type === "class_declaration" || node.type === "class") {
           const classNameNode = node.namedChildren.find(
@@ -308,7 +328,6 @@ export async function extractFunctionsWithTreeSitter(
           }
         }
 
-        // Calculate line number
         const before = content.substring(0, node.startIndex);
         const lineNumber = before.split("\n").length;
 
@@ -325,12 +344,10 @@ export async function extractFunctionsWithTreeSitter(
           });
         }
 
-        // Recursively visit children
         for (const child of node.namedChildren) {
           visit(child, currentClass);
         }
       } else {
-        // For class nodes, pass class name to children
         let currentClass = parentClassName;
         if (node.type === "class_declaration" || node.type === "class") {
           const classNameNode = node.namedChildren.find(
@@ -349,7 +366,6 @@ export async function extractFunctionsWithTreeSitter(
 
     visit(rootNode);
 
-    // Deduplicate by name + line
     const seen = new Set<string>();
     return functions.filter((f) => {
       const key = `${f.path}:${f.line}:${f.name}`;
@@ -368,7 +384,7 @@ export async function extractFunctionsWithTreeSitter(
  */
 export function isTreeSitterAvailable(language: string): boolean {
   const ext = language.toLowerCase();
-  return Object.keys(LANGUAGE_WASM_MAP).includes(ext);
+  return Object.keys(LANGUAGE_WASM_MAP).includes(ext) || Object.keys(EXTENSION_TO_LANGUAGE_MAP).includes(ext);
 }
 
 /**
@@ -379,61 +395,35 @@ export function getFunctionNodeTypes(language: string): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Call expression extraction via Tree-sitter (Sprint 4, task 2.6)
+// Call expression extraction via Tree-sitter
 // ---------------------------------------------------------------------------
 
-// Node types that represent function calls per language family
 const CALL_NODE_TYPES: Record<string, string[]> = {
   javascript: ["call_expression"],
   typescript: ["call_expression"],
   tsx: ["call_expression"],
   python: ["call", "call_expression"],
+  go: ["call_expression"],
+  rust: ["call_expression"],
+  java: ["method_invocation", "constructor_invocation"],
+  cpp: ["call_expression"],
+  c: ["call_expression"],
+  php: ["function_call_expression", "method_call_expression", "scoped_call_expression"],
+  ruby: ["call", "method_call"],
   cobol: ["perform_statement", "call_statement"],
   pascal: ["procedure_statement", "function_designator"],
+  cds: ["select_statement"],
+  abap: ["method_call_statement", "call_method_statement", "perform_statement"],
+  plsql: ["function_call", "procedure_call", "call_statement"],
+  oracle_plsql: ["function_call", "procedure_call", "call_statement"],
 };
 
-// Keywords to skip when scanning call expressions (built-in / control flow)
 const CALL_KEYWORDS = new Set([
-  "if",
-  "else",
-  "for",
-  "while",
-  "do",
-  "switch",
-  "case",
-  "return",
-  "new",
-  "delete",
-  "typeof",
-  "instanceof",
-  "void",
-  "throw",
-  "try",
-  "catch",
-  "finally",
-  "with",
-  "var",
-  "let",
-  "const",
-  "function",
-  "class",
-  "import",
-  "export",
-  "from",
-  "as",
-  "default",
-  "break",
-  "continue",
-  "debugger",
-  "super",
-  "this",
-  "null",
-  "true",
-  "false",
-  "undefined",
-  "NaN",
-  "Infinity",
-  "eval",
+  "if", "else", "for", "while", "do", "switch", "case", "return", "new", "delete",
+  "typeof", "instanceof", "void", "throw", "try", "catch", "finally", "with", "var",
+  "let", "const", "function", "class", "import", "export", "from", "as", "default",
+  "break", "continue", "debugger", "super", "this", "null", "true", "false",
+  "undefined", "NaN", "Infinity", "eval",
 ]);
 
 function getField(node: any, fieldName: string): any {
@@ -447,44 +437,58 @@ function getField(node: any, fieldName: string): any {
   return null;
 }
 
-/**
- * Check if a node represents a call expression and extract callee info.
- * Returns null if the node is not a relevant call expression.
- */
 function extractCallFromNode(
   node: TreeSitterNode,
 ): { name: string; isMethod: boolean } | null {
-  // JS/TS/Python: call_expression — function child is the callee
-  if (node.type === "call_expression") {
+  if (node.type === "call_expression" || node.type === "call") {
     const fn = getField(node, "function") ?? node.namedChildren?.[0];
     if (!fn) return null;
 
-    // Simple identifier: foo()
     if (fn.type === "identifier") {
       const name = fn.text;
       if (CALL_KEYWORDS.has(name)) return null;
       return { name, isMethod: false };
     }
 
-    // Member expression: obj.foo() or this.foo()
-    if (fn.type === "member_expression" || fn.type === "member_access") {
-      const prop = getField(fn, "property") ?? fn.namedChildren?.[1];
-      if (
-        prop &&
-        (prop.type === "identifier" || prop.type === "property_identifier")
-      ) {
+    if (
+      fn.type === "member_expression" ||
+      fn.type === "member_access" ||
+      fn.type === "field_expression" ||
+      fn.type === "selector_expression"
+    ) {
+      const prop = getField(fn, "property") ?? getField(fn, "field") ?? fn.namedChildren?.[1];
+      if (prop && (prop.type === "identifier" || prop.type === "property_identifier" || prop.type === "field_identifier")) {
         const name = prop.text;
         if (CALL_KEYWORDS.has(name)) return null;
         return { name, isMethod: true };
       }
     }
   }
+
+  if (node.type === "method_invocation") {
+    const nameNode = getField(node, "name") ?? node.namedChildren.find((c) => c.type === "identifier");
+    if (nameNode) {
+      return { name: nameNode.text, isMethod: true };
+    }
+  }
+
+  if (
+    node.type === "perform_statement" ||
+    node.type === "call_statement" ||
+    node.type === "method_call_statement" ||
+    node.type === "procedure_call"
+  ) {
+    const nameNode = node.namedChildren.find(
+      (c) => c.type === "identifier" || c.type === "qualified_identifier",
+    );
+    if (nameNode) {
+      return { name: nameNode.text, isMethod: node.type.includes("method") };
+    }
+  }
+
   return null;
 }
 
-/**
- * Walk a Tree-sitter AST and collect all call expressions.
- */
 function collectCallExpressions(
   root: TreeSitterNode,
   supportedTypes: string[],
@@ -509,34 +513,13 @@ function collectCallExpressions(
   return out;
 }
 
-/**
- * Extract call expressions from source code using Tree-sitter AST.
- * More precise than regex: avoids false positives inside strings, comments,
- * and non-call parenthesized expressions.
- *
- * Returns an empty array on any failure (WASM not loaded, unsupported
- * language, parse error) — the regex fallback then takes over.
- */
 export async function extractCallsWithTreeSitter(
   path: string,
   content: string,
   language: string,
 ): Promise<CallExpression[]> {
   const ext = path.split(".").pop()?.toLowerCase() ?? language.toLowerCase();
-  const langMap: Record<string, string> = {
-    ts: "typescript",
-    tsx: "tsx",
-    js: "javascript",
-    jsx: "javascript",
-    py: "python",
-    pas: "pascal",
-    cob: "cobol",
-    cbl: "cobol",
-    cpy: "cobol",
-    pp: "pascal",
-    inc: "pascal",
-  };
-  const treeSitterLang = langMap[ext] || language.toLowerCase();
+  const treeSitterLang = EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
   const nodeTypes = CALL_NODE_TYPES[treeSitterLang];
   if (!nodeTypes || nodeTypes.length === 0) return [];
 
@@ -552,48 +535,39 @@ export async function extractCallsWithTreeSitter(
     if (!tree) return [];
     return collectCallExpressions(tree.rootNode, nodeTypes);
   } catch (error) {
-    console.error(
-      `Failed to extract calls from ${path} with Tree-sitter:`,
-      error,
-    );
+    console.error(`Failed to extract calls from ${path} with Tree-sitter:`, error);
     return [];
   }
 }
 
 // ---------------------------------------------------------------------------
-// Import resolution via Tree-sitter (Sprint 3, task 2.4)
+// Import resolution via Tree-sitter
 // ---------------------------------------------------------------------------
 
-/**
- * Result of AST-based import extraction. Same shape as regex `ImportRef`,
- * plus the set of module specifiers seen (kept here so the caller can
- * extract unique aliases without re-walking the AST).
- */
 export interface TreeSitterImportResult {
   imports: ImportRef[];
 }
 
-// Node types that carry module specifiers, per language family. The string
-// literal holding the path is always a child of one of these.
 const IMPORT_NODE_TYPES: Record<string, string[]> = {
   javascript: ["import_statement", "export_statement"],
   typescript: ["import_statement", "export_statement"],
   tsx: ["import_statement", "export_statement"],
-  // `import_from` is the python import statement node in tree-sitter-python
-  python: ["import_statement", "import_from"],
-  // tree-sitter-go uses `import_declaration` (block) and individual
-  // `import_spec` children; we handle both by scanning for string nodes.
+  python: ["import_statement", "import_from_statement", "import_from"],
   go: ["import_declaration", "import_spec"],
-  // tree-sitter-rust uses `use_declaration`
   rust: ["use_declaration"],
+  java: ["import_declaration"],
+  cpp: ["preproc_include"],
+  c: ["preproc_include"],
+  php: ["include_expression", "require_expression", "namespace_use_declaration"],
+  ruby: ["require", "require_relative", "load"],
   cobol: ["copy_statement"],
   pascal: ["uses_clause"],
+  cds: ["using_statement"],
+  abap: ["include_statement", "tables_statement", "type_pools_statement"],
+  plsql: ["package_specification", "package_body_definition"],
+  oracle_plsql: ["package_specification", "package_body_definition"],
 };
 
-/**
- * Collect every string literal child of `node` (depth-bounded). Returns
- * unique texts in document order.
- */
 function collectStrings(node: TreeSitterNode, maxDepth = 3): string[] {
   const out: string[] = [];
   const seen = new Set<number>();
@@ -606,7 +580,6 @@ function collectStrings(node: TreeSitterNode, maxDepth = 3): string[] {
     ) {
       if (!seen.has(n.startIndex)) {
         seen.add(n.startIndex);
-        // Strip surrounding quotes/backticks
         const t = n.text;
         const stripped = t.match(/^["'`]+|["'`]+$/g) ? t.slice(1, -1) : t;
         if (stripped) out.push(stripped);
@@ -619,29 +592,19 @@ function collectStrings(node: TreeSitterNode, maxDepth = 3): string[] {
   return out;
 }
 
-/**
- * Find the `source` field of an import/export statement (JS/TS). Returns the
- * string literal text without quotes, or null.
- */
 function findSourceField(node: TreeSitterNode): string | null {
   const src = getField(node, "source");
   if (!src) return null;
-  // src is a string node; strip quotes
   const t = src.text;
   return t.match(/^["'`]/) ? t.slice(1, -1) : t;
 }
 
-/**
- * Detect a dynamic `import("...")` call expression. Tree-sitter represents
- * this as `call_expression` whose `function` child is an `import` identifier.
- */
 function isDynamicImport(node: TreeSitterNode): string | null {
   if (node.type !== "call_expression") return null;
   const fn = getField(node, "function");
   if (!fn) return null;
   const firstArg = getField(node, "arguments");
   if (!firstArg) return null;
-  // `import(...)`: the function node is the keyword `import`.
   if (fn.type === "import") {
     for (const c of firstArg.children ?? []) {
       if (
@@ -657,48 +620,17 @@ function isDynamicImport(node: TreeSitterNode): string | null {
   return null;
 }
 
-/**
- * Heuristic: a specifier is relative when it starts with `./`, `../`, or `/`.
- * TypeScript path-aliases (`@/`, `~`, `#`) are NOT marked relative here —
- * they're resolved by the regex fallback that reads `tsconfig.json` (task 2.5).
- */
 function isRelativeSpec(s: string): boolean {
   return s.startsWith("./") || s.startsWith("../") || s.startsWith("/");
 }
 
-/**
- * Extract imports from a source file using Tree-sitter. More precise than the
- * regex fallback: catches dynamic `import("./x")`, re-exports
- * (`export * from "./y"`, `export {a} from "./z"`), and TS `import type`
- * without false-positives from strings that merely match the regex in a
- * comment or string literal.
- *
- * On any failure (WASM not loaded, unsupported language, parse error) returns
- * an empty array — the regex fallback in `imports.ts` then takes over.
- */
 export async function extractImportsWithTreeSitter(
   path: string,
   content: string,
   language: string,
 ): Promise<TreeSitterImportResult> {
   const ext = path.split(".").pop()?.toLowerCase() ?? language.toLowerCase();
-
-  const langMap: Record<string, string> = {
-    ts: "typescript",
-    tsx: "tsx",
-    js: "javascript",
-    jsx: "javascript",
-    py: "python",
-    go: "go",
-    rs: "rust",
-    cbl: "cobol",
-    cob: "cobol",
-    cpy: "cobol",
-    pas: "pascal",
-    pp: "pascal",
-    inc: "pascal",
-  };
-  const treeSitterLang = langMap[ext] || language.toLowerCase();
+  const treeSitterLang = EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
   const nodeTypes = IMPORT_NODE_TYPES[treeSitterLang];
 
   if (!nodeTypes || nodeTypes.length === 0) {
@@ -720,14 +652,13 @@ export async function extractImportsWithTreeSitter(
     const seen = new Set<string>();
 
     const push = (spec: string) => {
-      const key = spec;
-      if (seen.has(key)) return;
+      const key = spec.trim();
+      if (!key || seen.has(key)) return;
       seen.add(key);
-      out.push({ raw: spec, isRelative: isRelativeSpec(spec) });
+      out.push({ raw: key, isRelative: isRelativeSpec(key) });
     };
 
     function visit(node: TreeSitterNode) {
-      // JS/TS: import_statement / export_statement carry a `source` field
       if (
         treeSitterLang === "javascript" ||
         treeSitterLang === "typescript" ||
@@ -739,17 +670,13 @@ export async function extractImportsWithTreeSitter(
         ) {
           const src = findSourceField(node);
           if (src) push(src);
-          // Don't recurse — children of these statements are bindings, not
-          // further imports.
           return;
         }
-        // Dynamic import("./x")
         const dyn = isDynamicImport(node);
         if (dyn) {
           push(dyn);
           return;
         }
-        // require("...") — common JS
         if (node.type === "call_expression") {
           const fn = getField(node, "function");
           if (fn && fn.type === "identifier" && fn.text === "require") {
@@ -761,49 +688,58 @@ export async function extractImportsWithTreeSitter(
         }
       }
 
-      // Python: import_from has a module field; import_statement carries a
-      // dotted name in its children.
       if (treeSitterLang === "python") {
-        if (node.type === "import_from") {
-          const mod = getField(node, "module");
+        if (node.type === "import_from_statement" || node.type === "import_from") {
+          const mod = getField(node, "module_name") ?? getField(node, "module") ?? node.namedChildren?.[0];
           if (mod) push(mod.text);
           return;
         }
         if (node.type === "import_statement") {
-          // children are dotted_name nodes; their text is the module path
           for (const c of node.namedChildren ?? []) {
-            if (c.type === "dotted_name") push(c.text);
+            if (c.type === "dotted_name" || c.type === "identifier") push(c.text);
           }
           return;
         }
       }
 
-      // Go: import_declaration block ("...") or single import_spec "..."
       if (treeSitterLang === "go") {
-        if (node.type === "import_spec") {
-          const strs = collectStrings(node, 1);
+        if (node.type === "import_spec" || node.type === "import_declaration") {
+          const strs = collectStrings(node, 2);
           for (const s of strs) push(s);
           return;
         }
-        if (node.type === "import_declaration") {
-          for (const c of node.namedChildren ?? []) {
-            if (c.type === "import_spec") {
-              const strs = collectStrings(c, 1);
-              for (const s of strs) push(s);
-            }
-          }
+      }
+
+      if (treeSitterLang === "rust") {
+        if (node.type === "use_declaration") {
+          const t = node.text.replace(/^use\s+/, "").replace(/;$/, "");
+          const first = t.split("::")[0];
+          if (first) push(first);
           return;
         }
       }
 
-      // Rust: use_declaration -> argument_list or direct path
-      if (treeSitterLang === "rust") {
-        if (node.type === "use_declaration") {
-          // text is like `use std::collections::HashMap;` — take the first
-          // path segment only as the "module" (crate or `crate::`).
-          const t = node.text.replace(/^use\s+/, "").replace(/;$/, "");
-          const first = t.split("::")[0];
-          if (first) push(first);
+      if (treeSitterLang === "java") {
+        if (node.type === "import_declaration") {
+          const t = node.text.replace(/^import\s+(static\s+)?/, "").replace(/;$/, "").trim();
+          if (t) push(t);
+          return;
+        }
+      }
+
+      if (treeSitterLang === "c" || treeSitterLang === "cpp") {
+        if (node.type === "preproc_include") {
+          const pathChild = node.namedChildren?.[0];
+          const t = pathChild ? pathChild.text.replace(/^[<"']|[> "']$/g, "") : node.text.replace(/^#include\s+/, "").replace(/[<"'>]/g, "").trim();
+          if (t) push(t);
+          return;
+        }
+      }
+
+      if (treeSitterLang === "abap") {
+        if (node.type === "include_statement" || node.type === "tables_statement") {
+          const nameChild = node.namedChildren.find((c) => c.type === "identifier");
+          if (nameChild) push(nameChild.text);
           return;
         }
       }
@@ -814,10 +750,7 @@ export async function extractImportsWithTreeSitter(
     visit(tree.rootNode);
     return { imports: out };
   } catch (error) {
-    console.error(
-      `Failed to extract imports from ${path} with Tree-sitter:`,
-      error,
-    );
+    console.error(`Failed to extract imports from ${path} with Tree-sitter:`, error);
     return { imports: [] };
   }
 }

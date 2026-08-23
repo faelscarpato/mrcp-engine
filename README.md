@@ -1,8 +1,30 @@
-# 🧠 MRCP-Engine v2.5.0
+# 🧠 MRCP-Engine v2.6.0
 
 **Machine-Readable Context Protocol Engine**
 
-Motor de inteligência e terceirização de contexto estruturado que otimiza dados para consumo por LLMs e Agentes de IA (Antigravity, Claude, Cursor, Copilot, OpenCode, Ollama, etc.). Elimina o "AI Tax" — reduzindo drasticamente o desperdício de tokens através de parsing determinístico AST de código e **Inteligência Documental para repositórios não-código** (CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF, JSON, YAML, XML, LOG).
+Motor de inteligência e terceirização de contexto estruturado que otimiza dados para consumo por LLMs e Agentes de IA (Antigravity, Claude, Cursor, Copilot, OpenCode, Ollama, etc.). Elimina o "AI Tax" — reduzindo drasticamente o desperdício de tokens através de parsing determinístico AST de código com suporte a **WebAssembly Tree-sitter** para linguagens corporativas e modernas (**TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, SAP CDS, SAP ABAP, Oracle PL/SQL, Pascal, COBOL**) e **Inteligência Documental para repositórios não-código** (CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF, JSON, YAML, XML, LOG).
+
+---
+
+## 🚀 Instalação Rápida & Auto-Configuração de IDEs
+
+Configure todas as suas IDEs e agentes de IA com **um único comando**:
+
+```bash
+npx mrcp-engine setup
+```
+
+Este comando auto-detecta e configura o servidor MCP nas seguintes plataformas instaladas:
+* 🟢 **Claude Desktop** (`claude_desktop_config.json`)
+* 🟢 **Cursor** (`~/.cursor/mcp.json`)
+* 🟢 **Windsurf** (`~/.codeium/windsurf/mcp_config.json`)
+* 🟢 **VS Code** (`mcp.json` de usuário)
+* 🟢 **Antigravity IDE** (`~/.gemini/config/mcp_config.json`)
+* 🟢 **Gemini CLI** (`~/.gemini/settings.json`)
+* 🟢 **Claude Code** (`~/.claude.json`)
+* 🟢 **OpenCode** (`~/.opencode/mcp.json`)
+* 🟢 **Ollama (MCP)** (`~/.ollama/mcp.json`)
+* 🟢 **Codex** (`~/.codex/config.toml`)
 
 ---
 
@@ -20,7 +42,7 @@ O MRCP-Engine oferece **2 modos de consumo**:
 ### 1. 🏗️ Core Engine & Inteligência Documental
 * **`analyze_repository`** (`GET /api/analyze?repo=<url>`)
   * **Descrição:** Analisa o grafo estrutural AST de um repositório GitHub ou diretório local. Extrai nós (arquivos, módulos, funções), arestas (dependências), métricas de complexidade ciclomática, acoplamento e hotspots.
-* **`mrcp_document_analyzer`** (`GET /api/document-analyzer?repo=<url>`) **(NOVO v2.5.0)**
+* **`mrcp_document_analyzer`** (`GET /api/document-analyzer?repo=<url>`)
   * **Descrição:** Analisador determinístico para **repositórios documentais / não-código**. Realiza parsing de arquivos **CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF (camada de texto vetorial), JSON, YAML, XML e LOG**. Gera Grafo de Conhecimento, inferência de schemas tabulares com interfaces TypeScript, cálculo do Document Quality Index (DQI 0-100), detecção de links quebrados e diretivas de contexto para LLMs sem OCR.
 * **`get_repository_skills_contract`** (`GET /api/skills?repo=<url>`)
   * **Descrição:** Retorna contratos de habilidades e diretrizes de refatoração para arquivos classificados como hotspots (complexidade > 50), impondo *Zero Regression Policy* em assinaturas públicas.
@@ -30,11 +52,11 @@ O MRCP-Engine oferece **2 modos de consumo**:
 ---
 
 ### 2. ⚡ Terceirização de Alta Eficiência para Agentes IA
-* **`mrcp_api_contract_generator`** (`GET /api/api-contract?repo=<url>`) **(NOVO v2.3)**
+* **`mrcp_api_contract_generator`** (`GET /api/api-contract?repo=<url>`)
   * **Descrição:** Extrai rotas e handlers de API (Next.js, Express, Fastify, Hono, FastAPI, Flask) e gera especificações OpenAPI 3.0.3 e SDKs TypeScript tipados sem alucinações.
-* **`mrcp_monorepo_package_graph_analyzer`** (`GET /api/monorepo-graph?repo=<url>`) **(NOVO v2.3)**
+* **`mrcp_monorepo_package_graph_analyzer`** (`GET /api/monorepo-graph?repo=<url>`)
   * **Descrição:** Mapeia topologia de monorepos (pnpm, turborepo, lerna, nx), dependências entre pacotes, ordem topológica de build em fases e pacotes afetados por diffs.
-* **`mrcp_docstring_api_doc_generator`** (`GET /api/doc-generator?repo=<url>`) **(NOVO v2.3)**
+* **`mrcp_docstring_api_doc_generator`** (`GET /api/doc-generator?repo=<url>`)
   * **Descrição:** Gera anotações TSDoc, JSDoc ou Python Docstrings e tabelas Markdown de referência de API para símbolos públicos não documentados.
 * **`mrcp_ast_refactor_applier`** (`POST /api/refactor-applier`)
   * **Descrição:** Aplica refatorações determinísticas em lote no AST (renomear símbolos, extrair interfaces, atualizar imports em dezenas de arquivos) em 30ms.
@@ -52,9 +74,9 @@ O MRCP-Engine oferece **2 modos de consumo**:
 ---
 
 ### 3. 🛡️ Engenharia Preditiva & Segurança
-* **`mrcp_code_metrics_health_scorer`** (`GET /api/code-health?repo=<url>`) **(NOVO v2.3)**
+* **`mrcp_code_metrics_health_scorer`** (`GET /api/code-health?repo=<url>`)
   * **Descrição:** Calcula o Índice de Manutenibilidade (MI 0-100), nota de débitos técnicos (A-F), distribuição de carga cognitiva e top 5 hotspots de refatoração com estimativa de esforço.
-* **`mrcp_env_secret_contract_validator`** (`GET /api/env-validator?repo=<url>`) **(NOVO v2.3)**
+* **`mrcp_env_secret_contract_validator`** (`GET /api/env-validator?repo=<url>`)
   * **Descrição:** Mapeia variáveis de ambiente no código (`process.env`, `os.environ`), audita contra `.env.example`, detecta riscos de vazamento em bundles públicos e gera schemas de validação Zod.
 * **`mrcp_impact_analysis`** (`POST /api/impact-analysis`)
   * **Descrição:** Calcula o **Raio de Impacto de Alterações (*AST Blast Radius*)** e mapeia arquivos/testes afetados a jusante.
@@ -80,6 +102,22 @@ O MRCP-Engine oferece **2 modos de consumo**:
 * **`mrcp_triage_parse_resume`**: Parse determinístico de currículos.
 * **`mrcp_triage_score_candidate`**: Match score vaga vs. candidato.
 * **`mrcp_triage_generate_hr_report`**: Parecer técnico formatado para RH.
+
+---
+
+## 🔨 Compilador Automatizado de Gramáticas WASM (`pnpm build:grammar`)
+
+O MRCP Engine inclui um pipeline automatizado para compilar novas gramáticas Tree-sitter para WebAssembly (`.wasm`):
+
+```bash
+# Compilar uma gramática específica
+pnpm build:grammar sap-cds
+pnpm build:grammar sap-abap
+pnpm build:grammar oracle-plsql
+
+# Compilar todas as gramáticas em lote
+pnpm build:grammar --all
+```
 
 ---
 
@@ -124,7 +162,7 @@ O MRCP-Engine conta com uma **extensão nativa para VS Code, Cursor e Windsurf**
 ### 🌟 Principais Recursos da Extensão:
 * **🌲 Activity Bar Sidebar (MRCP Engine):** Painel lateral com 6 visões estruturadas: Ações Rápidas, Métricas de Saúde (A-F / MI 0-100), Auditoria de Segurança & `.env`, Arquitetura & Dependências, Gaps de Testes & Código Morto e Inteligência Documental (DQI).
 * **📊 MRCP Cockpit (Webview Dashboard):** Dashboard visual com gráficos de distribuição de complexidade, KPIs em tempo real, visualizador do grafo AST e tabelas de rotas e segurança com jump-to-code.
-* **🔍 CodeLens no Editor:** Exibição da complexidade ciclomática em tempo real (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e botão `📋 Copiar para IA` diretamente sobre funções, classes e métodos.
+* **🔍 CodeLens no Editor:** Exibição da complexidade ciclomática em tempo real (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e botão `📋 Copiar para IA` diretamente sobre funções, classes e métodos em TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, SAP CDS, SAP ABAP e Oracle PL/SQL.
 * **🛡️ Integração com o Painel "Problems":** Alertas nativos de segurança (tokens expostos) e variáveis ausentes no `.env` sublinhados com precisão no editor.
 * **📋 AI Context Packer (Economia de 95% de Tokens):** Empacotamento de contratos e assinaturas do projeto ou arquivo ativo com 1 clique para colar no ChatGPT, Claude ou Cursor.
 
@@ -134,8 +172,8 @@ Para compilar e instalar a extensão:
 pnpm --filter mrcp-vscode compile
 
 # Empacotar arquivo .vsix
-cd apps/vscode && npx @vscode/vsce package --no-dependencies
-# ou: npm run package
+cd apps/vscode && npm run package
+# Gera: mrcp-vscode-2.6.0.vsix
 ```
 
 ---
@@ -170,4 +208,4 @@ cd apps/vscode && npx @vscode/vsce package --no-dependencies
 
 ## 📄 Licença
 
-MIT
+MIT © MRCP Engine Team

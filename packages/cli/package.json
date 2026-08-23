@@ -1,12 +1,12 @@
 {
   "name": "@mrcp/cli",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "type": "module",
   "bin": {
     "mrcp-engine": "./bin/mrcp.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@mrcp/core": "workspace:*"
+    "@mrcp/core": "^2.6.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "mrcp-engine",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": false,
   "workspaces": [
     "packages/*",
@@ -15,6 +15,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "test": "vitest run",
+    "build:grammar": "node scripts/build-grammar.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
