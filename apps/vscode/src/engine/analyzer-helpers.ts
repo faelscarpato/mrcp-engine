@@ -3,7 +3,7 @@ import * as path from 'path';
 import { MrcpDeadCodeItem, MrcpDocItem, MrcpTestGap, MrcpFileAnalysis } from './types';
 
 export const IGNORED_DIRS = new Set([
-  'node_modules', '.git', 'dist', 'out', 'build', '.next', '.turbo', 'coverage', '.gemini', '.cache'
+  'node_modules', '.git', 'dist', 'out', 'build', '.next', '.turbo', 'coverage', '.gemini', '.cache', '.vercel', 'vendor', 'obj', '.output', 'temp', 'tmp'
 ]);
 
 export async function scanDir(root: string, currentDir: string, result: string[], maxFiles: number): Promise<void> {

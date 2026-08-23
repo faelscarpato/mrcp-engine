@@ -1,17 +1,23 @@
 # 🧠 MRCP Engine — Protocolo Operacional para Agentes de IA (Antigravity, Claude, Cursor, Windsurf, Copilot)
 
-Você está integrado ao **MRCP Engine** (Machine-Readable Context Protocol). Siga rigorosamente estas diretrizes:
+Você está integrado ao **MRCP Engine** (Machine-Readable Context Protocol). Siga rigorosamente estas diretrizes para máxima performance e economia de até 92% de tokens:
 
-## 🚨 REGRA DE OURO 1: Primeira Análise do Repositório (OBRIGATÓRIO RODAR A SUÍTE COMPLETA)
-Ao analisar, auditar, explorar ou entender um repositório (GitHub ou pasta local) pela PRIMEIRA VEZ:
-- **Execute SEMPRE a Suíte Completa:**
+## ⚡ REGRA DE OURO 1: Tarefas de Código, Refatoração e Features (MÁXIMA VELOCIDADE & ECONOMIA)
+Para QUALQUER tarefa de implementação, edição de código, refatoração, correção de bugs ou criação de testes:
+- **Execute SEMPRE o Context Pruning Pack:**
+  - Via MCP: `mrcp_context_pruning_pack(taskDescription: "<descrição-da-tarefa>")`
+  - Via REST / GET: `GET https://mrcp-engine.vercel.app/api/context-pack?repo=<url-ou-path>&task=<descrição>`
+- **Por que:** Entrega os contratos, interfaces e trechos de código cirurgicamente podados (redução de 85% a 92% de tokens) em menos de 1 segundo, sem alucinações e sem estourar o contexto do modelo.
+
+## 🛡️ REGRA DE OURO 2: Auditoria Completa 360° do Repositório (Health Check)
+Quando o usuário solicitar explicitamente um diagnóstico geral, auditoria de arquitetura ou inspeção completa de conformidade:
+- **Execute a Suíte Completa:**
   - Via MCP: `mrcp_run_full_repository_suite(repo: "<url-ou-path>")`
   - Via REST / GET: `GET https://mrcp-engine.vercel.app/api/full-suite?repo=<url-ou-path>`
-- **Por que:** Em apenas ~1.5s, você recebe 13 diagnósticos em paralelo (AST, Segurança OWASP, Saúde MI 0-100, Lacunas de Testes, Rotas OpenAPI 3.0, .env leaks, Monorepo, Código Morto, SQL Schemas, e Inteligência Documental CSV/PDF/MD/XLSX).
-- **Após executar:** Consulte os relatórios gerados (`mrcp-analysis.json` e `MRCP_EXECUTIVE_REPORT.md`).
+- **Retorno Otimizado:** Retorna um Resumo Executivo em Markdown com todas as métricas-chave (Maintainability Index, OWASP, Test Gaps, OpenAPI, Monorepo, Código Morto) e salva o grafo completo em `mrcp-analysis.json`.
 
-## 🎯 REGRA DE OURO 2: Análises Subsequentes & Cirúrgicas (Uso Modular)
-Se o repositório JÁ FOI ANALISADO ou para tarefas específicas, NÃO rode a suíte completa novamente. Chame a ferramenta exata:
+## 🎯 REGRA DE OURO 3: Análises Pontuais & Modulares
+Para perguntas específicas, use a ferramenta cirúrgica adequada:
 - Refatorar hotspot: `get_repository_skills_contract` & `mrcp_ast_refactor_applier`
 - Impacto pré-commit (Blast Radius): `mrcp_impact_analysis`
 - Segurança / Segredos: `mrcp_security_compliance_audit`
@@ -24,6 +30,7 @@ Se o repositório JÁ FOI ANALISADO ou para tarefas específicas, NÃO rode a su
 - Pesquisa e Scraping Web: `mrcp_web_smart_search` ou `mrcp_web_scrape`
 
 ## 🚫 ANTI-PADRÕES PROIBIDOS
-1. PROIBIDO ler dezenas de arquivos manualmente com ferramentas genéricas de texto em loop quando o MRCP já entrega o grafo completo.
-2. PROIBIDO fazer web scraping ingênuo com curl/HTML bruto. Use sempre `mrcp_web_smart_search` ou `mrcp_web_scrape`.
-3. PROIBIDO adivinhar tipagens ou parâmetros de funções. Use `mrcp_type_signature_extractor`.
+1. PROIBIDO ler dezenas de arquivos manualmente com ferramentas genéricas de texto em loop quando o `mrcp_context_pruning_pack` já entrega o contexto podado.
+2. PROIBIDO rodar `mrcp_run_full_repository_suite` para tarefas simples de código pontual.
+3. PROIBIDO fazer web scraping ingênuo com curl/HTML bruto. Use sempre `mrcp_web_smart_search` ou `mrcp_web_scrape`.
+4. PROIBIDO adivinhar tipagens ou parâmetros de funções. Use `mrcp_type_signature_extractor`.
