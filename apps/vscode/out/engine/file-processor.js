@@ -68,10 +68,17 @@ function processSingleCodeFile(ctx) {
     while ((envMatch = envRegex.exec(content)) !== null) {
         const varName = envMatch[1];
         const lineNum = content.substring(0, envMatch.index).split('\n').length;
+        const lineContent = lines[lineNum - 1]?.trim() || '';
+        const isCommentLine = lineContent.startsWith('//') || lineContent.startsWith('*') || lineContent.startsWith('/*');
+        if (isCommentLine)
+            continue;
         if (!envUsages.some(u => u.name === varName && u.line === lineNum)) {
             envUsages.push({ name: varName, line: lineNum });
         }
-        const isStandardOsVar = ['NODE_ENV', 'PORT', 'CI', 'HOME', 'USERPROFILE', 'APPDATA', 'PATH', 'PWD', 'TEMP', 'TMP'].includes(varName);
+        const isStandardOsVar = [
+            'NODE_ENV', 'PORT', 'CI', 'HOME', 'USERPROFILE', 'APPDATA',
+            'PATH', 'PWD', 'TEMP', 'TMP', 'VERCEL', 'NETLIFY', 'GITHUB_TOKEN', 'AWS_REGION'
+        ].includes(varName);
         if (!definedEnvVars.has(varName) && !isStandardOsVar) {
             if (!envIssues.some(e => e.file === relPath && e.variableName === varName)) {
                 envIssues.push({

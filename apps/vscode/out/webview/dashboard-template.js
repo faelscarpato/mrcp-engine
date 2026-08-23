@@ -293,6 +293,30 @@ function getDashboardHtml(result) {
 
   <!-- TAB: OVERVIEW -->
   <div id="tab-overview" class="tab-content active">
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 18px; margin-bottom: 24px;">
+      <h3 style="margin-top: 0; color: #10b981; display: flex; align-items: center; gap: 8px;">
+        ⚡ Comprovação de Eficiência & ROI de Tokens (MRCP Engine)
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+        <div>
+          <div style="font-size: 12px; opacity: 0.8;">Baseline sem MRCP (Raw Tokens):</div>
+          <div style="font-size: 18px; font-weight: bold; color: var(--fg);">${summary.estimatedTokensWithoutMrcp.toLocaleString()} <span style="font-size: 12px; font-weight: normal;">tokens brutos</span></div>
+        </div>
+        <div>
+          <div style="font-size: 12px; opacity: 0.8;">Contexto Otimizado MRCP:</div>
+          <div style="font-size: 18px; font-weight: bold; color: #10b981;">${summary.estimatedTokensWithMrcp.toLocaleString()} <span style="font-size: 12px; font-weight: normal;">tokens AST</span></div>
+        </div>
+        <div>
+          <div style="font-size: 12px; opacity: 0.8;">Economia Real por Consulta:</div>
+          <div style="font-size: 18px; font-weight: bold; color: #10b981;">~${Math.max(0, summary.estimatedTokensWithoutMrcp - summary.estimatedTokensWithMrcp).toLocaleString()} tokens <span style="font-size: 12px; font-weight: normal;">(${summary.tokenSavingsPercent}%)</span></div>
+        </div>
+        <div>
+          <div style="font-size: 12px; opacity: 0.8;">Custo Médio Economizado / Análise:</div>
+          <div style="font-size: 18px; font-weight: bold; color: #3b82f6;">~$${(((Math.max(0, summary.estimatedTokensWithoutMrcp - summary.estimatedTokensWithMrcp)) / 1000) * 0.003).toFixed(2)} USD</div>
+        </div>
+      </div>
+    </div>
+
     <h3>🔥 Hotspots de Manutenção & Complexidade de Arquivos</h3>
     <div class="table-container">
       <table>
