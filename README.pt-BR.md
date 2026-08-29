@@ -12,7 +12,6 @@
 [![npm downloads](https://img.shields.io/npm/dm/mrcp-engine.svg)](https://www.npmjs.com/package/mrcp-engine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![CI](https://github.com/faelscarpato/mrcp-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/faelscarpato/mrcp-engine/actions/workflows/ci.yml)
 [![MCP Compatible](https://img.shields.io/badge/MCP-compatible-8A2BE2)](https://modelcontextprotocol.io)
 
 [Início Rápido](#-início-rápido-30-segundos) · [Por que MRCP](#-por-que-mrcp-engine) · [Ferramentas](#-catálogo-de-ferramentas) · [Demo ao Vivo](#-instância-ao-vivo) · [Como Contribuir](CONTRIBUTING.md)
