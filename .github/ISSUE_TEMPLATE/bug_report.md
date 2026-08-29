@@ -1,38 +1,36 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+about: Something returned wrong data, crashed, or timed out
+title: '[BUG] '
+labels: bug
 assignees: ''
-
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear, concise description of what went wrong.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Which tool or endpoint?**
+e.g. `mrcp_security_compliance_audit` / `GET /api/security-audit?repo=...`
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**How you called it**
+- [ ] MCP (via IDE/agent) — which client: <!-- Claude Desktop, Cursor, Windsurf, VS Code, etc. -->
+- [ ] REST API directly (`curl`, HTTP client)
+- [ ] VS Code / Cursor / Windsurf extension
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Repository or input used**
+<!-- A public repo URL is ideal — MRCP's analysis is deterministic, so a public repo lets us reproduce exactly. If the repo is private, a minimal reproducible fixture (even 2-3 files) works too. -->
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Expected result**
+What you expected the JSON/response to contain.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Actual result**
+What you actually got — paste the raw JSON response or error if possible.
+
+**Environment**
+- MRCP Engine version: <!-- `npx mrcp-engine --version` or the npm version installed -->
+- Node.js version:
+- OS:
+- Hosted instance (`mrcp-engine.vercel.app`) or self-hosted?
 
 **Additional context**
-Add any other context about the problem here.
+Anything else — timing (did it time out?), repo size, language(s) involved, etc.

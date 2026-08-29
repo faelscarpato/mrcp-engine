@@ -1,186 +1,66 @@
-# 🧠 MRCP-Engine v2.6.0
+<div align="center">
 
-**Machine-Readable Context Protocol Engine**
+# 🧠 MRCP Engine
 
-Motor de inteligência e terceirização de contexto estruturado que otimiza dados para consumo por LLMs e Agentes de IA (Antigravity, Claude, Cursor, Copilot, OpenCode, Ollama, etc.). Elimina o "AI Tax" — reduzindo drasticamente o desperdício de tokens através de parsing determinístico AST de código com suporte a **WebAssembly Tree-sitter** para linguagens corporativas e modernas (**TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, SAP CDS, SAP ABAP, Oracle PL/SQL, Pascal, COBOL**) e **Inteligência Documental para repositórios não-código** (CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF, JSON, YAML, XML, LOG).
+### The Machine-Readable Context Protocol for AI Agents
+
+**Stop feeding your AI agent raw source code. Give it structured intelligence instead.**
+
+[🇧🇷 Ler em Português](README.pt-BR.md) · [🇬🇧 English](README.md)
+
+[![npm version](https://img.shields.io/npm/v/mrcp-engine.svg)](https://www.npmjs.com/package/mrcp-engine)
+[![npm downloads](https://img.shields.io/npm/dm/mrcp-engine.svg)](https://www.npmjs.com/package/mrcp-engine)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![CI](https://github.com/faelscarpato/mrcp-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/faelscarpato/mrcp-engine/actions/workflows/ci.yml)
+[![MCP Compatible](https://img.shields.io/badge/MCP-compatible-8A2BE2)](https://modelcontextprotocol.io)
+
+[Quick Start](#-quick-start-30-seconds) · [Why MRCP](#-why-mrcp-engine) · [Tools](#-tool-catalog) · [Live Demo](#-live-instance) · [Contributing](CONTRIBUTING.md)
+
+</div>
 
 ---
 
-## 🚀 Instalação Rápida & Auto-Configuração de IDEs
+## The problem
 
-Configure todas as suas IDEs e agentes de IA com **um único comando**:
+Every time an AI coding agent reads your repository by opening file after file, it's paying what this project calls the **"AI Tax"**: thousands of wasted tokens, slower responses, and a real chance of hallucinating about code it half-read.
+
+**MRCP Engine** is a deterministic, AST-based intelligence layer that sits between your repository and your AI agent. Instead of dumping raw files into the context window, it parses your code once with **Tree-sitter WebAssembly** and hands back exactly the structured JSON your agent asked for — architecture graphs, security audits, type signatures, dead code, docs, and more.
+
+```mermaid
+flowchart LR
+    subgraph before["❌ Without MRCP"]
+        A1["AI Agent"] -->|"reads every file"| A2["3,000+ tokens/file"]
+        A2 --> A3["slow · expensive · guesses"]
+    end
+    subgraph after["✅ With MRCP Engine"]
+        B1["AI Agent"] -->|"one MCP / REST call"| B2["Tree-sitter AST parse"]
+        B2 --> B3["50–200 tokens · exact · fast"]
+    end
+```
+
+No LLM calls, no guessing — just deterministic parsing that turns an entire repository into a context package your agent can actually afford to read.
+
+---
+
+## ⚡ Quick Start (30 seconds)
+
+Auto-configure every MCP-compatible IDE and AI agent installed on your machine with a single command:
 
 ```bash
 npx mrcp-engine setup
 ```
 
-Este comando auto-detecta e configura o servidor MCP nas seguintes plataformas instaladas:
-* 🟢 **Claude Desktop** (`claude_desktop_config.json`)
-* 🟢 **Cursor** (`~/.cursor/mcp.json`)
-* 🟢 **Windsurf** (`~/.codeium/windsurf/mcp_config.json`)
-* 🟢 **VS Code** (`mcp.json` de usuário)
-* 🟢 **Antigravity IDE** (`~/.gemini/config/mcp_config.json`)
-* 🟢 **Gemini CLI** (`~/.gemini/settings.json`)
-* 🟢 **Claude Code** (`~/.claude.json`)
-* 🟢 **OpenCode** (`~/.opencode/mcp.json`)
-* 🟢 **Ollama (MCP)** (`~/.ollama/mcp.json`)
-* 🟢 **Codex** (`~/.codex/config.toml`)
+This detects and wires up the MCP server for:
 
----
+| | | | |
+|---|---|---|---|
+| 🟢 Claude Desktop | 🟢 Claude Code | 🟢 Cursor | 🟢 Windsurf |
+| 🟢 VS Code | 🟢 Antigravity IDE | 🟢 Gemini CLI | 🟢 OpenCode |
+| 🟢 Ollama (MCP) | 🟢 Codex | | |
 
-## 🎯 Dois Modos de Operação (Flexibilidade Total para IAs e Desenvolvedores)
+Prefer to wire it up by hand? Add this to your MCP client config:
 
-O MRCP-Engine oferece **2 modos de consumo**:
-
-1. **⚡ Modo Modular (Sob Demanda):** A IA ou usuário chama exatamente a ferramenta que precisa (ex: `mrcp_document_analyzer`, `mrcp_api_contract_generator` ou `mrcp_security_compliance_audit`), economizando tempo e focando em uma tarefa isolada.
-2. **🚀 Modo Diagnóstico Completo (All-in-One Pipeline - `GET /api/full-analysis` ou `mrcp_run_full_repository_suite`):** A IA ou usuário dispara **uma única chamada** que executa automaticamente as 13 ferramentas de análise de código e documentos em paralelo assíncrono. Cada relatório intermediário é gravado em tempo real em `mrcp-analysis.json` e um painel executivo consolidado (`MRCP_EXECUTIVE_REPORT.md`) é retornado.
-
----
-
-## 🛠️ Lista Completa das Ferramentas MCP / REST Endpoints
-
-### 1. 🏗️ Core Engine & Inteligência Documental
-* **`analyze_repository`** (`GET /api/analyze?repo=<url>`)
-  * **Descrição:** Analisa o grafo estrutural AST de um repositório GitHub ou diretório local. Extrai nós (arquivos, módulos, funções), arestas (dependências), métricas de complexidade ciclomática, acoplamento e hotspots.
-* **`mrcp_document_analyzer`** (`GET /api/document-analyzer?repo=<url>`)
-  * **Descrição:** Analisador determinístico para **repositórios documentais / não-código**. Realiza parsing de arquivos **CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF (camada de texto vetorial), JSON, YAML, XML e LOG**. Gera Grafo de Conhecimento, inferência de schemas tabulares com interfaces TypeScript, cálculo do Document Quality Index (DQI 0-100), detecção de links quebrados e diretivas de contexto para LLMs sem OCR.
-* **`get_repository_skills_contract`** (`GET /api/skills?repo=<url>`)
-  * **Descrição:** Retorna contratos de habilidades e diretrizes de refatoração para arquivos classificados como hotspots (complexidade > 50), impondo *Zero Regression Policy* em assinaturas públicas.
-* **`mrcp_run_full_repository_suite`** (`GET /api/full-suite?repo=<url>`)
-  * **Descrição:** Executa a suíte diagnóstica completa de 13 ferramentas em paralelo ultrarrápido (~1.5s) e grava o dashboard executivo.
-
----
-
-### 2. ⚡ Terceirização de Alta Eficiência para Agentes IA
-* **`mrcp_api_contract_generator`** (`GET /api/api-contract?repo=<url>`)
-  * **Descrição:** Extrai rotas e handlers de API (Next.js, Express, Fastify, Hono, FastAPI, Flask) e gera especificações OpenAPI 3.0.3 e SDKs TypeScript tipados sem alucinações.
-* **`mrcp_monorepo_package_graph_analyzer`** (`GET /api/monorepo-graph?repo=<url>`)
-  * **Descrição:** Mapeia topologia de monorepos (pnpm, turborepo, lerna, nx), dependências entre pacotes, ordem topológica de build em fases e pacotes afetados por diffs.
-* **`mrcp_docstring_api_doc_generator`** (`GET /api/doc-generator?repo=<url>`)
-  * **Descrição:** Gera anotações TSDoc, JSDoc ou Python Docstrings e tabelas Markdown de referência de API para símbolos públicos não documentados.
-* **`mrcp_ast_refactor_applier`** (`POST /api/refactor-applier`)
-  * **Descrição:** Aplica refatorações determinísticas em lote no AST (renomear símbolos, extrair interfaces, atualizar imports em dezenas de arquivos) em 30ms.
-* **`mrcp_type_signature_extractor`** (`GET /api/type-signature-extractor?repo=<url>`)
-  * **Descrição:** Extrai **apenas** as assinaturas de tipo TypeScript (`.d.ts`), schemas Zod e interfaces de arquivos, eliminando os corpos de código das funções (redução de 3.000 para 50 tokens).
-* **`mrcp_git_diff_semantic_summarizer`** (`POST /api/diff-summarizer`)
-  * **Descrição:** Elimina ruídos de formatação/espaços de diffs e resume as alterações por domínio semântico no nível AST.
-* **`mrcp_dependency_compatibility_resolver`** (`GET /api/dependency-resolver?package=<nome>`)
-  * **Descrição:** Resolve compatibilidade de versões SemVer, conflitos de dependências peer e riscos de breaking changes contra o NPM Registry real.
-* **`mrcp_dead_code_pruner`** (`GET /api/dead-code-pruner?repo=<url>`)
-  * **Descrição:** Análise de alcance por árvore AST para identificar exportações não utilizadas, variáveis mortas e imports sem uso.
-* **`mrcp_sql_schema_orm_contract_generator`** (`GET /api/sql-orm-contract?repo=<url>`)
-  * **Descrição:** Analisa schemas Prisma, SQL DDL e ORMs (Drizzle/TypeORM) para expor tabelas e queries tipadas.
-
----
-
-### 3. 🛡️ Engenharia Preditiva & Segurança
-* **`mrcp_code_metrics_health_scorer`** (`GET /api/code-health?repo=<url>`)
-  * **Descrição:** Calcula o Índice de Manutenibilidade (MI 0-100), nota de débitos técnicos (A-F), distribuição de carga cognitiva e top 5 hotspots de refatoração com estimativa de esforço.
-* **`mrcp_env_secret_contract_validator`** (`GET /api/env-validator?repo=<url>`)
-  * **Descrição:** Mapeia variáveis de ambiente no código (`process.env`, `os.environ`), audita contra `.env.example`, detecta riscos de vazamento em bundles públicos e gera schemas de validação Zod.
-* **`mrcp_impact_analysis`** (`POST /api/impact-analysis`)
-  * **Descrição:** Calcula o **Raio de Impacto de Alterações (*AST Blast Radius*)** e mapeia arquivos/testes afetados a jusante.
-* **`mrcp_security_compliance_audit`** (`GET /api/security-audit?repo=<url>`)
-  * **Descrição:** Auditoria estática de segurança AST (OWASP, segredos hardcoded, execução insegura de shell, dependências vulneráveis e licenças GPL).
-* **`mrcp_architectural_drift_detector`** (`GET /api/architecture-drift?repo=<url>`)
-  * **Descrição:** Detecta desvios arquiteturais, ciclos de dependência (Tarjan) e violações de Clean Architecture.
-* **`mrcp_auto_test_coverage_gap_finder`** (`GET /api/test-gap-analysis?repo=<url>`)
-  * **Descrição:** Mapeia funções de alta complexidade sem cobertura e gera stubs automatizados em Vitest/Jest.
-* **`mrcp_context_pruning_pack`** (`GET /api/context-pack?repo=<url>&task=<desc>`)
-  * **Descrição:** Fatiamento de contexto AST baseado na tarefa do usuário com 60-90% de economia de tokens.
-
----
-
-### 4. 🌐 Web Scraper & Search (Extração Web Inteligente)
-* **`mrcp_web_search`** (`GET /api/web-search?q=<query>`): Pesquisa rápida na web.
-* **`mrcp_web_scrape`** (`GET /api/scrape?url=<url>`): Extração de texto limpo sem anúncios.
-* **`mrcp_web_smart_search`** (`GET /api/smart-search?q=<query>&topN=2`): Busca e extração profunda `topN`.
-
----
-
-### 5. 👥 Triage & HR (Triagem & Recrutamento Determinístico)
-* **`mrcp_triage_parse_resume`**: Parse determinístico de currículos.
-* **`mrcp_triage_score_candidate`**: Match score vaga vs. candidato.
-* **`mrcp_triage_generate_hr_report`**: Parecer técnico formatado para RH.
-
----
-
-## 🔨 Compilador Automatizado de Gramáticas WASM (`pnpm build:grammar`)
-
-O MRCP Engine inclui um pipeline automatizado para compilar novas gramáticas Tree-sitter para WebAssembly (`.wasm`):
-
-```bash
-# Compilar uma gramática específica
-pnpm build:grammar sap-cds
-pnpm build:grammar sap-abap
-pnpm build:grammar oracle-plsql
-
-# Compilar todas as gramáticas em lote
-pnpm build:grammar --all
-```
-
----
-
-## 💾 Salvamento Automático dos Resultados (`mrcp-analysis.json`)
-
-Sempre que **QUALQUER** endpoint ou ferramenta MCP é executada (via REST ou via MCP), o MRCP-Engine grava automaticamente o resultado em um arquivo centralizado de auditoria chamado **`mrcp-analysis.json`** na raiz do projeto.
-
----
-
-## 🌐 Como Usar Sem MCP (Modo REST API Direto)
-
-Se a sua IA ou agente não suportar o protocolo MCP, você pode realizar chamadas HTTP `GET` ou `POST` diretas:
-
-| Endpoint | Método | Descrição |
-| --- | --- | --- |
-| `/api/analyze?repo=<url>` | `GET` | Grafo AST e métricas de complexidade |
-| `/api/skills?repo=<url>` | `GET` | Contratos de refatoração para hotspots |
-| `/api/api-contract?repo=<url>` | `GET` | Extração de rotas, OpenAPI 3.0 e SDK TypeScript |
-| `/api/code-health?repo=<url>` | `GET` | Índice de Manutenibilidade (MI) e Débito Técnico |
-| `/api/env-validator?repo=<url>` | `GET` | Validação de `.env`, alertas de vazamento e schema Zod |
-| `/api/monorepo-graph?repo=<url>` | `GET` | Grafo de dependências entre pacotes e ordem de build |
-| `/api/doc-generator?repo=<url>` | `GET` | Gerador determinístico de JSDoc/TSDoc e API Reference |
-| `/api/refactor-applier` | `POST` | Aplicação de refatorações AST em lote |
-| `/api/type-signature-extractor?repo=<url>` | `GET` | Extração de assinaturas de tipo |
-| `/api/diff-summarizer` | `POST` | Resumo semântico de Git Diff |
-| `/api/dependency-resolver?package=<nome>` | `GET` | Resolução de versão e compatibilidade de dependências |
-| `/api/dead-code-pruner?repo=<url>` | `GET` | Detecção de código morto por árvore AST |
-| `/api/sql-orm-contract?repo=<url>` | `GET` | Contratos tipados de banco de dados e ORM |
-| `/api/impact-analysis` | `POST` | Raio de impacto (`body: { repoUrl, modifiedFiles }`) |
-| `/api/security-audit?repo=<url>` | `GET` | Auditoria estática de segurança e licenças |
-| `/api/architecture-drift?repo=<url>` | `GET` | Detecção de desvios de arquitetura |
-| `/api/test-gap-analysis?repo=<url>` | `GET` | Identificação de lacunas de teste e stubs |
-| `/api/context-pack?repo=<url>&task=<desc>` | `GET` | Pacote de contexto fatiado para LLMs |
-| `/api/mcp` | `POST` | Endpoint central MCP (JSON-RPC 2.0) |
-
----
-
-## 🧩 Extensão Oficial para VS Code, Cursor & Windsurf (`apps/vscode`)
-
-O MRCP-Engine conta com uma **extensão nativa para VS Code, Cursor e Windsurf** que leva todo o poder de análise determinística e otimização de tokens diretamente para dentro da IDE.
-
-### 🌟 Principais Recursos da Extensão:
-* **🌲 Activity Bar Sidebar (MRCP Engine):** Painel lateral com 6 visões estruturadas: Ações Rápidas, Métricas de Saúde (A-F / MI 0-100), Auditoria de Segurança & `.env`, Arquitetura & Dependências, Gaps de Testes & Código Morto e Inteligência Documental (DQI).
-* **📊 MRCP Cockpit (Webview Dashboard):** Dashboard visual com gráficos de distribuição de complexidade, KPIs em tempo real, visualizador do grafo AST e tabelas de rotas e segurança com jump-to-code.
-* **🔍 CodeLens no Editor:** Exibição da complexidade ciclomática em tempo real (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e botão `📋 Copiar para IA` diretamente sobre funções, classes e métodos em TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, SAP CDS, SAP ABAP e Oracle PL/SQL.
-* **🛡️ Integração com o Painel "Problems":** Alertas nativos de segurança (tokens expostos) e variáveis ausentes no `.env` sublinhados com precisão no editor.
-* **📋 AI Context Packer (Economia de 95% de Tokens):** Empacotamento de contratos e assinaturas do projeto ou arquivo ativo com 1 clique para colar no ChatGPT, Claude ou Cursor.
-
-Para compilar e instalar a extensão:
-```bash
-# Compilar extensão
-pnpm --filter mrcp-vscode compile
-
-# Empacotar arquivo .vsix
-cd apps/vscode && npm run package
-# Gera: mrcp-vscode-2.6.0.vsix
-```
-
----
-
-## 🤖 Como Instalar o MCP nas LLMs e Plataformas de IA
-
-### 1. Claude Desktop (`claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
@@ -192,7 +72,8 @@ cd apps/vscode && npm run package
 }
 ```
 
-### 2. Antigravity / Cursor / Windsurf / VS Code (Servidor HTTP Remoto)
+Or point any remote-HTTP-capable client (Antigravity, Cursor, Windsurf, VS Code) straight at the hosted instance — no install required:
+
 ```json
 {
   "mcpServers": {
@@ -204,8 +85,197 @@ cd apps/vscode && npm run package
 }
 ```
 
+No MCP support in your client? Every tool is also a plain `GET`/`POST` REST endpoint — see [REST API reference](#-rest-api-reference).
+
 ---
 
-## 📄 Licença
+## 🤔 Why MRCP Engine?
 
-MIT © MRCP Engine Team
+| | Raw context stuffing | MRCP Engine |
+|---|---|---|
+| **How it reads code** | LLM re-reads full file text | Deterministic Tree-sitter AST parse |
+| **Token cost** | ~3,000 tokens per average file | ~50–200 tokens per structured response |
+| **Consistency** | Varies by prompt, can hallucinate structure | Same JSON schema, every time |
+| **Coverage** | One file at a time | Whole-repo graph in one call |
+| **Non-code assets** | Usually skipped | CSV/DOCX/XLSX/PDF/JSON/YAML/XML via `mrcp_document_analyzer` |
+| **Security/architecture checks** | Manual prompting | Purpose-built audit tools |
+
+MRCP doesn't replace your LLM's reasoning — it replaces the *expensive, unreliable part* of getting code into that reasoning in the first place.
+
+---
+
+## 🎯 Two Ways to Consume It
+
+1. **⚡ Modular mode** — call exactly the tool you need (`mrcp_document_analyzer`, `mrcp_security_compliance_audit`, `mrcp_code_metrics_health_scorer`...) for a focused, single-purpose task.
+2. **🚀 Full Suite mode** — one call (`mrcp_run_full_repository_suite` / `GET /api/full-analysis`) runs all 13 analysis tools in parallel, streams intermediate results to `mrcp-analysis.json`, and returns a consolidated executive report.
+
+---
+
+## 🛠 Tool Catalog
+
+<details>
+<summary><b>1. 🏗️ Core Engine & Document Intelligence</b> — click to expand</summary>
+
+| Tool | Endpoint | What it does |
+|---|---|---|
+| `analyze_repository` | `GET /api/analyze?repo=<url>` | Structural AST graph: nodes (files/modules/functions), edges (dependencies), cyclomatic complexity, coupling, hotspots |
+| `mrcp_document_analyzer` | `GET /api/document-analyzer?repo=<url>` | Deterministic parser for **non-code** repos: CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF (text layer), JSON, YAML, XML, LOG. Produces a knowledge graph, tabular schema inference with TypeScript interfaces, a Document Quality Index (0–100), and broken-link detection — no OCR |
+| `get_repository_skills_contract` | `GET /api/skills?repo=<url>` | Refactoring contracts for hotspot files (complexity > 50), enforcing a Zero Regression Policy on public signatures |
+| `mrcp_run_full_repository_suite` | `GET /api/full-suite?repo=<url>` | Runs all 13 tools in parallel and writes the executive dashboard |
+
+</details>
+
+<details>
+<summary><b>2. ⚡ High-Efficiency Agent Offloading</b> — click to expand</summary>
+
+| Tool | Endpoint | What it does |
+|---|---|---|
+| `mrcp_api_contract_generator` | `GET /api/api-contract?repo=<url>` | Extracts routes/handlers (Next.js, Express, Fastify, Hono, FastAPI, Flask) → OpenAPI 3.0.3 spec + typed TypeScript SDK, hallucination-free |
+| `mrcp_monorepo_package_graph_analyzer` | `GET /api/monorepo-graph?repo=<url>` | Maps pnpm/turborepo/lerna/nx topology, inter-package deps, topological build order, packages affected by a diff |
+| `mrcp_docstring_api_doc_generator` | `GET /api/doc-generator?repo=<url>` | Generates TSDoc/JSDoc/Python docstrings and Markdown API reference tables for undocumented public symbols |
+| `mrcp_ast_refactor_applier` | `POST /api/refactor-applier` | Batch AST refactors — rename symbols, extract interfaces, update imports across dozens of files — in ~30ms |
+| `mrcp_type_signature_extractor` | `GET /api/type-signature-extractor?repo=<url>` | Extracts **only** type signatures / `.d.ts` / Zod schemas, stripping function bodies (≈3,000 → 50 tokens) |
+| `mrcp_git_diff_semantic_summarizer` | `POST /api/diff-summarizer` | Strips formatting noise from diffs, summarizes changes by semantic domain at the AST level |
+| `mrcp_dependency_compatibility_resolver` | `GET /api/dependency-resolver?package=<name>` | Resolves SemVer compatibility, peer-dependency conflicts, and breaking-change risk against the real npm registry |
+| `mrcp_dead_code_pruner` | `GET /api/dead-code-pruner?repo=<url>` | AST reachability analysis for unused exports, dead variables, unused imports |
+| `mrcp_sql_schema_orm_contract_generator` | `GET /api/sql-orm-contract?repo=<url>` | Parses Prisma / SQL DDL / Drizzle / TypeORM into typed tables and queries |
+
+</details>
+
+<details>
+<summary><b>3. 🛡️ Predictive & Security Engineering</b> — click to expand</summary>
+
+| Tool | Endpoint | What it does |
+|---|---|---|
+| `mrcp_code_metrics_health_scorer` | `GET /api/code-health?repo=<url>` | Maintainability Index (0–100), technical-debt grade (A–F), cognitive-load distribution, top 5 refactor priorities with effort estimates |
+| `mrcp_env_secret_contract_validator` | `GET /api/env-validator?repo=<url>` | Maps `process.env` / `os.environ` usage, audits against `.env.example`, flags leak risk in public bundles, generates Zod validation schemas |
+| `mrcp_impact_analysis` | `POST /api/impact-analysis` | AST **Blast Radius** — downstream files/tests impacted by a change, before you commit |
+| `mrcp_security_compliance_audit` | `GET /api/security-audit?repo=<url>` | Static AST security audit: OWASP patterns, hardcoded secrets, unsafe shell execution, vulnerable deps, GPL license exposure |
+| `mrcp_architectural_drift_detector` | `GET /api/architecture-drift?repo=<url>` | Detects architectural drift, circular dependencies (Tarjan's algorithm), Clean Architecture violations |
+| `mrcp_auto_test_coverage_gap_finder` | `GET /api/test-gap-analysis?repo=<url>` | Maps high-complexity, untested functions and generates Vitest/Jest stubs |
+| `mrcp_context_pruning_pack` | `GET /api/context-pack?repo=<url>&task=<desc>` | Task-aware AST context slicing — 60–90% token savings |
+
+</details>
+
+<details>
+<summary><b>4. 🌐 Web Search & Scraping</b> — click to expand</summary>
+
+| Tool | Endpoint | What it does |
+|---|---|---|
+| `mrcp_web_search` | `GET /api/web-search?q=<query>` | Fast web search |
+| `mrcp_web_scrape` | `GET /api/scrape?url=<url>` | Clean text extraction, stripped of ads/nav/scripts |
+| `mrcp_web_smart_search` | `GET /api/smart-search?q=<query>&topN=2` | Search + ranked scrape of the top N results |
+
+</details>
+
+<details>
+<summary><b>5. 👥 Triage & HR</b> — click to expand</summary>
+
+| Tool | What it does |
+|---|---|
+| `mrcp_triage_parse_resume` | Deterministic résumé parsing |
+| `mrcp_triage_score_candidate` | Job-description-vs-candidate match score |
+| `mrcp_triage_generate_hr_report` | Formatted technical opinion for HR |
+
+</details>
+
+---
+
+## 🌐 REST API Reference
+
+Every MCP tool is also a plain HTTP endpoint — use it from any language, no MCP client required:
+
+```bash
+curl "https://mrcp-engine.vercel.app/api/analyze?repo=https://github.com/your-org/your-repo"
+```
+
+<details>
+<summary>Full endpoint table</summary>
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/analyze?repo=<url>` | `GET` | AST graph & complexity metrics |
+| `/api/skills?repo=<url>` | `GET` | Refactoring contracts for hotspots |
+| `/api/api-contract?repo=<url>` | `GET` | Route extraction, OpenAPI 3.0, TypeScript SDK |
+| `/api/code-health?repo=<url>` | `GET` | Maintainability Index & technical debt |
+| `/api/env-validator?repo=<url>` | `GET` | `.env` validation, leak alerts, Zod schema |
+| `/api/monorepo-graph?repo=<url>` | `GET` | Package dependency graph & build order |
+| `/api/doc-generator?repo=<url>` | `GET` | JSDoc/TSDoc generator & API reference |
+| `/api/refactor-applier` | `POST` | Batch AST refactors |
+| `/api/type-signature-extractor?repo=<url>` | `GET` | Type-signature-only extraction |
+| `/api/diff-summarizer` | `POST` | Semantic git-diff summary |
+| `/api/dependency-resolver?package=<name>` | `GET` | Version/compatibility resolution |
+| `/api/dead-code-pruner?repo=<url>` | `GET` | Dead-code detection |
+| `/api/sql-orm-contract?repo=<url>` | `GET` | Typed DB/ORM contracts |
+| `/api/impact-analysis` | `POST` | Change blast radius (`body: { repoUrl, modifiedFiles }`) |
+| `/api/security-audit?repo=<url>` | `GET` | Security & license audit |
+| `/api/architecture-drift?repo=<url>` | `GET` | Architecture drift detection |
+| `/api/test-gap-analysis?repo=<url>` | `GET` | Test-gap detection & stubs |
+| `/api/context-pack?repo=<url>&task=<desc>` | `GET` | Task-sliced LLM context package |
+| `/api/full-analysis` | `GET` | Full 13-tool diagnostic suite |
+| `/api/mcp` | `POST` | Central MCP endpoint (JSON-RPC 2.0) |
+
+</details>
+
+---
+
+## 🧩 IDE Extension (VS Code · Cursor · Windsurf)
+
+`apps/vscode` ships a native extension bringing MRCP's analysis straight into your editor:
+
+- **Sidebar** — Quick Actions, Health Metrics (A–F / MI 0–100), Security & `.env` Audit, Architecture & Dependencies, Test Gaps & Dead Code, Document Intelligence (DQI)
+- **MRCP Cockpit** — visual dashboard: complexity distribution, live KPIs, AST graph viewer, jump-to-code security/route tables
+- **Inline CodeLens** — real-time cyclomatic complexity (`⚡ MRCP: Complexity 3 (Low 🟢)`) plus a one-click **Copy for AI** button on every function/class/method
+- **Problems panel integration** — native warnings for exposed secrets and missing `.env` variables
+- **AI Context Packer** — one-click, ~95%-token-savings context packaging to paste into ChatGPT, Claude, or Cursor
+
+```bash
+pnpm --filter mrcp-vscode compile
+cd apps/vscode && npm run package   # → mrcp-vscode-2.6.0.vsix
+```
+
+---
+
+## 📡 Live Instance
+
+A hosted instance is already running — no setup needed to try it:
+
+**`https://mrcp-engine.vercel.app`**
+
+```bash
+curl "https://mrcp-engine.vercel.app/api/code-health?repo=https://github.com/facebook/react"
+```
+
+---
+
+## 🗺 Roadmap
+
+- [x] 13-tool full diagnostic suite with parallel execution
+- [x] Native VS Code / Cursor / Windsurf extension
+- [x] Document intelligence for non-code repositories
+- [ ] **v3**: on-demand file-content retrieval — request a specific file by the metadata MRCP already returned, and get its content back as structured JSON (including visual content where applicable)
+- [ ] Expanded language grammars beyond the current 14+
+
+Have a request? [Open a feature issue](../../issues/new?template=feature_request.md).
+
+---
+
+## 🤝 Contributing
+
+Issues, feature requests, and PRs are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup and guidelines, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations.
+
+If MRCP Engine saves your agent (or your wallet) some tokens, a ⭐ star genuinely helps other people find it.
+
+## 📄 License
+
+[MIT](LICENSE) © faelscarpato
+
+---
+
+<div align="center">
+
+### ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=faelscarpato/mrcp-engine&type=Date)](https://star-history.com/#faelscarpato/mrcp-engine&Date)
+
+</div>
