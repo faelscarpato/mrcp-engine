@@ -1,6 +1,31 @@
 {
   "name": "mrcp-engine",
   "version": "2.6.0",
+  "description": "Deterministic AST code-intelligence engine for AI agents — MCP server + REST API for architecture analysis, security audits, and doc generation.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "llm-tools",
+    "ast",
+    "code-analysis",
+    "tree-sitter",
+    "developer-tools",
+    "typescript",
+    "openapi",
+    "static-analysis",
+    "code-intelligence"
+  ],
+  "homepage": "https://mrcp-engine.vercel.app",
+  "bugs": {
+    "url": "https://github.com/faelscarpato/mrcp-engine/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faelscarpato/mrcp-engine.git"
+  },
+  "license": "MIT",
+  "author": "faelscarpato",
   "private": false,
   "workspaces": [
     "packages/*",
@@ -9,6 +34,9 @@
   ],
   "sideEffects": false,
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
