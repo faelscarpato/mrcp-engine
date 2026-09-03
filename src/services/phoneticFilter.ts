@@ -4,7 +4,7 @@ export function sanitizeVoiceInput(rawInput: string): string {
   if (!rawInput) return '';
   return rawInput
     .replace(PTBR_FILLERS, '')
-    .replace(/[,\.,\?!]{2,}/g, '.')
+    .replace(/[,.\?!]{2,}/g, '.')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -12,7 +12,7 @@ export function sanitizeVoiceInput(rawInput: string): string {
 export function sanitizeForTTS(text: string): string {
   if (!text) return '';
   return text
-    .replace(/[*_#`~\[\]()]/g, '')  // Remove Markdown syntax
+    .replace(/[*_#`~\[\]()]/g, '') // Remove Markdown syntax
     .replace(/\n+/g, '. ')
     .replace(/\s+/g, ' ')
     .trim();
