@@ -4,10 +4,10 @@
 
 MRCP Engine follows a single rolling `latest` release on npm. Security fixes are applied to the current major version.
 
-| Version | Supported |
-| ------- | --------- |
-| 2.x (latest) | ✅ |
-| < 2.0 | ❌ |
+| Version      | Supported |
+| ------------ | --------- |
+| 2.x (latest) | ✅        |
+| < 2.0        | ❌        |
 
 ## Reporting a Vulnerability
 

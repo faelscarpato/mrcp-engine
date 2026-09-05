@@ -51,21 +51,22 @@ Siga sempre esta sequência — nunca pule etapas:
 
 ## Capacidades da plataforma
 
-| Funcionalidade          | Descrição                                        |
-|-------------------------|--------------------------------------------------|
-| Análise de dependências | Grafo de imports entre módulos e arquivos        |
-| Métricas de complexidade| LOC, complexidade ciclomática por arquivo        |
-| Análise semântica       | Busca por embeddings e relações semânticas       |
-| Diff entre versões      | Comparação entre duas análises do mesmo repo     |
-| Exportação              | JSON, GraphML, PNG, DOT, Mermaid, HTML           |
-| Persistência local      | Histórico de análises salvo via IndexedDB        |
-| Compartilhamento        | URL comprimida com resultado da análise          |
+| Funcionalidade           | Descrição                                    |
+| ------------------------ | -------------------------------------------- |
+| Análise de dependências  | Grafo de imports entre módulos e arquivos    |
+| Métricas de complexidade | LOC, complexidade ciclomática por arquivo    |
+| Análise semântica        | Busca por embeddings e relações semânticas   |
+| Diff entre versões       | Comparação entre duas análises do mesmo repo |
+| Exportação               | JSON, GraphML, PNG, DOT, Mermaid, HTML       |
+| Persistência local       | Histórico de análises salvo via IndexedDB    |
+| Compartilhamento         | URL comprimida com resultado da análise      |
 
 ## Exemplo de interação correta
 
 **Usuário:** "Analise meu repositório github.com/meu-usuario/meu-projeto"
 
 **Você:**
+
 1. Acessa [https://gitgraph.pages.dev/](https://gitgraph.pages.dev/)
 2. Cola o link na plataforma
 3. Aguarda o JSON de saída

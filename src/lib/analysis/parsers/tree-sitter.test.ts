@@ -1,21 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   extractFunctionsWithTreeSitter,
   extractCallsWithTreeSitter,
   extractImportsWithTreeSitter,
-  LANGUAGE_WASM_MAP
-} from './tree-sitter.js';
+  LANGUAGE_WASM_MAP,
+} from "./tree-sitter.js";
 
-describe('Tree-sitter AST Parser Suite', () => {
-  it('should verify grammar availability for core and enterprise languages', () => {
-    expect(LANGUAGE_WASM_MAP['typescript']).toBeDefined();
-    expect(LANGUAGE_WASM_MAP['python']).toBeDefined();
-    expect(LANGUAGE_WASM_MAP['go']).toBeDefined();
-    expect(LANGUAGE_WASM_MAP['rust']).toBeDefined();
-    expect(LANGUAGE_WASM_MAP['java']).toBeDefined();
+describe("Tree-sitter AST Parser Suite", () => {
+  it("should verify grammar availability for core and enterprise languages", () => {
+    expect(LANGUAGE_WASM_MAP["typescript"]).toBeDefined();
+    expect(LANGUAGE_WASM_MAP["python"]).toBeDefined();
+    expect(LANGUAGE_WASM_MAP["go"]).toBeDefined();
+    expect(LANGUAGE_WASM_MAP["rust"]).toBeDefined();
+    expect(LANGUAGE_WASM_MAP["java"]).toBeDefined();
   });
 
-  describe('1. SAP CDS (Core Data Services)', () => {
+  describe("1. SAP CDS (Core Data Services)", () => {
     const cdsCode = `
       @EndUserText.label: 'Sales Order View'
       @AccessControl.authorizationCheck: #NOT_REQUIRED
@@ -30,14 +30,18 @@ describe('Tree-sitter AST Parser Suite', () => {
       }
     `;
 
-    it('should extract CDS view entity accurately', async () => {
-      const { functions } = await extractFunctionsWithTreeSitter('zi_sales_order.cds', cdsCode, 'cds');
+    it("should extract CDS view entity accurately", async () => {
+      const { functions } = await extractFunctionsWithTreeSitter(
+        "zi_sales_order.cds",
+        cdsCode,
+        "cds",
+      );
       expect(functions.length).toBeGreaterThan(0);
-      expect(functions[0].name).toBe('ZI_SalesOrder');
+      expect(functions[0].name).toBe("ZI_SalesOrder");
     });
   });
 
-  describe('2. SAP ABAP', () => {
+  describe("2. SAP ABAP", () => {
     const abapCode = `
       CLASS zcl_order_processor DEFINITION PUBLIC FINAL CREATE PUBLIC.
         PUBLIC SECTION.
@@ -51,15 +55,19 @@ describe('Tree-sitter AST Parser Suite', () => {
       ENDCLASS.
     `;
 
-    it('should extract ABAP methods accurately', async () => {
-      const { functions } = await extractFunctionsWithTreeSitter('zcl_order.abap', abapCode, 'abap');
+    it("should extract ABAP methods accurately", async () => {
+      const { functions } = await extractFunctionsWithTreeSitter(
+        "zcl_order.abap",
+        abapCode,
+        "abap",
+      );
       expect(functions.length).toBeGreaterThan(0);
-      const names = functions.map(f => f.name);
-      expect(names).toContain('process_order');
+      const names = functions.map((f) => f.name);
+      expect(names).toContain("process_order");
     });
   });
 
-  describe('3. Oracle PL/SQL', () => {
+  describe("3. Oracle PL/SQL", () => {
     const plsqlCode = `
       CREATE OR REPLACE PACKAGE sales_pkg AS
         FUNCTION calculate_commission(sales_amount NUMBER) RETURN NUMBER;
@@ -81,17 +89,21 @@ describe('Tree-sitter AST Parser Suite', () => {
       /
     `;
 
-    it('should extract PL/SQL package, functions and procedures accurately', async () => {
-      const { functions } = await extractFunctionsWithTreeSitter('sales_pkg.sql', plsqlCode, 'plsql');
+    it("should extract PL/SQL package, functions and procedures accurately", async () => {
+      const { functions } = await extractFunctionsWithTreeSitter(
+        "sales_pkg.sql",
+        plsqlCode,
+        "plsql",
+      );
       expect(functions.length).toBeGreaterThan(0);
-      const names = functions.map(f => f.name);
-      expect(names).toContain('sales_pkg');
-      expect(names).toContain('calculate_commission');
-      expect(names).toContain('process_batch');
+      const names = functions.map((f) => f.name);
+      expect(names).toContain("sales_pkg");
+      expect(names).toContain("calculate_commission");
+      expect(names).toContain("process_batch");
     });
   });
 
-  describe('4. TypeScript & JavaScript', () => {
+  describe("4. TypeScript & JavaScript", () => {
     const tsCode = `
       import { format } from 'date-fns';
       import * as path from 'path';
@@ -101,23 +113,35 @@ describe('Tree-sitter AST Parser Suite', () => {
       }
     `;
 
-    it('should extract TS functions, methods and imports accurately', async () => {
-      const { functions } = await extractFunctionsWithTreeSitter('order.ts', tsCode, 'typescript');
-      const imports = await extractImportsWithTreeSitter('order.ts', tsCode, 'typescript');
-      const calls = await extractCallsWithTreeSitter('order.ts', tsCode, 'typescript');
+    it("should extract TS functions, methods and imports accurately", async () => {
+      const { functions } = await extractFunctionsWithTreeSitter(
+        "order.ts",
+        tsCode,
+        "typescript",
+      );
+      const imports = await extractImportsWithTreeSitter(
+        "order.ts",
+        tsCode,
+        "typescript",
+      );
+      const calls = await extractCallsWithTreeSitter(
+        "order.ts",
+        tsCode,
+        "typescript",
+      );
 
-      expect(functions.map(f => f.name)).toContain('parseDate');
+      expect(functions.map((f) => f.name)).toContain("parseDate");
 
-      const importPaths = imports.imports.map(i => i.raw);
-      expect(importPaths).toContain('date-fns');
-      expect(importPaths).toContain('path');
+      const importPaths = imports.imports.map((i) => i.raw);
+      expect(importPaths).toContain("date-fns");
+      expect(importPaths).toContain("path");
 
-      const called = calls.map(c => c.calleeName);
-      expect(called).toContain('format');
+      const called = calls.map((c) => c.calleeName);
+      expect(called).toContain("format");
     });
   });
 
-  describe('5. Python', () => {
+  describe("5. Python", () => {
     const pyCode = `
       import os
       from pathlib import Path
@@ -130,21 +154,33 @@ describe('Tree-sitter AST Parser Suite', () => {
         pass
     `;
 
-    it('should extract Python functions, imports and calls accurately', async () => {
-      const { functions } = await extractFunctionsWithTreeSitter('script.py', pyCode, 'python');
-      const imports = await extractImportsWithTreeSitter('script.py', pyCode, 'python');
-      const calls = await extractCallsWithTreeSitter('script.py', pyCode, 'python');
+    it("should extract Python functions, imports and calls accurately", async () => {
+      const { functions } = await extractFunctionsWithTreeSitter(
+        "script.py",
+        pyCode,
+        "python",
+      );
+      const imports = await extractImportsWithTreeSitter(
+        "script.py",
+        pyCode,
+        "python",
+      );
+      const calls = await extractCallsWithTreeSitter(
+        "script.py",
+        pyCode,
+        "python",
+      );
 
-      expect(functions.map(f => f.name)).toContain('process_data');
-      expect(functions.map(f => f.name)).toContain('fetch_remote');
+      expect(functions.map((f) => f.name)).toContain("process_data");
+      expect(functions.map((f) => f.name)).toContain("fetch_remote");
 
-      const importPaths = imports.imports.map(i => i.raw);
-      expect(importPaths).toContain('os');
-      expect(importPaths).toContain('pathlib');
+      const importPaths = imports.imports.map((i) => i.raw);
+      expect(importPaths).toContain("os");
+      expect(importPaths).toContain("pathlib");
 
-      const called = calls.map(c => c.calleeName);
-      expect(called).toContain('Path');
-      expect(called).toContain('print');
+      const called = calls.map((c) => c.calleeName);
+      expect(called).toContain("Path");
+      expect(called).toContain("print");
     });
   });
 });

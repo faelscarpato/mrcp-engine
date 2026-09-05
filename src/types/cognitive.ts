@@ -1,6 +1,11 @@
-export type Intent = 'project_status' | 'code_review' | 'memory_lookup' | 'system_command' | 'general_query';
-export type ExecutionRoute = 'fast_path' | 'llm_synthesis';
-export type DeliveryMode = 'voice_brief' | 'screen_detailed';
+export type Intent =
+  | "project_status"
+  | "code_review"
+  | "memory_lookup"
+  | "system_command"
+  | "general_query";
+export type ExecutionRoute = "fast_path" | "llm_synthesis";
+export type DeliveryMode = "voice_brief" | "screen_detailed";
 
 export interface ProcessRequest {
   input: string;
@@ -19,7 +24,7 @@ export interface ProcessRequest {
 }
 
 export interface Entity {
-  type: 'project' | 'file' | 'person' | 'date';
+  type: "project" | "file" | "person" | "date";
   value: string;
   resolved_id?: string;
 }

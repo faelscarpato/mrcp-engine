@@ -7,12 +7,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ## [Unreleased]
 
 ### Added
+
 - Documentation overhaul: bilingual README (English/Portuguese), `CONTRIBUTING.md`, this changelog, PR template
 - Fixed `SECURITY.md` (previously the unfilled GitHub default template)
 
 ## [2.6.0] - 2026
 
 ### Added
+
 - Full 13-tool diagnostic suite (`mrcp_run_full_repository_suite`) with parallel execution and consolidated executive report
 - Document intelligence for non-code repositories (`mrcp_document_analyzer`) — CSV, TSV, TXT, MD, DOCX, XLSX, XLS, PDF, JSON, YAML, XML, LOG
 - Native VS Code / Cursor / Windsurf extension (`apps/vscode`) with sidebar, MRCP Cockpit dashboard, inline CodeLens, and AI Context Packer
@@ -21,6 +23,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Résumé/HR triage tool set (`mrcp_triage_parse_resume`, `mrcp_triage_score_candidate`, `mrcp_triage_generate_hr_report`)
 
 ### Notes
+
 This entry reconstructs the 2.6.0 feature set from the current codebase and README; earlier version history (1.0.0 → 2.6.0) predates this changelog and isn't itemized here. From this point forward, every release should add an entry above.
 
 ---

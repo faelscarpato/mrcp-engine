@@ -1,8 +1,8 @@
 /**
  * dev-server.ts — Servidor local para emular as Vercel Serverless Functions.
- * 
+ *
  * Uso: npx tsx dev-server.ts
- * 
+ *
  * Sobe na porta 3000, que é o target do proxy do Vite.
  * Quando o Vite roda na 5173, ele redireciona /api/* → localhost:3000/api/*.
  */
@@ -73,5 +73,7 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
   }
 }).listen(PORT, () => {
   console.log(`\n🚀 MRCP Dev Server rodando em http://localhost:${PORT}`);
-  console.log(`\nConsolidado em 2 Serverless Functions para compatibilidade total Vercel Hobby:\n  1. /api/mcp\n  2. /api/index (Roteador Mestre REST)\n`);
+  console.log(
+    `\nConsolidado em 2 Serverless Functions para compatibilidade total Vercel Hobby:\n  1. /api/mcp\n  2. /api/index (Roteador Mestre REST)\n`,
+  );
 });

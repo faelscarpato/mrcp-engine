@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
 
 // Instancia o Servidor MCP
 const server = new Server(
   { name: "mrcp-engine-bridge", version: "1.0.0" },
-  { capabilities: { tools: {} } }
+  { capabilities: { tools: {} } },
 );
 
 // 1. Diz à IA quais ferramentas existem
@@ -15,19 +18,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "analyze_repository",
-        description: "Fetches the structural AST graph of a repository to avoid AI Tax.",
+        description:
+          "Fetches the structural AST graph of a repository to avoid AI Tax.",
         inputSchema: {
           type: "object",
           properties: {
             repo: {
               type: "string",
-              description: "URL of the repository to analyze (e.g., https://github.com/user/project)"
-            }
+              description:
+                "URL of the repository to analyze (e.g., https://github.com/user/project)",
+            },
           },
-          required: ["repo"]
-        }
-      }
-    ]
+          required: ["repo"],
+        },
+      },
+    ],
   };
 });
 
@@ -42,12 +47,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const data = await response.json();
 
       return {
-        content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
       };
     } catch (error) {
       return {
-        content: [{ type: "text", text: `Error fetching structural data: ${error.message}` }],
-        isError: true
+        content: [
+          {
+            type: "text",
+            text: `Error fetching structural data: ${error.message}`,
+          },
+        ],
+        isError: true,
       };
     }
   }

@@ -41,11 +41,13 @@ export const TOOLS = [
       properties: {
         repo: {
           type: "string",
-          description: "Full URL or path of the GitHub repository or local directory",
+          description:
+            "Full URL or path of the GitHub repository or local directory",
         },
         taskContext: {
           type: "string",
-          description: "Optional context or task description to guide the diagnostic focus",
+          description:
+            "Optional context or task description to guide the diagnostic focus",
         },
       },
       required: ["repo"],
@@ -60,12 +62,22 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL of the GitHub repository" },
-        modifiedFiles: { type: "array", items: { type: "string" }, description: "List of modified file paths" },
-        diffContent: { type: "string", description: "Optional git diff string" }
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
+        modifiedFiles: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of modified file paths",
+        },
+        diffContent: {
+          type: "string",
+          description: "Optional git diff string",
+        },
       },
-      required: ["repo", "modifiedFiles"]
-    }
+      required: ["repo", "modifiedFiles"],
+    },
   },
   {
     name: "mrcp_security_compliance_audit",
@@ -74,11 +86,18 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL of the GitHub repository" },
-        severityThreshold: { type: "string", enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"], default: "LOW" }
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
+        severityThreshold: {
+          type: "string",
+          enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+          default: "LOW",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_architectural_drift_detector",
@@ -87,12 +106,19 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL of the GitHub repository" },
-        architectureType: { type: "string", enum: ["CLEAN_ARCHITECTURE", "HEXAGONAL", "FEATURE_FIRST", "LAYERED"], default: "CLEAN_ARCHITECTURE" },
-        maxAllowedCyclicDependencies: { type: "number", default: 0 }
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
+        architectureType: {
+          type: "string",
+          enum: ["CLEAN_ARCHITECTURE", "HEXAGONAL", "FEATURE_FIRST", "LAYERED"],
+          default: "CLEAN_ARCHITECTURE",
+        },
+        maxAllowedCyclicDependencies: { type: "number", default: 0 },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_auto_test_coverage_gap_finder",
@@ -101,12 +127,15 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL of the GitHub repository" },
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
         targetHotspotsOnly: { type: "boolean", default: true },
-        generateStubs: { type: "boolean", default: true }
+        generateStubs: { type: "boolean", default: true },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_context_pruning_pack",
@@ -115,12 +144,18 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL of the GitHub repository" },
-        taskDescription: { type: "string", description: "Description of the user task for the LLM" },
-        maxTokenBudget: { type: "number", default: 8000 }
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
+        taskDescription: {
+          type: "string",
+          description: "Description of the user task for the LLM",
+        },
+        maxTokenBudget: { type: "number", default: 8000 },
       },
-      required: ["repo", "taskDescription"]
-    }
+      required: ["repo", "taskDescription"],
+    },
   },
 
   // --- Category: High-Efficiency Agent Offloading ---
@@ -131,14 +166,31 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        action: { type: "string", enum: ["RENAME_SYMBOL", "EXTRACT_INTERFACE", "UPDATE_IMPORT"] },
-        targetSymbol: { type: "string", description: "Target symbol name or import specifier to refactor" },
-        newSymbolName: { type: "string", description: "New name or replacement import path" },
-        targetFilePath: { type: "string", description: "Path to the file to modify" },
-        dryRun: { type: "boolean", default: true, description: "Whether to simulate changes without writing to disk (default: true for safety)" }
+        action: {
+          type: "string",
+          enum: ["RENAME_SYMBOL", "EXTRACT_INTERFACE", "UPDATE_IMPORT"],
+        },
+        targetSymbol: {
+          type: "string",
+          description: "Target symbol name or import specifier to refactor",
+        },
+        newSymbolName: {
+          type: "string",
+          description: "New name or replacement import path",
+        },
+        targetFilePath: {
+          type: "string",
+          description: "Path to the file to modify",
+        },
+        dryRun: {
+          type: "boolean",
+          default: true,
+          description:
+            "Whether to simulate changes without writing to disk (default: true for safety)",
+        },
       },
-      required: ["action", "targetSymbol", "targetFilePath"]
-    }
+      required: ["action", "targetSymbol", "targetFilePath"],
+    },
   },
   {
     name: "mrcp_type_signature_extractor",
@@ -147,11 +199,17 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" },
-        targetFilePath: { type: "string", description: "Optional specific file path to extract signatures from" }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
+        targetFilePath: {
+          type: "string",
+          description: "Optional specific file path to extract signatures from",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_git_diff_semantic_summarizer",
@@ -161,10 +219,10 @@ export const TOOLS = [
       type: "object",
       properties: {
         diffContent: { type: "string", description: "Git diff output string" },
-        stripFormattingNoise: { type: "boolean", default: true }
+        stripFormattingNoise: { type: "boolean", default: true },
       },
-      required: ["diffContent"]
-    }
+      required: ["diffContent"],
+    },
   },
   {
     name: "mrcp_dependency_compatibility_resolver",
@@ -173,13 +231,27 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        packageName: { type: "string", description: "NPM package name (e.g. react, typescript)" },
-        targetVersion: { type: "string", default: "latest", description: "Target SemVer version or tag (default: latest)" },
-        repo: { type: "string", description: "Optional repository URL or path to check against local package.json" },
-        manifestFilePath: { type: "string", description: "Optional path to package.json (default: package.json)" }
+        packageName: {
+          type: "string",
+          description: "NPM package name (e.g. react, typescript)",
+        },
+        targetVersion: {
+          type: "string",
+          default: "latest",
+          description: "Target SemVer version or tag (default: latest)",
+        },
+        repo: {
+          type: "string",
+          description:
+            "Optional repository URL or path to check against local package.json",
+        },
+        manifestFilePath: {
+          type: "string",
+          description: "Optional path to package.json (default: package.json)",
+        },
       },
-      required: ["packageName"]
-    }
+      required: ["packageName"],
+    },
   },
   {
     name: "mrcp_dead_code_pruner",
@@ -188,10 +260,13 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL of the GitHub repository" }
+        repo: {
+          type: "string",
+          description: "Full URL of the GitHub repository",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_sql_schema_orm_contract_generator",
@@ -200,10 +275,17 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" },
-        schemaFilePath: { type: "string", description: "Optional path to schema file (e.g., schema.prisma, schema.sql)" }
-      }
-    }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
+        schemaFilePath: {
+          type: "string",
+          description:
+            "Optional path to schema file (e.g., schema.prisma, schema.sql)",
+        },
+      },
+    },
   },
   {
     name: "mrcp_api_contract_generator",
@@ -212,11 +294,17 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" },
-        frameworkHint: { type: "string", description: "Optional framework hint" }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
+        frameworkHint: {
+          type: "string",
+          description: "Optional framework hint",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_code_metrics_health_scorer",
@@ -225,10 +313,13 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_env_secret_contract_validator",
@@ -237,10 +328,13 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_monorepo_package_graph_analyzer",
@@ -249,11 +343,18 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" },
-        changedFiles: { type: "array", items: { type: "string" }, description: "Optional list of modified files" }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
+        changedFiles: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional list of modified files",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_docstring_api_doc_generator",
@@ -262,12 +363,22 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the repository" },
-        targetFilePath: { type: "string", description: "Optional single file path" },
-        format: { type: "string", enum: ["TSDOC", "JSDOC", "PYTHON_DOCSTRING", "MARKDOWN"], default: "TSDOC" }
+        repo: {
+          type: "string",
+          description: "Full URL or path of the repository",
+        },
+        targetFilePath: {
+          type: "string",
+          description: "Optional single file path",
+        },
+        format: {
+          type: "string",
+          enum: ["TSDOC", "JSDOC", "PYTHON_DOCSTRING", "MARKDOWN"],
+          default: "TSDOC",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
   {
     name: "mrcp_document_analyzer",
@@ -276,12 +387,26 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        repo: { type: "string", description: "Full URL or path of the document repository or local directory" },
-        filterExtensions: { type: "array", items: { type: "string" }, description: "Optional array of file extensions to include (e.g. ['csv', 'md', 'docx', 'pdf'])" },
-        maxFiles: { type: "number", default: 500, description: "Maximum number of document files to analyze (default: 500)" }
+        repo: {
+          type: "string",
+          description:
+            "Full URL or path of the document repository or local directory",
+        },
+        filterExtensions: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Optional array of file extensions to include (e.g. ['csv', 'md', 'docx', 'pdf'])",
+        },
+        maxFiles: {
+          type: "number",
+          default: 500,
+          description:
+            "Maximum number of document files to analyze (default: 500)",
+        },
       },
-      required: ["repo"]
-    }
+      required: ["repo"],
+    },
   },
 
   // --- Category: Triage & HR ---
@@ -305,7 +430,10 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        resumeData: { type: "object", description: "Parsed resume object from mrcp_triage_parse_resume" },
+        resumeData: {
+          type: "object",
+          description: "Parsed resume object from mrcp_triage_parse_resume",
+        },
         jobDescription: { type: "string", description: "Job description text" },
       },
       required: ["resumeData", "jobDescription"],
@@ -359,8 +487,14 @@ export const TOOLS = [
       type: "object",
       properties: {
         query: { type: "string", description: "Deep search topic" },
-        topN: { type: "number", description: "Number of top links to scrape (default: 2)" },
-        minScore: { type: "number", description: "Minimum relevance score threshold (default: 0)" },
+        topN: {
+          type: "number",
+          description: "Number of top links to scrape (default: 2)",
+        },
+        minScore: {
+          type: "number",
+          description: "Minimum relevance score threshold (default: 0)",
+        },
       },
       required: ["query"],
     },

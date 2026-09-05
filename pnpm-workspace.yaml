@@ -1,9 +1,9 @@
 packages:
-  - 'packages/*'
-  - 'apps/*'
-  - 'api'
+  - "packages/*"
+  - "apps/*"
+  - "api"
 allowBuilds:
-  '@vscode/vsce-sign': false
+  "@vscode/vsce-sign": false
   esbuild: false
   keytar: false
   puppeteer: false
