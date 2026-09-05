@@ -1,11 +1,16 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { MrcpDuplicateModule, MrcpDependencyCycle } from './types';
+import * as fs from "fs";
+import * as path from "path";
+import { MrcpDuplicateModule, MrcpDependencyCycle } from "./types";
 
-export function detectDuplicateModules(workspaceRoot: string): MrcpDuplicateModule[] {
+export function detectDuplicateModules(
+  workspaceRoot: string,
+): MrcpDuplicateModule[] {
   const duplicates: MrcpDuplicateModule[] = [];
-  const srcAnalysisDir = path.join(workspaceRoot, 'src/lib/analysis');
-  const coreAnalysisDir = path.join(workspaceRoot, 'packages/core/lib/analysis');
+  const srcAnalysisDir = path.join(workspaceRoot, "src/lib/analysis");
+  const coreAnalysisDir = path.join(
+    workspaceRoot,
+    "packages/core/lib/analysis",
+  );
 
   if (fs.existsSync(srcAnalysisDir) && fs.existsSync(coreAnalysisDir)) {
     try {
@@ -15,16 +20,16 @@ export function detectDuplicateModules(workspaceRoot: string): MrcpDuplicateModu
         const coreFilePath = path.join(coreAnalysisDir, file);
 
         if (fs.existsSync(coreFilePath) && fs.statSync(srcFilePath).isFile()) {
-          const srcContent = fs.readFileSync(srcFilePath, 'utf8');
-          const coreContent = fs.readFileSync(coreFilePath, 'utf8');
-          const isReexport = srcContent.includes('export * from');
+          const srcContent = fs.readFileSync(srcFilePath, "utf8");
+          const coreContent = fs.readFileSync(coreFilePath, "utf8");
+          const isReexport = srcContent.includes("export * from");
           const equivalent = srcContent === coreContent || isReexport;
 
           duplicates.push({
             primary: `packages/core/lib/analysis/${file}`,
             duplicate: `src/lib/analysis/${file}`,
             contentEquivalent: equivalent,
-            risk: equivalent ? 'low' : 'high'
+            risk: equivalent ? "low" : "high",
           });
         }
       }
@@ -34,17 +39,22 @@ export function detectDuplicateModules(workspaceRoot: string): MrcpDuplicateModu
   return duplicates;
 }
 
-export function resolveImportPaths(file: string, rawImports: string[], allFiles: string[], root: string): string[] {
+export function resolveImportPaths(
+  file: string,
+  rawImports: string[],
+  allFiles: string[],
+  root: string,
+): string[] {
   const resolved: string[] = [];
   const currentDir = path.dirname(path.join(root, file));
 
   for (const imp of rawImports) {
-    if (imp.startsWith('.')) {
+    if (imp.startsWith(".")) {
       const absTarget = path.resolve(currentDir, imp);
       for (const f of allFiles) {
-        const fNoExt = f.replace(/\.[^/.]+$/, '');
+        const fNoExt = f.replace(/\.[^/.]+$/, "");
         if (f === absTarget || fNoExt === absTarget) {
-          resolved.push(path.relative(root, f).replace(/\\/g, '/'));
+          resolved.push(path.relative(root, f).replace(/\\/g, "/"));
           break;
         }
       }
@@ -53,7 +63,9 @@ export function resolveImportPaths(file: string, rawImports: string[], allFiles:
   return resolved;
 }
 
-export function findCycles(graph: Map<string, string[]>): MrcpDependencyCycle[] {
+export function findCycles(
+  graph: Map<string, string[]>,
+): MrcpDependencyCycle[] {
   const cycles: MrcpDependencyCycle[] = [];
   const visited = new Set<string>();
   const recStack = new Set<string>();
@@ -76,7 +88,7 @@ export function findCycles(graph: Map<string, string[]>): MrcpDependencyCycle[] 
           if (cyclePath.length > 2) {
             cycles.push({
               files: cyclePath,
-              length: cyclePath.length - 1
+              length: cyclePath.length - 1,
             });
           }
         }

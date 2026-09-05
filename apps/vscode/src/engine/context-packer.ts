@@ -1,9 +1,20 @@
-import { MrcpSuiteResult, MrcpFileAnalysis, MrcpSymbol } from './types';
+import { MrcpSuiteResult, MrcpFileAnalysis, MrcpSymbol } from "./types";
 
 export function packWorkspaceContextForAi(result: MrcpSuiteResult): string {
-  const { summary, provenance, duplicateModules, files, apiRoutes, envIssues, securityIssues } = result;
+  const {
+    summary,
+    provenance,
+    duplicateModules,
+    files,
+    apiRoutes,
+    envIssues,
+    securityIssues,
+  } = result;
 
-  const savingsTokens = Math.max(0, summary.estimatedTokensWithoutMrcp - summary.estimatedTokensWithMrcp);
+  const savingsTokens = Math.max(
+    0,
+    summary.estimatedTokensWithoutMrcp - summary.estimatedTokensWithMrcp,
+  );
   const estimatedCostSaved = ((savingsTokens / 1000) * 0.003).toFixed(2);
 
   const header = `<!-- 🚀 MRCP-ENGINE DETERMINISTIC CONTEXT PACK FOR AI AGENTS (${summary.tokenSavingsPercent}% TOKEN REDUCTION) -->
@@ -29,20 +40,23 @@ export function packWorkspaceContextForAi(result: MrcpSuiteResult): string {
 - **Missing .env Vars:** ${envIssues.length}
 `;
 
-  let dupSection = '';
+  let dupSection = "";
   if (duplicateModules && duplicateModules.length > 0) {
     dupSection = `\n> [!WARNING]
 > **Architectural Risk (Duplicate Implementations):** ${duplicateModules.length} parallel modules detected between \`src/\` and \`packages/core/\`.
-${duplicateModules.map(d => `> - Primary: \`${d.primary}\` | Mirror: \`${d.duplicate}\` (Equivalent: ${d.contentEquivalent}, Risk: ${d.risk.toUpperCase()})`).join('\n')}
+${duplicateModules.map((d) => `> - Primary: \`${d.primary}\` | Mirror: \`${d.duplicate}\` (Equivalent: ${d.contentEquivalent}, Risk: ${d.risk.toUpperCase()})`).join("\n")}
 > *Recommendation: Reference and modify \`packages/core/\` as the canonical source.*\n\n---\n`;
   }
 
-  let routesSection = '';
+  let routesSection = "";
   if (apiRoutes.length > 0) {
     routesSection = `### 🌐 DETECTED API CONTRACTS & ROUTE ALIASES\n\`\`\`text\n`;
     for (const route of apiRoutes) {
-      const aliasStr = route.aliases && route.aliases.length > 0 ? ` (Aliases: ${route.aliases.join(', ')})` : '';
-      const methodStr = (route.method || 'GET').padEnd(6);
+      const aliasStr =
+        route.aliases && route.aliases.length > 0
+          ? ` (Aliases: ${route.aliases.join(", ")})`
+          : "";
+      const methodStr = (route.method || "GET").padEnd(6);
       routesSection += `${methodStr} ${route.path}${aliasStr} -> in ${route.file}:${route.line} [${route.source}]\n`;
     }
     routesSection += `\`\`\`\n\n---\n`;
@@ -53,11 +67,11 @@ ${duplicateModules.map(d => `> - Primary: \`${d.primary}\` | Mirror: \`${d.dupli
     if (file.symbols.length === 0 && file.exports.length === 0) continue;
     filesSection += `#### 📁 \`${file.relativePath}\` (${file.language} | MI: ${file.complexity})\n`;
     if (file.imports.length > 0) {
-      filesSection += `> Imports: ${file.imports.slice(0, 8).join(', ')}${file.imports.length > 8 ? ' ...' : ''}\n\n`;
+      filesSection += `> Imports: ${file.imports.slice(0, 8).join(", ")}${file.imports.length > 8 ? " ..." : ""}\n\n`;
     }
     filesSection += `\`\`\`typescript\n`;
     for (const sym of file.symbols) {
-      filesSection += formatSymbolSignature(sym) + '\n';
+      filesSection += formatSymbolSignature(sym) + "\n";
     }
     filesSection += `\`\`\`\n\n`;
   }
@@ -75,54 +89,65 @@ ${duplicateModules.map(d => `> - Primary: \`${d.primary}\` | Mirror: \`${d.dupli
 
 function formatSymbolSignature(sym: MrcpSymbol): string {
   // If signature was extracted cleanly, use it
-  if (sym.signature && !sym.signature.includes('(...args: any[])')) {
+  if (sym.signature && !sym.signature.includes("(...args: any[])")) {
     return `// complexity: ${sym.complexity} [${sym.complexityDetails.analysisMethod}]\n${sym.signature}`;
   }
 
   // Format by kind with real fields
-  const exp = sym.isExported ? 'export ' : '';
-  if (sym.kind === 'interface') {
-    const props = sym.properties && sym.properties.length > 0
-      ? '\n  ' + sym.properties.join('\n  ') + '\n'
-      : ' /* no properties */ ';
-    return `${exp}interface ${sym.name}${sym.generics || ''} {${props}}`;
+  const exp = sym.isExported ? "export " : "";
+  if (sym.kind === "interface") {
+    const props =
+      sym.properties && sym.properties.length > 0
+        ? "\n  " + sym.properties.join("\n  ") + "\n"
+        : " /* no properties */ ";
+    return `${exp}interface ${sym.name}${sym.generics || ""} {${props}}`;
   }
 
-  if (sym.kind === 'type') {
-    return `${exp}type ${sym.name}${sym.generics || ''} = /* defined type */;`;
+  if (sym.kind === "type") {
+    return `${exp}type ${sym.name}${sym.generics || ""} = /* defined type */;`;
   }
 
-  if (sym.kind === 'enum') {
-    const props = sym.properties && sym.properties.length > 0 ? sym.properties.join(', ') : '';
+  if (sym.kind === "enum") {
+    const props =
+      sym.properties && sym.properties.length > 0
+        ? sym.properties.join(", ")
+        : "";
     return `${exp}enum ${sym.name} { ${props} }`;
   }
 
-  if (sym.kind === 'class') {
-    const methods = sym.methods && sym.methods.length > 0
-      ? '\n  ' + sym.methods.join(';\n  ') + ';\n'
-      : ' /* methods */ ';
-    return `${exp}class ${sym.name}${sym.generics || ''} {${methods}}`;
+  if (sym.kind === "class") {
+    const methods =
+      sym.methods && sym.methods.length > 0
+        ? "\n  " + sym.methods.join(";\n  ") + ";\n"
+        : " /* methods */ ";
+    return `${exp}class ${sym.name}${sym.generics || ""} {${methods}}`;
   }
 
-  if (sym.kind === 'function' || sym.kind === 'method') {
-    const params = sym.parameters && sym.parameters.length > 0
-      ? sym.parameters.map(p => `${p.name}${p.optional ? '?' : ''}: ${p.type || 'any'}`).join(', ')
-      : '';
-    const ret = sym.returnType ? `: ${sym.returnType}` : ': void';
-    const asyncPrefix = sym.isAsync ? 'async ' : '';
-    return `// complexity: ${sym.complexity}\n${exp}${asyncPrefix}function ${sym.name}${sym.generics || ''}(${params})${ret};`;
+  if (sym.kind === "function" || sym.kind === "method") {
+    const params =
+      sym.parameters && sym.parameters.length > 0
+        ? sym.parameters
+            .map((p) => `${p.name}${p.optional ? "?" : ""}: ${p.type || "any"}`)
+            .join(", ")
+        : "";
+    const ret = sym.returnType ? `: ${sym.returnType}` : ": void";
+    const asyncPrefix = sym.isAsync ? "async " : "";
+    return `// complexity: ${sym.complexity}\n${exp}${asyncPrefix}function ${sym.name}${sym.generics || ""}(${params})${ret};`;
   }
 
   return `${exp}const ${sym.name}: any;`;
 }
 
-export function packSingleFileContext(file: MrcpFileAnalysis, content: string): string {
+export function packSingleFileContext(
+  file: MrcpFileAnalysis,
+  content: string,
+): string {
   return `<!-- 🚀 MRCP SINGLE FILE CONTEXT FOR AI -->
 ### File: \`${file.relativePath}\` (${file.language})
 - Lines of Code: ${file.linesCount}
 - Cyclomatic Complexity: ${file.complexity}
-- Exported Symbols: ${file.exports.join(', ') || 'None'}
-- Imports: ${file.imports.join(', ') || 'None'}
+- Exported Symbols: ${file.exports.join(", ") || "None"}
+- Imports: ${file.imports.join(", ") || "None"}
 
 \`\`\`${file.language.toLowerCase()}
 ${content}

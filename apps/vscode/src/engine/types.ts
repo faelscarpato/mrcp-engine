@@ -6,14 +6,22 @@ export interface MrcpSymbolParameter {
 
 export interface MrcpComplexityDetails {
   complexity: number | null;
-  analysisMethod: 'ast-walker' | 'tree-sitter' | 'regex-scanner' | 'unavailable';
-  confidence: 'high' | 'medium' | 'low';
+  analysisMethod:
+    "ast-walker" | "tree-sitter" | "regex-scanner" | "unavailable";
+  confidence: "high" | "medium" | "low";
   limitation?: string;
 }
 
 export interface MrcpSymbol {
   name: string;
-  kind: 'function' | 'class' | 'interface' | 'variable' | 'type' | 'enum' | 'method';
+  kind:
+    | "function"
+    | "class"
+    | "interface"
+    | "variable"
+    | "type"
+    | "enum"
+    | "method";
   signature: string;
   line: number;
   endLine?: number;
@@ -55,7 +63,7 @@ export interface MrcpGodModuleItem {
 export interface MrcpSecurityIssue {
   id: string;
   rule: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  severity: "critical" | "high" | "medium" | "low";
   message: string;
   file: string;
   line: number;
@@ -66,7 +74,7 @@ export interface MrcpEnvIssue {
   variableName: string;
   file: string;
   line: number;
-  status: 'missing_in_env' | 'missing_in_example' | 'hardcoded_secret';
+  status: "missing_in_env" | "missing_in_example" | "hardcoded_secret";
 }
 
 export interface MrcpDependencyCycle {
@@ -91,14 +99,14 @@ export interface MrcpDeadCodeItem {
 }
 
 export interface MrcpApiRoute {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS" | "HEAD";
   acceptedMethods: string[];
   path: string;
   file: string;
   line: number;
   handler: string;
   aliases: string[];
-  source: 'static-condition' | 'file-based' | 'express-route' | 'mcp-protocol';
+  source: "static-condition" | "file-based" | "express-route" | "mcp-protocol";
   description?: string;
 }
 
@@ -114,14 +122,14 @@ export interface MrcpDuplicateModule {
   primary: string;
   duplicate: string;
   contentEquivalent: boolean;
-  risk: 'low' | 'medium' | 'high';
+  risk: "low" | "medium" | "high";
 }
 
 export interface MrcpProvenanceMetadata {
   generatedAt: string;
   analyzerVersion: string;
   repositoryRevision: string;
-  source: 'local-workspace';
+  source: "local-workspace";
   workspaceFingerprint: string;
   includedExtensions: string[];
   excludedDirectories: string[];
@@ -140,7 +148,7 @@ export interface MrcpSuiteResult {
   provenance: MrcpProvenanceMetadata;
   summary: {
     healthScore: number;
-    letterGrade: 'A' | 'B' | 'C' | 'D' | 'F';
+    letterGrade: "A" | "B" | "C" | "D" | "F";
     maintainabilityIndex: number;
     totalFiles: number;
     totalLinesOfCode: number;

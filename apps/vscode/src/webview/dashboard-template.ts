@@ -1,4 +1,4 @@
-import { MrcpSuiteResult } from '../engine/types';
+import { MrcpSuiteResult } from "../engine/types";
 
 export function getDashboardHtml(result?: MrcpSuiteResult): string {
   if (!result) {
@@ -48,9 +48,29 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
 </html>`;
   }
 
-  const { summary, files, godModules, duplicateModules, securityIssues, envIssues, dependencyCycles, testGaps, deadCodeItems, apiRoutes, documents, provenance } = result;
+  const {
+    summary,
+    files,
+    godModules,
+    duplicateModules,
+    securityIssues,
+    envIssues,
+    dependencyCycles,
+    testGaps,
+    deadCodeItems,
+    apiRoutes,
+    documents,
+    provenance,
+  } = result;
 
-  const gradeColor = summary.letterGrade === 'A' ? '#10b981' : summary.letterGrade === 'B' ? '#3b82f6' : summary.letterGrade === 'C' ? '#f59e0b' : '#ef4444';
+  const gradeColor =
+    summary.letterGrade === "A"
+      ? "#10b981"
+      : summary.letterGrade === "B"
+        ? "#3b82f6"
+        : summary.letterGrade === "C"
+          ? "#f59e0b"
+          : "#ef4444";
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -314,7 +334,7 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
         </div>
         <div>
           <div style="font-size: 12px; opacity: 0.8;">Custo Médio Economizado / Análise:</div>
-          <div style="font-size: 18px; font-weight: bold; color: #3b82f6;">~$${(((Math.max(0, summary.estimatedTokensWithoutMrcp - summary.estimatedTokensWithMrcp)) / 1000) * 0.003).toFixed(2)} USD</div>
+          <div style="font-size: 18px; font-weight: bold; color: #3b82f6;">~$${((Math.max(0, summary.estimatedTokensWithoutMrcp - summary.estimatedTokensWithMrcp) / 1000) * 0.003).toFixed(2)} USD</div>
         </div>
       </div>
     </div>
@@ -333,7 +353,10 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
           </tr>
         </thead>
         <tbody>
-          ${files.slice(0, 25).map(f => `
+          ${files
+            .slice(0, 25)
+            .map(
+              (f) => `
             <tr>
               <td><span class="file-link" onclick="openFile('${f.relativePath}', 1)">${f.relativePath}</span></td>
               <td>${f.language}</td>
@@ -342,7 +365,9 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
               <td>${f.symbols.length}</td>
               <td>${f.isGodModule ? '<span class="severity-badge severity-high">God Module</span>' : '<span class="severity-badge severity-low">Saudável</span>'}</td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -362,15 +387,19 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
           </tr>
         </thead>
         <tbody>
-          ${godModules.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">✅ Nenhum God Module detectado! Código altamente modular.</td></tr>' : ''}
-          ${godModules.map(g => `
+          ${godModules.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">✅ Nenhum God Module detectado! Código altamente modular.</td></tr>' : ""}
+          ${godModules
+            .map(
+              (g) => `
             <tr>
               <td><span class="file-link" onclick="openFile('${g.file}', 1)">${g.file}</span></td>
               <td><strong>${g.linesCount}</strong></td>
               <td><span class="severity-badge severity-medium">${g.complexity}</span></td>
               <td>${g.reason}</td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -390,23 +419,31 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
           </tr>
         </thead>
         <tbody>
-          ${securityIssues.length === 0 && envIssues.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">✅ Nenhuma vulnerabilidade detectável pelas regras atuais (Zero falhas detectadas pelos padrões estáticos).</td></tr>' : ''}
-          ${securityIssues.map(s => `
+          ${securityIssues.length === 0 && envIssues.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">✅ Nenhuma vulnerabilidade detectável pelas regras atuais (Zero falhas detectadas pelos padrões estáticos).</td></tr>' : ""}
+          ${securityIssues
+            .map(
+              (s) => `
             <tr>
               <td><span class="severity-badge severity-${s.severity}">${s.severity}</span></td>
               <td><strong>${s.rule}:</strong> ${s.message}</td>
               <td><span class="file-link" onclick="openFile('${s.file}', ${s.line})">${s.file}:${s.line}</span></td>
-              <td>${s.remediation || 'Sanitize credentials.'}</td>
+              <td>${s.remediation || "Sanitize credentials."}</td>
             </tr>
-          `).join('')}
-          ${envIssues.map(e => `
+          `,
+            )
+            .join("")}
+          ${envIssues
+            .map(
+              (e) => `
             <tr>
               <td><span class="severity-badge severity-medium">ENV_MISSING</span></td>
               <td><strong>Variável Ausente:</strong> process.env.${e.variableName} usada no código mas não declarada no .env</td>
               <td><span class="file-link" onclick="openFile('${e.file}', ${e.line})">${e.file}:${e.line}</span></td>
               <td>Adicione ${e.variableName} ao .env e .env.example.</td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -426,23 +463,31 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
           </tr>
         </thead>
         <tbody>
-          ${deadCodeItems.length === 0 && testGaps.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">✅ Zero código morto e todas as funções complexas possuem cobertura de testes detectada!</td></tr>' : ''}
-          ${deadCodeItems.map(d => `
+          ${deadCodeItems.length === 0 && testGaps.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">✅ Zero código morto e todas as funções complexas possuem cobertura de testes detectada!</td></tr>' : ""}
+          ${deadCodeItems
+            .map(
+              (d) => `
             <tr>
               <td><span class="severity-badge severity-medium">Código Morto</span></td>
               <td><strong>${d.symbolName}</strong> (${d.kind})</td>
               <td><span class="file-link" onclick="openFile('${d.file}', ${d.line})">${d.file}:${d.line}</span></td>
-              <td>${d.reason || 'Export nunca referenciado no projeto.'}</td>
+              <td>${d.reason || "Export nunca referenciado no projeto."}</td>
             </tr>
-          `).join('')}
-          ${testGaps.map(g => `
+          `,
+            )
+            .join("")}
+          ${testGaps
+            .map(
+              (g) => `
             <tr>
               <td><span class="severity-badge severity-low">Gap de Teste</span></td>
               <td><strong>${g.functionName}()</strong></td>
               <td><span class="file-link" onclick="openFile('${g.file}', ${g.line})">${g.file}:${g.line}</span></td>
               <td>Função pública com complexidade (${g.complexity}) sem teste unitário correspondente.</td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -463,7 +508,10 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
           </tr>
         </thead>
         <tbody>
-          ${documents.slice(0, 30).map(d => `
+          ${documents
+            .slice(0, 30)
+            .map(
+              (d) => `
             <tr>
               <td><span class="file-link" onclick="openFile('${d.file}', 1)">${d.file}</span></td>
               <td><strong>${d.format}</strong></td>
@@ -471,7 +519,9 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
               <td>${d.wordCount}</td>
               <td><span class="severity-badge severity-low">${d.qualityScore}/100</span></td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -491,15 +541,19 @@ export function getDashboardHtml(result?: MrcpSuiteResult): string {
           </tr>
         </thead>
         <tbody>
-          ${apiRoutes.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">Nenhuma rota REST detectada explicitamente.</td></tr>' : ''}
-          ${apiRoutes.map(a => `
+          ${apiRoutes.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 20px;">Nenhuma rota REST detectada explicitamente.</td></tr>' : ""}
+          ${apiRoutes
+            .map(
+              (a) => `
             <tr>
-              <td><span class="severity-badge severity-low">${a.acceptedMethods.join(', ')}</span></td>
-              <td><code>${a.path}</code> ${a.aliases.length > 0 ? `<small style="opacity: 0.7;">(Aliases: ${a.aliases.join(', ')})</small>` : ''}</td>
+              <td><span class="severity-badge severity-low">${a.acceptedMethods.join(", ")}</span></td>
+              <td><code>${a.path}</code> ${a.aliases.length > 0 ? `<small style="opacity: 0.7;">(Aliases: ${a.aliases.join(", ")})</small>` : ""}</td>
               <td><span class="file-link" onclick="openFile('${a.file}', ${a.line})">${a.file}:${a.line}</span></td>
               <td>${a.description || a.source}</td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     </div>

@@ -1,17 +1,18 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { MrcpSuiteResult } from '../engine/types';
+import * as vscode from "vscode";
+import * as path from "path";
+import { MrcpSuiteResult } from "../engine/types";
 
 export class MrcpDiagnosticsProvider {
   private diagnosticCollection: vscode.DiagnosticCollection;
 
   constructor() {
-    this.diagnosticCollection = vscode.languages.createDiagnosticCollection('mrcp');
+    this.diagnosticCollection =
+      vscode.languages.createDiagnosticCollection("mrcp");
   }
 
   update(result: MrcpSuiteResult): void {
-    const config = vscode.workspace.getConfiguration('mrcp');
-    if (!config.get<boolean>('enableNativeDiagnostics', true)) {
+    const config = vscode.workspace.getConfiguration("mrcp");
+    if (!config.get<boolean>("enableNativeDiagnostics", true)) {
       this.diagnosticCollection.clear();
       return;
     }
@@ -26,16 +27,17 @@ export class MrcpDiagnosticsProvider {
       const line = Math.max(0, sec.line - 1);
       const range = new vscode.Range(line, 0, line, 120);
 
-      const severity = (sec.severity === 'critical' || sec.severity === 'high')
-        ? vscode.DiagnosticSeverity.Error
-        : vscode.DiagnosticSeverity.Warning;
+      const severity =
+        sec.severity === "critical" || sec.severity === "high"
+          ? vscode.DiagnosticSeverity.Error
+          : vscode.DiagnosticSeverity.Warning;
 
       const diagnostic = new vscode.Diagnostic(
         range,
         `[MRCP Security] ${sec.rule}: ${sec.message}`,
-        severity
+        severity,
       );
-      diagnostic.source = 'MRCP-Engine';
+      diagnostic.source = "MRCP-Engine";
       diagnostic.code = sec.rule;
 
       const list = map.get(uri.fsPath) || [];
@@ -53,10 +55,10 @@ export class MrcpDiagnosticsProvider {
       const diagnostic = new vscode.Diagnostic(
         range,
         `[MRCP Env] Variável process.env.${env.variableName} não está declarada no .env ou .env.example.`,
-        vscode.DiagnosticSeverity.Warning
+        vscode.DiagnosticSeverity.Warning,
       );
-      diagnostic.source = 'MRCP-Engine';
-      diagnostic.code = 'MISSING_ENV_VAR';
+      diagnostic.source = "MRCP-Engine";
+      diagnostic.code = "MISSING_ENV_VAR";
 
       const list = map.get(uri.fsPath) || [];
       list.push(diagnostic);
