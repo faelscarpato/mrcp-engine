@@ -162,7 +162,7 @@ export function parseStructuredData(
   const sections: DocumentSection[] = [];
   const tables: TabularSummary[] = [];
   const keyTerms: string[] = [];
-  let title = path.basename(filePath);
+  const title = path.basename(filePath);
 
   if (isJson) {
     try {
@@ -202,7 +202,9 @@ export function parseStructuredData(
           });
         }
       }
-    } catch {}
+    } catch {
+      // JSON malformado ou parcial (ex.: arquivos .jsonl); mantém demais metadados
+    }
   }
 
   const wordCount = content.split(/\s+/).filter(Boolean).length;

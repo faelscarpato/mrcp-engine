@@ -23,7 +23,7 @@ export function extractParamsFromSource(
   const pathParamMatches = routePath.match(/\{(\w+)\}/g);
   if (pathParamMatches) {
     for (const m of pathParamMatches) {
-      const name = m.replace(/[\{\}]/g, "");
+      const name = m.replace(/[{}]/g, "");
       if (!seen.has(name)) {
         seen.add(name);
         params.push({ name, in: "path", required: true, type: "string" });

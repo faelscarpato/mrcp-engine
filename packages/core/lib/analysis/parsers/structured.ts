@@ -20,7 +20,7 @@ export function parseStructuredData(
   const sections: DocumentSection[] = [];
   const tables: TabularSummary[] = [];
   const keyTerms: string[] = [];
-  let title = path.basename(filePath);
+  const title = path.basename(filePath);
 
   if (isJson) {
     try {

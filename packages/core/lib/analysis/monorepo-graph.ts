@@ -234,7 +234,7 @@ export async function analyzeMonorepoGraph(
 
     // Downstream BFS
     const affected = new Set<string>(directlyChanged);
-    let queue = Array.from(directlyChanged);
+    const queue = Array.from(directlyChanged);
 
     while (queue.length > 0) {
       const current = queue.shift()!;

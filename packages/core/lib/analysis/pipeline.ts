@@ -85,9 +85,7 @@ export async function runAnalysisPipeline(
   };
 }
 
-export function parseTargetUrl(
-  url: string,
-): {
+export function parseTargetUrl(url: string): {
   owner: string;
   repo: string;
   targetType: "github" | "local" | "website";

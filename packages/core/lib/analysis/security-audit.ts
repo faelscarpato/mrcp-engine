@@ -265,8 +265,7 @@ export async function runSecurityAudit(
         }
 
         // B. Real Unsafe Shell Execution (eval / exec with dynamic concatenation)
-        const unsafeEvalRegex =
-          /\b(?:eval|Function)\s*\([^\)]*[\+\$\{][^\)]*\)/g;
+        const unsafeEvalRegex = /\b(?:eval|Function)\s*\([^)]*[+${][^)]*\)/g;
         let em;
         while ((em = unsafeEvalRegex.exec(content)) !== null) {
           const lineNum = content.slice(0, em.index).split("\n").length;

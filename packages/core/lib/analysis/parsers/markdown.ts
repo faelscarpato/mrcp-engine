@@ -89,11 +89,11 @@ export function parseMarkdown(
   let description = "";
   let currentSection: DocumentSection | null = null;
   let codeSnippetsCount = 0;
-  let tasks = { total: 0, completed: 0, pending: 0 };
+  const tasks = { total: 0, completed: 0, pending: 0 };
 
   // Parse YAML Frontmatter
   let inFrontmatter = false;
-  let frontmatterLines: string[] = [];
+  const frontmatterLines: string[] = [];
   let contentStartIndex = 0;
 
   if (lines[0]?.trim() === "---") {
@@ -124,7 +124,7 @@ export function parseMarkdown(
     const trimmed = line.trim();
 
     // Code blocks
-    if (trimmed.startsWith("\`\`\`")) {
+    if (trimmed.startsWith("```")) {
       inCodeBlock = !inCodeBlock;
       if (inCodeBlock) codeSnippetsCount++;
       continue;
@@ -196,10 +196,10 @@ export function parseMarkdown(
     }
 
     // Key concepts / definitions
-    const boldRegex = /\*\*([A-Za-z0-9_\-\s:]{3,50})\*\*/g;
+    const boldRegex = /\*\*([A-Za-z0-9_\s:-]{3,50})\*\*/g;
     let bMatch;
     while ((bMatch = boldRegex.exec(line)) !== null) {
-      const term = bMatch[1].replace(/[:\-]+$/, "").trim();
+      const term = bMatch[1].replace(/[:-]+$/, "").trim();
       if (
         term.length >= 3 &&
         term.length <= 40 &&

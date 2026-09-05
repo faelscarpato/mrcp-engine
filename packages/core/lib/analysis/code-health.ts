@@ -199,7 +199,7 @@ export async function calculateCodeHealth(
   let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" =
     "EXCELLENT";
   let letterGrade: "A" | "B" | "C" | "D" | "F" = "A";
-  let techDebt = Math.max(
+  const techDebt = Math.max(
     0,
     Math.min(100, 100 - normalizedMI + godModulesCount * 5),
   );

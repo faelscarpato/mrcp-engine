@@ -76,7 +76,7 @@ export function formatMonorepoGraph(header: string, mg: any): string {
     ``,
     `* **Gerenciador / Monorepo Tool:** \`${mg.monorepoTool || "Standalone"}\``,
     `* **Total de Pacotes:** ${mg.packagesCount ?? mg.packages?.length ?? 0}`,
-    `* **Ordem Topológica de Build:** ${mg.topologicalBuildOrder?.map((p: string) => "\`" + p + "\`").join(" → ") || "N/A"}`,
+    `* **Ordem Topológica de Build:** ${mg.topologicalBuildOrder?.map((p: string) => "`" + p + "`").join(" → ") || "N/A"}`,
     ``,
   ].join("\n");
 }
@@ -146,7 +146,7 @@ export function formatDocumentAnalysis(header: string, da: any): string {
   if (da.formatsDistribution) {
     const activeFormats = Object.entries(da.formatsDistribution)
       .filter(([_, count]: any) => count > 0)
-      .map(([fmt, count]) => "\`" + fmt + "\`: " + count)
+      .map(([fmt, count]) => "`" + fmt + "`: " + count)
       .join(" | ");
     lines.push(`* **Formatos:** ${activeFormats || "N/A"}`);
   }
@@ -154,7 +154,7 @@ export function formatDocumentAnalysis(header: string, da: any): string {
   if (da.categoriesDistribution) {
     const activeCategories = Object.entries(da.categoriesDistribution)
       .filter(([_, count]: any) => count > 0)
-      .map(([cat, count]) => "\`" + cat + "\`: " + count)
+      .map(([cat, count]) => "`" + cat + "`: " + count)
       .join(" | ");
     lines.push(`* **Categorias:** ${activeCategories || "N/A"}`);
   }

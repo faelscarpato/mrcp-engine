@@ -66,7 +66,7 @@ export async function generateDocumentation(
       filePath.endsWith(".js")
     ) {
       const exportFuncRegex =
-        /export\s+(async\s+)?function\s+([a-zA-Z0-9_]+)\s*(\([^\)]*\))(?:\s*:\s*([^{]+))?/g;
+        /export\s+(async\s+)?function\s+([a-zA-Z0-9_]+)\s*(\([^)]*\))(?:\s*:\s*([^{]+))?/g;
       let m;
       while ((m = exportFuncRegex.exec(content)) !== null) {
         const funcName = m[2];
@@ -125,7 +125,7 @@ export async function generateDocumentation(
     // Python def / class analysis
     if (filePath.endsWith(".py")) {
       const pyFuncRegex =
-        /def\s+([a-zA-Z0-9_]+)\s*(\([^\)]*\))(?:\s*->\s*([^:]+))?:/g;
+        /def\s+([a-zA-Z0-9_]+)\s*(\([^)]*\))(?:\s*->\s*([^:]+))?:/g;
       let pm;
       while ((pm = pyFuncRegex.exec(content)) !== null) {
         const funcName = pm[1];
@@ -175,7 +175,7 @@ function buildTsDoc(
   paramsStr: string,
   returnType: string,
 ): string {
-  const cleanParams = paramsStr.replace(/[\(\)]/g, "").trim();
+  const cleanParams = paramsStr.replace(/[()]/g, "").trim();
   const docLines: string[] = [`/**`, ` * ${humanizeName(funcName)}.`, ` *`];
 
   if (cleanParams) {
@@ -202,7 +202,7 @@ function buildPyDoc(
   paramsStr: string,
   returnType: string,
 ): string {
-  const cleanParams = paramsStr.replace(/[\(\)]/g, "").trim();
+  const cleanParams = paramsStr.replace(/[()]/g, "").trim();
   const docLines: string[] = [
     `    """${humanizeName(funcName)}.`,
     ``,
