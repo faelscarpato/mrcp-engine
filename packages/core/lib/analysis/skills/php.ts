@@ -1,8 +1,8 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const phpSkill: LanguageSkill = {
-  name: 'PHP_Modern_Architecture_Skill',
-  language: 'PHP',
+  name: "PHP_Modern_Architecture_Skill",
+  language: "PHP",
   aliases: [],
   thresholds: {
     complexityWarning: 45,
@@ -29,5 +29,5 @@ export const phpSkill: LanguageSkill = {
       "RESTRIÇÃO: Não adicione novos métodos estáticos — converta para instância injetável.",
     ],
   },
-  protectedPatterns: ['public function', 'class ', 'interface ', 'namespace '],
+  protectedPatterns: ["public function", "class ", "interface ", "namespace "],
 };

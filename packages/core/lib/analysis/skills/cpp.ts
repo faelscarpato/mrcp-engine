@@ -1,9 +1,9 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const cppSkill: LanguageSkill = {
-  name: 'CPP_Memory_Safety_Audit_Skill',
-  language: 'C++',
-  aliases: ['C', 'C/C++'],
+  name: "CPP_Memory_Safety_Audit_Skill",
+  language: "C++",
+  aliases: ["C", "C/C++"],
   thresholds: {
     complexityWarning: 60,
     complexityCritical: 130,
@@ -29,5 +29,5 @@ export const cppSkill: LanguageSkill = {
       "RESTRIÇÃO: Não adicione novos #define — use constexpr, enum class, ou templates.",
     ],
   },
-  protectedPatterns: ['class ', 'struct ', 'namespace ', 'extern ', '#ifndef'],
+  protectedPatterns: ["class ", "struct ", "namespace ", "extern ", "#ifndef"],
 };

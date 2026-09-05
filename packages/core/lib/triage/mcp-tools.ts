@@ -19,51 +19,52 @@ export const KNOWN_SKILLS = [
   "docker",
   "aws",
   "sql",
-] as const
+] as const;
 
-export type KnownSkill = (typeof KNOWN_SKILLS)[number]
+export type KnownSkill = (typeof KNOWN_SKILLS)[number];
 
 // ---------------------------------------------------------------------------
 // Tipos partilhados entre backend e frontend
 // ---------------------------------------------------------------------------
 
 export interface ParseResumeParams {
-  content: string
-  contentType?: string
+  content: string;
+  contentType?: string;
 }
 
 export interface ParseResumeResult {
-  candidate_name: string
-  email: string
-  skills: string[]
-  raw_text_length: number
+  candidate_name: string;
+  email: string;
+  skills: string[];
+  raw_text_length: number;
 }
 
 export interface ScoreCandidateParams {
-  resumeData: ParseResumeResult
-  jobDescription: string
+  resumeData: ParseResumeResult;
+  jobDescription: string;
 }
 
 export interface ScoreCandidateResult {
-  match_score: number
-  matched_keywords: string[]
-  missing_keywords: string[]
-  analysis_summary: string
+  match_score: number;
+  matched_keywords: string[];
+  missing_keywords: string[];
+  analysis_summary: string;
 }
 
 export interface GenerateHrReportParams {
-  candidateName: string
-  targetRole: string
-  aiDossierContent: string
+  candidateName: string;
+  targetRole: string;
+  aiDossierContent: string;
 }
 
 export interface GenerateHrReportResult {
-  status: "success"
-  url: string
-  parsedContent: string
+  status: "success";
+  url: string;
+  parsedContent: string;
 }
 
-export type McpToolName = "parse_resume" | "score_candidate" | "generate_hr_report"
+export type McpToolName =
+  "parse_resume" | "score_candidate" | "generate_hr_report";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -74,19 +75,22 @@ export type McpToolName = "parse_resume" | "score_candidate" | "generate_hr_repo
  * Usa limites de palavra para "node.js", "aws", etc., mas com escape seguro.
  */
 function extractSkills(text: string): string[] {
-  const lower = text.toLowerCase()
-  const found = new Set<string>()
+  const lower = text.toLowerCase();
+  const found = new Set<string>();
 
   for (const skill of KNOWN_SKILLS) {
     // Escapa caracteres especiais de regex (ex.: o "." em "node.js").
-    const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    const pattern = new RegExp(`(?:^|[^a-z0-9.])${escaped}(?:$|[^a-z0-9])`, "i")
+    const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(
+      `(?:^|[^a-z0-9.])${escaped}(?:$|[^a-z0-9])`,
+      "i",
+    );
     if (pattern.test(lower)) {
-      found.add(skill)
+      found.add(skill);
     }
   }
 
-  return Array.from(found)
+  return Array.from(found);
 }
 
 // ---------------------------------------------------------------------------
@@ -94,30 +98,30 @@ function extractSkills(text: string): string[] {
 // ---------------------------------------------------------------------------
 
 export function parseResume(params: ParseResumeParams): ParseResumeResult {
-  const content = params.content ?? ""
+  const content = params.content ?? "";
 
   // Nome: primeira linha não vazia do documento.
   const firstLine =
     content
       .split("\n")
       .map((line) => line.trim())
-      .find((line) => line.length > 0) ?? ""
+      .find((line) => line.length > 0) ?? "";
 
   // Email: primeira ocorrência via regex.
   const emailMatches = content.match(
     /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi,
-  )
-  const email = emailMatches?.[0] ?? ""
+  );
+  const email = emailMatches?.[0] ?? "";
 
   // Skills: interseção com o dicionário conhecido.
-  const skills = extractSkills(content)
+  const skills = extractSkills(content);
 
   return {
     candidate_name: firstLine,
     email,
     skills,
     raw_text_length: content.length,
-  }
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -129,34 +133,34 @@ export function scoreCandidate(
 ): ScoreCandidateResult {
   const candidateSkills = new Set(
     (params.resumeData?.skills ?? []).map((s) => s.toLowerCase()),
-  )
+  );
 
   // Skills exigidas pela vaga, extraídas do mesmo dicionário.
-  const required = extractSkills(params.jobDescription ?? "")
-  const requiredSet = new Set(required)
+  const required = extractSkills(params.jobDescription ?? "");
+  const requiredSet = new Set(required);
 
   // Interseção: exigidas que o candidato tem.
-  const matched = required.filter((skill) => candidateSkills.has(skill))
+  const matched = required.filter((skill) => candidateSkills.has(skill));
 
   // Diferença: exigidas que faltam ao candidato.
-  const missing = required.filter((skill) => !candidateSkills.has(skill))
+  const missing = required.filter((skill) => !candidateSkills.has(skill));
 
   // Score = (matched / required) * 100, arredondado.
   const score =
     requiredSet.size === 0
       ? 0
-      : Math.round((matched.length / requiredSet.size) * 100)
+      : Math.round((matched.length / requiredSet.size) * 100);
 
-  let summary: string
+  let summary: string;
   if (requiredSet.size === 0) {
     summary =
-      "Nenhuma skill reconhecida na descrição da vaga. Impossível calcular aderência."
+      "Nenhuma skill reconhecida na descrição da vaga. Impossível calcular aderência.";
   } else if (score >= 80) {
-    summary = `Aderência forte (${score}%). O candidato cobre ${matched.length} de ${requiredSet.size} skills exigidas.`
+    summary = `Aderência forte (${score}%). O candidato cobre ${matched.length} de ${requiredSet.size} skills exigidas.`;
   } else if (score >= 50) {
-    summary = `Aderência parcial (${score}%). Faltam ${missing.length} skills: ${missing.join(", ")}.`
+    summary = `Aderência parcial (${score}%). Faltam ${missing.length} skills: ${missing.join(", ")}.`;
   } else {
-    summary = `Aderência baixa (${score}%). O candidato só cobre ${matched.length} de ${requiredSet.size} skills exigidas.`
+    summary = `Aderência baixa (${score}%). O candidato só cobre ${matched.length} de ${requiredSet.size} skills exigidas.`;
   }
 
   return {
@@ -164,7 +168,7 @@ export function scoreCandidate(
     matched_keywords: matched,
     missing_keywords: missing,
     analysis_summary: summary,
-  }
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -185,13 +189,13 @@ export function generateHrReport(
     `Gerado em:  ${new Date().toISOString()}`,
     "----------------------------------------------",
     "",
-  ].join("\n")
+  ].join("\n");
 
-  const parsedContent = header + (params.aiDossierContent ?? "")
+  const parsedContent = header + (params.aiDossierContent ?? "");
 
   return {
     status: "success",
     url: "/reports/simulated-report.pdf",
     parsedContent,
-  }
+  };
 }

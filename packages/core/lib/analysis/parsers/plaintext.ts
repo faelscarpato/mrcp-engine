@@ -1,16 +1,25 @@
 import path from "path";
 import { classifyCategory } from "./utils.js";
-import type { 
-  ParsedDocument, DocumentSection, DocumentQualityIssue 
+import type {
+  ParsedDocument,
+  DocumentSection,
+  DocumentQualityIssue,
 } from "../document-types.js";
 
-export function parsePlainText(content: string, filePath: string): ParsedDocument {
+export function parsePlainText(
+  content: string,
+  filePath: string,
+): ParsedDocument {
   const lines = content.split(/\r?\n/);
   const sections: DocumentSection[] = [];
   const qualityIssues: DocumentQualityIssue[] = [];
   const keyTermsSet = new Set<string>();
 
-  const isLog = filePath.endsWith(".log") || content.includes("[INFO]") || content.includes("[ERROR]") || content.includes("[WARN]");
+  const isLog =
+    filePath.endsWith(".log") ||
+    content.includes("[INFO]") ||
+    content.includes("[ERROR]") ||
+    content.includes("[WARN]");
 
   let logSummary: ParsedDocument["logSummary"] = undefined;
   if (isLog) {
@@ -26,10 +35,10 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
       }
     }
     logSummary = {
-      totalEntries: lines.filter(l => l.trim().length > 0).length,
+      totalEntries: lines.filter((l) => l.trim().length > 0).length,
       errorCount,
       warningCount,
-      topErrors
+      topErrors,
     };
   }
 
@@ -40,7 +49,7 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
     line: 1,
     characterCount: 0,
     wordCount: 0,
-    hasContent: false
+    hasContent: false,
   };
   sections.push(currentSection);
 
@@ -50,14 +59,17 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
 
     // Check for Underlined Headings (e.g. === or ---)
     const nextLine = lines[i + 1]?.trim() || "";
-    if (trimmed.length > 3 && (nextLine.startsWith("===") || nextLine.startsWith("---"))) {
+    if (
+      trimmed.length > 3 &&
+      (nextLine.startsWith("===") || nextLine.startsWith("---"))
+    ) {
       currentSection = {
         level: nextLine.startsWith("===") ? 1 : 2,
         title: trimmed,
         line: i + 1,
         characterCount: 0,
         wordCount: 0,
-        hasContent: true
+        hasContent: true,
       };
       sections.push(currentSection);
       i++; // skip underline
@@ -65,14 +77,19 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
     }
 
     // Capitalized short titles (e.g. "SECTION 1: INTRODUCTION")
-    if (trimmed.length > 4 && trimmed.length < 60 && trimmed === trimmed.toUpperCase() && /^[A-Z0-9\s:_-]+$/.test(trimmed)) {
+    if (
+      trimmed.length > 4 &&
+      trimmed.length < 60 &&
+      trimmed === trimmed.toUpperCase() &&
+      /^[A-Z0-9\s:_-]+$/.test(trimmed)
+    ) {
       currentSection = {
         level: 2,
         title: trimmed,
         line: i + 1,
         characterCount: 0,
         wordCount: 0,
-        hasContent: true
+        hasContent: true,
       };
       sections.push(currentSection);
       continue;
@@ -91,7 +108,7 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
         severity: "INFO",
         type: "PLACEHOLDER_TEXT",
         line: i + 1,
-        description: `Pendência textual encontrada: '${ph[1]}'`
+        description: `Pendência textual encontrada: '${ph[1]}'`,
       });
     }
 
@@ -127,6 +144,6 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
     logSummary,
     qualityScore: Math.max(20, Math.min(100, score)),
     qualityIssues,
-    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " ")
+    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " "),
   };
 }

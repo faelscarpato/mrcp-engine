@@ -7,7 +7,7 @@ import {
   parseDocx,
   parseXlsx,
   parsePdfText,
-  analyzeDocumentRepository
+  analyzeDocumentRepository,
 } from "./document-analyzer.js";
 
 describe("Document Intelligence Analyzer Suite", () => {
@@ -36,7 +36,10 @@ This is a comprehensive overview of the architecture.
 See [Configuration](./config.json) and [External Docs](https://example.com/docs).
 `;
 
-    const result = parseMarkdown(mdContent, "docs/architecture.md", ["docs/architecture.md", "config.json"]);
+    const result = parseMarkdown(mdContent, "docs/architecture.md", [
+      "docs/architecture.md",
+      "config.json",
+    ]);
     expect(result.title).toBe("Technical Architecture Spec");
     expect(result.format).toBe("MARKDOWN");
     expect(result.sections.length).toBeGreaterThanOrEqual(3);
@@ -66,13 +69,13 @@ See [Configuration](./config.json) and [External Docs](https://example.com/docs)
     expect(table.totalRows).toBe(3);
     expect(table.totalColumns).toBe(5);
 
-    const emailCol = table.columns.find(c => c.name === "email");
+    const emailCol = table.columns.find((c) => c.name === "email");
     expect(emailCol?.inferredType).toBe("EMAIL");
 
-    const activeCol = table.columns.find(c => c.name === "is_active");
+    const activeCol = table.columns.find((c) => c.name === "is_active");
     expect(activeCol?.inferredType).toBe("BOOLEAN");
 
-    const scoreCol = table.columns.find(c => c.name === "score");
+    const scoreCol = table.columns.find((c) => c.name === "score");
     expect(scoreCol?.inferredType).toBe("DECIMAL");
 
     expect(table.generatedTypeScriptSchema).toContain("export interface users");
@@ -101,7 +104,7 @@ See [Configuration](./config.json) and [External Docs](https://example.com/docs)
   it("should parse Structured Data JSON schema and arrays", () => {
     const jsonContent = JSON.stringify([
       { id: 1, name: "Product A", price: 29.99 },
-      { id: 2, name: "Product B", price: 49.99 }
+      { id: 2, name: "Product B", price: 49.99 },
     ]);
 
     const result = parseStructuredData(jsonContent, "data/products.json");
@@ -118,6 +121,8 @@ See [Configuration](./config.json) and [External Docs](https://example.com/docs)
     expect(repoAnalysis.knowledgeGraph.nodes.length).toBeGreaterThan(0);
     expect(repoAnalysis.knowledgeGraph.edges.length).toBeGreaterThan(0);
     expect(repoAnalysis.masterKnowledgeIndex.length).toBeGreaterThan(0);
-    expect(repoAnalysis.documentQualityIndex.overallScore).toBeGreaterThanOrEqual(50);
+    expect(
+      repoAnalysis.documentQualityIndex.overallScore,
+    ).toBeGreaterThanOrEqual(50);
   }, 20000);
 });

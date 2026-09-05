@@ -1,14 +1,14 @@
 /**
  * MRCP-Engine: Dynamic Skill & Contract Injector
- * 
+ *
  * Responsável por traduzir o mapeamento AST em contratos acionáveis para IAs,
  * eliminando a suposição, o "vibe coding" e protegendo nós de alta dependência.
- * 
+ *
  * Usa o Skills Registry para carregar diretivas específicas por linguagem.
  */
 
-import { getSkillForLanguage } from './skills/registry.js';
-import type { LanguageSkill } from './skills/types.js';
+import { getSkillForLanguage } from "./skills/registry.js";
+import type { LanguageSkill } from "./skills/types.js";
 
 export interface ASTNodeMetadata {
   id: string;
@@ -26,7 +26,7 @@ export interface MRCPInjectedContract {
   metrics: {
     complexity: number;
     connectivityDegree: number;
-    structuralStatus: 'STABLE' | 'WARNING' | 'CRITICAL_GOD_MODULE';
+    structuralStatus: "STABLE" | "WARNING" | "CRITICAL_GOD_MODULE";
   };
   dependencyShielding: {
     protectedExports: string[];
@@ -42,7 +42,9 @@ export interface MRCPInjectedContract {
  * Analisa o nó identificado pelo parser AST e injeta a Skill
  * e o Contrato de Blindagem correspondente, usando o Skills Registry.
  */
-export function injectSkillAndContract(node: ASTNodeMetadata): MRCPInjectedContract {
+export function injectSkillAndContract(
+  node: ASTNodeMetadata,
+): MRCPInjectedContract {
   const language = node.language || "TypeScript";
   const complexity = node.complexity || 10;
   const degree = node.degree || 1;
@@ -51,22 +53,25 @@ export function injectSkillAndContract(node: ASTNodeMetadata): MRCPInjectedContr
   const skill: LanguageSkill = getSkillForLanguage(language);
 
   // 2. Classificação estrutural baseada nos thresholds da skill
-  let structuralStatus: 'STABLE' | 'WARNING' | 'CRITICAL_GOD_MODULE' = 'STABLE';
+  let structuralStatus: "STABLE" | "WARNING" | "CRITICAL_GOD_MODULE" = "STABLE";
   let directives: string[] = skill.directives.stable;
 
-  if (complexity > skill.thresholds.complexityCritical || degree > skill.thresholds.degreeCritical) {
-    structuralStatus = 'CRITICAL_GOD_MODULE';
+  if (
+    complexity > skill.thresholds.complexityCritical ||
+    degree > skill.thresholds.degreeCritical
+  ) {
+    structuralStatus = "CRITICAL_GOD_MODULE";
     directives = skill.directives.critical;
-  } else if (complexity > skill.thresholds.complexityWarning || degree > skill.thresholds.degreeWarning) {
-    structuralStatus = 'WARNING';
+  } else if (
+    complexity > skill.thresholds.complexityWarning ||
+    degree > skill.thresholds.degreeWarning
+  ) {
+    structuralStatus = "WARNING";
     directives = skill.directives.warning;
   }
 
   // 3. Montagem do Contrato de Blindagem de Dependências
-  const protectedExports = [
-    node.label,
-    ...skill.protectedPatterns.slice(0, 3),
-  ];
+  const protectedExports = [node.label, ...skill.protectedPatterns.slice(0, 3)];
 
   return {
     targetNode: node.id,
@@ -75,34 +80,36 @@ export function injectSkillAndContract(node: ASTNodeMetadata): MRCPInjectedContr
     metrics: {
       complexity,
       connectivityDegree: degree,
-      structuralStatus
+      structuralStatus,
     },
     dependencyShielding: {
       protectedExports,
-      rule: "ZERO_REGRESSION_POLICY: Proibido alterar assinaturas de exportação públicas consumidas por nós dependentes."
+      rule: "ZERO_REGRESSION_POLICY: Proibido alterar assinaturas de exportação públicas consumidas por nós dependentes.",
     },
     actionableSkillDirective: {
       assignedSkillName: skill.name,
-      strictDirectives: directives
-    }
+      strictDirectives: directives,
+    },
   };
 }
 
 /**
  * Processa a lista completa de nós/hotspots da AST do repositório
  * e retorna um lote de contratos prontos para consumo instantâneo pela IA.
- * 
+ *
  * Se houver nós críticos/warning, foca neles.
  * Se todos os nós forem estáveis, retorna contratos de estabilidade para os principais módulos.
  */
-export function processRepositoryHotspots(nodes: ASTNodeMetadata[]): MRCPInjectedContract[] {
+export function processRepositoryHotspots(
+  nodes: ASTNodeMetadata[],
+): MRCPInjectedContract[] {
   if (!nodes || nodes.length === 0) {
     return [];
   }
 
   // 1. Filtra nós que exigem atenção (Warning ou Critical)
   const vulnerableNodes = nodes.filter((n) => {
-    const skill = getSkillForLanguage(n.language || 'Generic');
+    const skill = getSkillForLanguage(n.language || "Generic");
     return (
       (n.complexity && n.complexity > skill.thresholds.complexityWarning) ||
       (n.degree && n.degree > skill.thresholds.degreeWarning)
@@ -114,9 +121,11 @@ export function processRepositoryHotspots(nodes: ASTNodeMetadata[]): MRCPInjecte
   }
 
   // 2. Se nenhum nó exceder o limiar de alerta, seleciona os principais arquivos de código para contratos de estabilidade
-  const candidateFiles = nodes.filter((n) => n.id.startsWith("file:") || Boolean(n.path));
+  const candidateFiles = nodes.filter(
+    (n) => n.id.startsWith("file:") || Boolean(n.path),
+  );
   const sorted = [...(candidateFiles.length > 0 ? candidateFiles : nodes)].sort(
-    (a, b) => (b.complexity || 0) - (a.complexity || 0)
+    (a, b) => (b.complexity || 0) - (a.complexity || 0),
   );
 
   const topNodes = sorted.slice(0, 3);

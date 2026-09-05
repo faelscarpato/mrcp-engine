@@ -1,8 +1,8 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const pythonSkill: LanguageSkill = {
-  name: 'Karpathy_Python_Strict_Typing_Skill',
-  language: 'Python',
+  name: "Karpathy_Python_Strict_Typing_Skill",
+  language: "Python",
   aliases: [],
   thresholds: {
     complexityWarning: 40,
@@ -29,5 +29,5 @@ export const pythonSkill: LanguageSkill = {
       "RESTRIÇÃO: Não adicione novos imports circulares — resolva com lazy imports ou reestruturação.",
     ],
   },
-  protectedPatterns: ['def ', 'class ', '__all__'],
+  protectedPatterns: ["def ", "class ", "__all__"],
 };

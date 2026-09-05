@@ -1,8 +1,19 @@
-import { OrmTableContract, OrmColumnContract, OrmForeignKeyContract } from "./sql-orm-contract.js";
+import {
+  OrmTableContract,
+  OrmColumnContract,
+  OrmForeignKeyContract,
+} from "./sql-orm-contract.js";
 
 export function mapSqlTypeToTs(sqlType: string): string {
   const upper = sqlType.toUpperCase().trim();
-  if (upper.includes("INT") || upper.includes("SERIAL") || upper.includes("NUMERIC") || upper.includes("DECIMAL") || upper.includes("FLOAT") || upper.includes("DOUBLE")) {
+  if (
+    upper.includes("INT") ||
+    upper.includes("SERIAL") ||
+    upper.includes("NUMERIC") ||
+    upper.includes("DECIMAL") ||
+    upper.includes("FLOAT") ||
+    upper.includes("DOUBLE")
+  ) {
     return "number";
   }
   if (upper.includes("BOOL")) {
@@ -55,7 +66,10 @@ export function mapPrismaTypeToTs(prismaType: string): string {
   return isArray ? `${tsType}[]` : tsType;
 }
 
-export function parsePrismaSchema(content: string, filePath: string): OrmTableContract[] {
+export function parsePrismaSchema(
+  content: string,
+  filePath: string,
+): OrmTableContract[] {
   const tables: OrmTableContract[] = [];
   const modelRegex = /model\s+(\w+)\s*\{([^}]+)\}/g;
   let match: RegExpExecArray | null;
@@ -79,12 +93,14 @@ export function parsePrismaSchema(content: string, filePath: string): OrmTableCo
         const isPrimaryKey = line.includes("@id");
         const defaultMatch = line.match(/@default\(([^)]+)\)/);
 
-        const relMatch = line.match(/@relation\([^)]*fields:\s*\[([^\]]+)\],[^)]*references:\s*\[([^\]]+)\]/);
+        const relMatch = line.match(
+          /@relation\([^)]*fields:\s*\[([^\]]+)\],[^)]*references:\s*\[([^\]]+)\]/,
+        );
         if (relMatch) {
           foreignKeys.push({
             column: relMatch[1].trim(),
             referencedTable: colType.replace("?", "").replace("[]", ""),
-            referencedColumn: relMatch[2].trim()
+            referencedColumn: relMatch[2].trim(),
           });
         }
 
@@ -93,7 +109,7 @@ export function parsePrismaSchema(content: string, filePath: string): OrmTableCo
           type: mapPrismaTypeToTs(colType),
           isNullable,
           isPrimaryKey,
-          defaultValue: defaultMatch ? defaultMatch[1] : undefined
+          defaultValue: defaultMatch ? defaultMatch[1] : undefined,
         });
       }
     }
@@ -102,16 +118,20 @@ export function parsePrismaSchema(content: string, filePath: string): OrmTableCo
       tableName: modelName,
       sourceFile: filePath,
       columns,
-      foreignKeys
+      foreignKeys,
     });
   }
 
   return tables;
 }
 
-export function parseSqlDdl(content: string, filePath: string): OrmTableContract[] {
+export function parseSqlDdl(
+  content: string,
+  filePath: string,
+): OrmTableContract[] {
   const tables: OrmTableContract[] = [];
-  const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["`]?([a-zA-Z0-9_]+)["`]?\s*\(([\s\S]*?)\);/gi;
+  const tableRegex =
+    /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["`]?([a-zA-Z0-9_]+)["`]?\s*\(([\s\S]*?)\);/gi;
   let match: RegExpExecArray | null;
 
   while ((match = tableRegex.exec(content)) !== null) {
@@ -128,7 +148,9 @@ export function parseSqlDdl(content: string, filePath: string): OrmTableContract
       if (line.toUpperCase().startsWith("PRIMARY KEY")) {
         const pkMatch = line.match(/PRIMARY\s+KEY\s*\(([^)]+)\)/i);
         if (pkMatch) {
-          const pkCols = pkMatch[1].split(",").map((c) => c.trim().replace(/["`]/g, ""));
+          const pkCols = pkMatch[1]
+            .split(",")
+            .map((c) => c.trim().replace(/["`]/g, ""));
           for (const col of columns) {
             if (pkCols.includes(col.name)) col.isPrimaryKey = true;
           }
@@ -136,19 +158,26 @@ export function parseSqlDdl(content: string, filePath: string): OrmTableContract
         continue;
       }
 
-      if (line.toUpperCase().startsWith("FOREIGN KEY") || line.toUpperCase().includes("REFERENCES")) {
-        const fkMatch = line.match(/FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["`]?([a-zA-Z0-9_]+)["`]?\s*\(([^)]+)\)/i);
+      if (
+        line.toUpperCase().startsWith("FOREIGN KEY") ||
+        line.toUpperCase().includes("REFERENCES")
+      ) {
+        const fkMatch = line.match(
+          /FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["`]?([a-zA-Z0-9_]+)["`]?\s*\(([^)]+)\)/i,
+        );
         if (fkMatch) {
           foreignKeys.push({
             column: fkMatch[1].trim().replace(/["`]/g, ""),
             referencedTable: fkMatch[2].trim(),
-            referencedColumn: fkMatch[3].trim().replace(/["`]/g, "")
+            referencedColumn: fkMatch[3].trim().replace(/["`]/g, ""),
           });
         }
         continue;
       }
 
-      const colMatch = line.match(/^["`]?([a-zA-Z0-9_]+)["`]?\s+([a-zA-Z0-9_]+(?:\([^)]+\))?)([\s\S]*)$/);
+      const colMatch = line.match(
+        /^["`]?([a-zA-Z0-9_]+)["`]?\s+([a-zA-Z0-9_]+(?:\([^)]+\))?)([\s\S]*)$/,
+      );
       if (colMatch) {
         const colName = colMatch[1];
         const sqlType = colMatch[2];
@@ -161,7 +190,7 @@ export function parseSqlDdl(content: string, filePath: string): OrmTableContract
           name: colName,
           type: mapSqlTypeToTs(sqlType),
           isNullable,
-          isPrimaryKey
+          isPrimaryKey,
         });
       }
     }
@@ -170,7 +199,7 @@ export function parseSqlDdl(content: string, filePath: string): OrmTableContract
       tableName,
       sourceFile: filePath,
       columns,
-      foreignKeys
+      foreignKeys,
     });
   }
 

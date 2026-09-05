@@ -175,14 +175,16 @@ export const IGNORED_DIRECTORIES = new Set([
   "obj",
   ".output",
   "temp",
-  "tmp"
+  "tmp",
 ]);
 
 export function isIgnoredPath(filePath: string): boolean {
   if (!filePath) return false;
   const normalized = filePath.replace(/\\/g, "/");
   const segments = normalized.split("/");
-  return segments.some((segment) => IGNORED_DIRECTORIES.has(segment.toLowerCase()));
+  return segments.some((segment) =>
+    IGNORED_DIRECTORIES.has(segment.toLowerCase()),
+  );
 }
 
 export function detectLanguage(path: string): string | undefined {
@@ -224,4 +226,7 @@ export interface MonorepoConfig {
   roots: string[];
 }
 
-export { detectMonorepoConfig, resolveMonorepoRoots } from "./monorepo-detector.js";
+export {
+  detectMonorepoConfig,
+  resolveMonorepoRoots,
+} from "./monorepo-detector.js";

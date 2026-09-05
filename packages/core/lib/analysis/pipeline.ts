@@ -13,8 +13,11 @@ import { localDirSource } from "./sources/local-dir.js";
 import { websiteSource } from "./sources/website.js";
 import { computeMetrics } from "./graph-builder.js";
 
-import { buildGraph as buildGraphFromSource } from './graph-builder.js';
-import { injectSkillAndContract, MRCPInjectedContract } from './mrcp-skill-injector.js';
+import { buildGraph as buildGraphFromSource } from "./graph-builder.js";
+import {
+  injectSkillAndContract,
+  MRCPInjectedContract,
+} from "./mrcp-skill-injector.js";
 
 export interface PipelineAnalysisResult {
   id: string;
@@ -23,7 +26,7 @@ export interface PipelineAnalysisResult {
   repo: string;
   branch: string;
   createdAt: number;
-  status: 'success' | 'error';
+  status: "success" | "error";
   quality: string;
   nodes: any[];
   edges?: any[];
@@ -37,11 +40,14 @@ export interface PipelineAnalysisResult {
  * Orquestra a extração AST e injeta automaticamente as Skills e Contratos de Blindagem
  * para consumo instantâneo e determinístico por qualquer IA.
  */
-export async function runAnalysisPipeline(repoUrl: string, rawFiles: Array<{ path: string; content: string }>): Promise<PipelineAnalysisResult> {
+export async function runAnalysisPipeline(
+  repoUrl: string,
+  rawFiles: Array<{ path: string; content: string }>,
+): Promise<PipelineAnalysisResult> {
   const timestamp = Date.now();
-  const urlParts = repoUrl.replace(/\.git$/, '').split('/');
-  const repo = urlParts.pop() || 'unknown-repo';
-  const owner = urlParts.pop() || 'unknown-owner';
+  const urlParts = repoUrl.replace(/\.git$/, "").split("/");
+  const repo = urlParts.pop() || "unknown-repo";
+  const owner = urlParts.pop() || "unknown-owner";
 
   // 1. Executa a construção do grafo padrão e cálculo de métricas ciclomáticas pelo motor
   const baseGraph = await buildGraphFromSource(rawFiles);
@@ -51,9 +57,9 @@ export async function runAnalysisPipeline(repoUrl: string, rawFiles: Array<{ pat
     id: node.id,
     label: node.label,
     path: node.path,
-    language: node.language || 'TypeScript',
+    language: node.language || "TypeScript",
     complexity: node.complexity || 10,
-    degree: node.degree || 1
+    degree: node.degree || 1,
   }));
 
   // 3. Aplica a varredura e injeta as Skills e Contratos de Blindagem nos hotspots críticos
@@ -67,23 +73,27 @@ export async function runAnalysisPipeline(repoUrl: string, rawFiles: Array<{ pat
     repoUrl,
     owner,
     repo,
-    branch: 'main',
+    branch: "main",
     createdAt: timestamp,
-    status: 'success',
-    quality: 'full',
+    status: "success",
+    quality: "full",
     nodes: baseGraph.nodes,
     edges: baseGraph.edges || [],
     hotspots: (baseGraph as any).hotspots || [],
     languages: baseGraph.languages || {},
-    mrcpInjectedContracts: injectedContracts // Entrega mastigada para a IA não precisar supor nada
+    mrcpInjectedContracts: injectedContracts, // Entrega mastigada para a IA não precisar supor nada
   };
 }
 
 export function parseTargetUrl(
-  url: string
-): { owner: string; repo: string; targetType: "github" | "local" | "website" } | null {
+  url: string,
+): {
+  owner: string;
+  repo: string;
+  targetType: "github" | "local" | "website";
+} | null {
   const trimmed = url.trim();
-  
+
   if (
     trimmed === "." ||
     trimmed.startsWith("./") ||
@@ -96,7 +106,7 @@ export function parseTargetUrl(
     const repo = path.basename(abs) || "local-project";
     return { owner: "local", repo, targetType: "local" };
   }
-  
+
   try {
     const u = new URL(trimmed);
     if (u.protocol === "file:") {
@@ -104,17 +114,21 @@ export function parseTargetUrl(
       const repo = parts[parts.length - 1] || "local-project";
       return { owner: "local", repo, targetType: "local" };
     }
-    
+
     if (/github\.com$/i.test(u.hostname)) {
       const [owner, repoRaw] = u.pathname.replace(/^\//, "").split("/");
       if (!owner || !repoRaw) return null;
-      return { owner, repo: repoRaw.replace(/\.git$/, ""), targetType: "github" };
+      return {
+        owner,
+        repo: repoRaw.replace(/\.git$/, ""),
+        targetType: "github",
+      };
     }
-    
+
     if (u.protocol === "http:" || u.protocol === "https:") {
       return { owner: "web", repo: u.hostname, targetType: "website" };
     }
-    
+
     return null;
   } catch {
     // If not a URL, check if directory exists on local disk
@@ -127,7 +141,12 @@ export function parseTargetUrl(
   }
 }
 
-const DEFAULT_ORDER: AnalysisSource[] = [githubApiSource, localDirSource, websiteSource, deterministicSource];
+const DEFAULT_ORDER: AnalysisSource[] = [
+  githubApiSource,
+  localDirSource,
+  websiteSource,
+  deterministicSource,
+];
 
 export interface RunOptions {
   repoUrl: string;
@@ -152,7 +171,7 @@ export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
     maxFiles: opts.maxFiles ?? 1900,
     maxBytesPerFile: opts.maxBytesPerFile ?? 200_000,
   };
-  const onProgress = opts.onProgress ?? (() => { });
+  const onProgress = opts.onProgress ?? (() => {});
   const attempted: Array<{
     id: AnalysisSourceId;
     ok: boolean;
@@ -160,31 +179,80 @@ export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
   }> = [];
   const sources = opts.sources ?? DEFAULT_ORDER;
 
-  for (const src of sources) {
-    try {
-      const can = await src.canRun(ctx);
-      if (!can) {
-        attempted.push({ id: src.id, ok: false, reason: "not applicable" });
-        continue;
+  // Global pipeline timeout (55s) — returns partial result instead of crashing
+  const PIPELINE_TIMEOUT_MS = 55_000;
+
+  const runSources = async (): Promise<AnalysisResult> => {
+    for (const src of sources) {
+      try {
+        const can = await src.canRun(ctx);
+        if (!can) {
+          attempted.push({ id: src.id, ok: false, reason: "not applicable" });
+          continue;
+        }
+        onProgress({ pct: 4, label: `Trying ${src.id}`, sourceId: src.id });
+        const partial = await src.run(ctx, onProgress);
+        attempted.push({ id: src.id, ok: true });
+        const metrics = computeMetrics(
+          partial.nodes,
+          partial.edges,
+          partial.languages,
+        );
+        metrics.warnings = partial.warnings ?? [];
+        metrics.moduleMetrics = partial.moduleMetrics;
+        metrics.cycles = partial.cycles;
+        metrics.godModules = partial.godModules;
+        const status: Analysis["status"] =
+          partial.quality === "full"
+            ? "success"
+            : partial.quality === "partial"
+              ? "partial"
+              : "partial";
+        const analysis: Analysis = {
+          id: `${ctx.owner}-${ctx.repo}-${ctx.branch}-${Date.now()}`,
+          repoUrl: ctx.repoUrl,
+          owner: ctx.owner,
+          repo: ctx.repo,
+          branch: ctx.branch,
+          createdAt: Date.now(),
+          status,
+          quality: partial.quality,
+          sourceUsed: src.id,
+          attempted,
+          limitations: partial.limitations ?? [],
+          nodes: partial.nodes,
+          edges: partial.edges,
+          metrics,
+          monorepoTool: partial.monorepo?.tool,
+          monorepoRoots: partial.monorepoRoots,
+        };
+        onProgress({ pct: 100, label: "Analysis complete", sourceId: src.id });
+        return { analysis, attempted };
+      } catch (e) {
+        const reason = e instanceof Error ? e.message : "unknown error";
+        attempted.push({ id: src.id, ok: false, reason });
+        onProgress({
+          pct: 4,
+          label: `${src.id} failed — falling back`,
+          sourceId: src.id,
+        });
       }
-      onProgress({ pct: 4, label: `Trying ${src.id}`, sourceId: src.id });
-      const partial = await src.run(ctx, onProgress);
-      attempted.push({ id: src.id, ok: true });
-      const metrics = computeMetrics(
-        partial.nodes,
-        partial.edges,
-        partial.languages,
-      );
-      metrics.warnings = partial.warnings ?? [];
-      metrics.moduleMetrics = partial.moduleMetrics;
-      metrics.cycles = partial.cycles;
-      metrics.godModules = partial.godModules;
-      const status: Analysis["status"] =
-        partial.quality === "full"
-          ? "success"
-          : partial.quality === "partial"
-            ? "partial"
-            : "partial";
+    }
+    throw new Error("All analysis sources failed.");
+  };
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(
+      () => reject(new Error("__PIPELINE_TIMEOUT__")),
+      PIPELINE_TIMEOUT_MS,
+    ),
+  );
+
+  try {
+    return await Promise.race([runSources(), timeoutPromise]);
+  } catch (e) {
+    if (e instanceof Error && e.message === "__PIPELINE_TIMEOUT__") {
+      // Return a degraded but valid result instead of crashing
       const analysis: Analysis = {
         id: `${ctx.owner}-${ctx.repo}-${ctx.branch}-${Date.now()}`,
         repoUrl: ctx.repoUrl,
@@ -192,28 +260,19 @@ export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
         repo: ctx.repo,
         branch: ctx.branch,
         createdAt: Date.now(),
-        status,
-        quality: partial.quality,
-        sourceUsed: src.id,
+        status: "partial",
+        quality: "partial",
+        sourceUsed: "github-api",
         attempted,
-        limitations: partial.limitations ?? [],
-        nodes: partial.nodes,
-        edges: partial.edges,
-        metrics,
-        monorepoTool: partial.monorepo?.tool,
-        monorepoRoots: partial.monorepoRoots,
+        limitations: [
+          `Pipeline timed out after ${PIPELINE_TIMEOUT_MS / 1000}s. Partial results returned.`,
+        ],
+        nodes: [],
+        edges: [],
+        metrics: computeMetrics([], [], {}),
       };
-      onProgress({ pct: 100, label: "Analysis complete", sourceId: src.id });
       return { analysis, attempted };
-    } catch (e) {
-      const reason = e instanceof Error ? e.message : "unknown error";
-      attempted.push({ id: src.id, ok: false, reason });
-      onProgress({
-        pct: 4,
-        label: `${src.id} failed — falling back`,
-        sourceId: src.id,
-      });
     }
+    throw e;
   }
-  throw new Error("All analysis sources failed.");
 }

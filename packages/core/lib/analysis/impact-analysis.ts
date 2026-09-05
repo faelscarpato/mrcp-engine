@@ -10,7 +10,8 @@ export interface ImpactAnalysisOptions {
 export interface ImpactedNodeDetail {
   nodeId: string;
   path: string;
-  impactType: "DIRECT" | "TRANSITIVE_DEPENDENCY" | "TEST_SUITE" | "PUBLIC_API_BREAK";
+  impactType:
+    "DIRECT" | "TRANSITIVE_DEPENDENCY" | "TEST_SUITE" | "PUBLIC_API_BREAK";
   depth: number;
   riskScore: number;
 }
@@ -26,7 +27,9 @@ export interface ImpactAnalysisResult {
   recommendations: string[];
 }
 
-export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): Promise<ImpactAnalysisResult> {
+export async function calculateImpactAnalysis(
+  options: ImpactAnalysisOptions,
+): Promise<ImpactAnalysisResult> {
   const { repoUrl, modifiedFiles, diffContent } = options;
 
   let graphData = await getCachedAnalysis(repoUrl, false);
@@ -34,7 +37,7 @@ export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): P
     graphData = await runAnalysis({
       repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
-      maxFiles: 2000
+      maxFiles: 2000,
     });
   }
 
@@ -61,7 +64,8 @@ export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): P
   // Inicializa a fila com os arquivos modificados diretamente
   for (const file of modifiedFiles) {
     const matchingNode = nodes.find(
-      (n: any) => n.path === file || n.id === `file:${file}` || n.label === file
+      (n: any) =>
+        n.path === file || n.id === `file:${file}` || n.label === file,
     );
     const nodeId = matchingNode ? matchingNode.id : `file:${file}`;
 
@@ -70,7 +74,7 @@ export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): P
       path: file,
       impactType: "DIRECT",
       depth: 0,
-      riskScore: 95
+      riskScore: 95,
     });
 
     queue.push({ nodeId, depth: 0 });
@@ -105,7 +109,7 @@ export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): P
           path: depPath,
           impactType,
           depth: depth + 1,
-          riskScore
+          riskScore,
         });
 
         queue.push({ nodeId: depId, depth: depth + 1 });
@@ -119,32 +123,35 @@ export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): P
 
   const blastRadiusScore = Math.min(
     100,
-    Math.round(directCount * 15 + transitiveCount * 8 + unitTestFiles.size * 5)
+    Math.round(directCount * 15 + transitiveCount * 8 + unitTestFiles.size * 5),
   );
 
-  const publicContractBreakingRisk =
-    diffContent ? diffContent.includes("export ") || diffContent.includes("interface ") || diffContent.includes("type ") : false;
+  const publicContractBreakingRisk = diffContent
+    ? diffContent.includes("export ") ||
+      diffContent.includes("interface ") ||
+      diffContent.includes("type ")
+    : false;
 
   const recommendations: string[] = [];
   if (unitTestFiles.size > 0) {
     recommendations.push(
-      `Execute as suítes de teste afetadas: ${Array.from(unitTestFiles).slice(0, 3).join(", ")}`
+      `Execute as suítes de teste afetadas: ${Array.from(unitTestFiles).slice(0, 3).join(", ")}`,
     );
   } else {
     recommendations.push(
-      "Atenção: Nenhuma suíte de testes existente cobre os módulos afetados a jusante."
+      "Atenção: Nenhuma suíte de testes existente cobre os módulos afetados a jusante.",
     );
   }
 
   if (blastRadiusScore > 70) {
     recommendations.push(
-      "Alto Raio de Impacto (Blast Radius > 70): Recomenda-se revisão por pares e testes de regressão de integração."
+      "Alto Raio de Impacto (Blast Radius > 70): Recomenda-se revisão por pares e testes de regressão de integração.",
     );
   }
 
   if (publicContractBreakingRisk) {
     recommendations.push(
-      "Risco de Breaking Change: O diff inclui alteração de exportações/contratos públicos."
+      "Risco de Breaking Change: O diff inclui alteração de exportações/contratos públicos.",
     );
   }
 
@@ -156,6 +163,6 @@ export async function calculateImpactAnalysis(options: ImpactAnalysisOptions): P
     impactedNodes: impactedList,
     impactedUnitTestFiles: Array.from(unitTestFiles),
     publicContractBreakingRisk,
-    recommendations
+    recommendations,
   };
 }

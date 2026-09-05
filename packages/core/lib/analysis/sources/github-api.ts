@@ -16,13 +16,29 @@ interface TreeItem {
   sha: string;
 }
 
-async function ghFetch(url: string, token?: string): Promise<Response> {
+function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs = 8000,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(timeoutId),
+  );
+}
+
+async function ghFetch(
+  url: string,
+  token?: string,
+  timeoutMs = 10000,
+): Promise<Response> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(url, { headers });
+  return fetchWithTimeout(url, { headers }, timeoutMs);
 }
 
 async function resolveBranch(
@@ -62,6 +78,7 @@ export const githubApiSource: AnalysisSource = {
     const treeRes = await ghFetch(
       `${API}/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
       githubToken,
+      15000,
     );
     if (!treeRes.ok) {
       if (treeRes.status === 403)
@@ -110,15 +127,26 @@ export const githubApiSource: AnalysisSource = {
     }
 
     let done = 0;
-    const CONCURRENCY = 8;
+    const CONCURRENCY = 25;
     let cursor = 0;
+
+    // Global deadline: abort remaining fetches after 40s to leave time for graph building
+    const deadline = Date.now() + 40_000;
+    let abortedEarly = false;
+
     const workers = Array.from({ length: CONCURRENCY }, async () => {
       while (cursor < capped.length) {
+        if (Date.now() > deadline) {
+          abortedEarly = true;
+          break;
+        }
         const idx = cursor++;
         const item = capped[idx];
         try {
-          const raw = await fetch(
+          const raw = await fetchWithTimeout(
             `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${item.path}`,
+            {},
+            5000,
           );
           if (raw.ok) {
             const content = await raw.text();
@@ -132,7 +160,7 @@ export const githubApiSource: AnalysisSource = {
           warnings.push(`Fetch failed for ${item.path}.`);
         }
         done++;
-        if (done % 5 === 0 || done === capped.length) {
+        if (done % 10 === 0 || done === capped.length) {
           const pct = 32 + Math.floor((done / capped.length) * 50);
           onProgress({
             pct,
@@ -143,6 +171,12 @@ export const githubApiSource: AnalysisSource = {
       }
     });
     await Promise.all(workers);
+
+    if (abortedEarly) {
+      limitations.push(
+        `Fetch deadline reached: analyzed ${files.length} of ${capped.length} files (timeout safety).`,
+      );
+    }
 
     onProgress({
       pct: 88,
@@ -155,7 +189,9 @@ export const githubApiSource: AnalysisSource = {
       partial.warnings.push(`+${warnings.length - 5} more file read errors.`);
     partial.limitations = [...(partial.limitations ?? []), ...limitations];
     partial.quality =
-      truncated || sourceItems.length > maxFiles ? "partial" : "full";
+      truncated || sourceItems.length > maxFiles || abortedEarly
+        ? "partial"
+        : "full";
 
     onProgress({ pct: 96, label: "Computing metrics", sourceId: "github-api" });
     return partial;

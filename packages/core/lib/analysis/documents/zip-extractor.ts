@@ -17,11 +17,18 @@ export function extractZipEntries(buffer: Buffer): Map<string, Buffer> {
       const filenameLength = buffer.readUInt16LE(offset + 26);
       const extraFieldLength = buffer.readUInt16LE(offset + 28);
 
-      const filename = buffer.toString("utf-8", offset + 30, offset + 30 + filenameLength);
+      const filename = buffer.toString(
+        "utf-8",
+        offset + 30,
+        offset + 30 + filenameLength,
+      );
       const dataOffset = offset + 30 + filenameLength + extraFieldLength;
 
       if (dataOffset + compressedSize <= buffer.length) {
-        const compressedData = buffer.subarray(dataOffset, dataOffset + compressedSize);
+        const compressedData = buffer.subarray(
+          dataOffset,
+          dataOffset + compressedSize,
+        );
         try {
           if (compressionMethod === 0) {
             files.set(filename, compressedData);

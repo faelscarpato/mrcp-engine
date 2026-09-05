@@ -24,7 +24,9 @@ export interface DocGeneratorResult {
   message?: string;
 }
 
-export async function generateDocumentation(options: DocGeneratorOptions): Promise<DocGeneratorResult> {
+export async function generateDocumentation(
+  options: DocGeneratorOptions,
+): Promise<DocGeneratorResult> {
   const { repoUrl, targetFilePath, format = "TSDOC" } = options;
 
   const files = await findRepoFiles(repoUrl, (filePath) => {
@@ -47,7 +49,7 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
     `# 📚 API Reference for ${repoUrl}`,
     ``,
     `| Symbol | Type | File | Description |`,
-    `| :--- | :--- | :--- | :--- |`
+    `| :--- | :--- | :--- | :--- |`,
   ];
 
   for (const filePath of files) {
@@ -58,8 +60,13 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
     const lines = content.split("\n");
 
     // TypeScript / JavaScript export analysis
-    if (filePath.endsWith(".ts") || filePath.endsWith(".tsx") || filePath.endsWith(".js")) {
-      const exportFuncRegex = /export\s+(async\s+)?function\s+([a-zA-Z0-9_]+)\s*(\([^\)]*\))(?:\s*:\s*([^{]+))?/g;
+    if (
+      filePath.endsWith(".ts") ||
+      filePath.endsWith(".tsx") ||
+      filePath.endsWith(".js")
+    ) {
+      const exportFuncRegex =
+        /export\s+(async\s+)?function\s+([a-zA-Z0-9_]+)\s*(\([^\)]*\))(?:\s*:\s*([^{]+))?/g;
       let m;
       while ((m = exportFuncRegex.exec(content)) !== null) {
         const funcName = m[2];
@@ -68,7 +75,9 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
         const lineNum = content.slice(0, m.index).split("\n").length;
 
         // Check if there is already a JSDoc before this line
-        const prevLines = lines.slice(Math.max(0, lineNum - 5), lineNum - 1).join("\n");
+        const prevLines = lines
+          .slice(Math.max(0, lineNum - 5), lineNum - 1)
+          .join("\n");
         const hasDoc = prevLines.includes("*/") || prevLines.includes("/**");
 
         if (!hasDoc) {
@@ -79,9 +88,11 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
             filePath,
             line: lineNum,
             signature: `export ${m[1] || ""}function ${funcName}${paramsStr}: ${returnType}`,
-            generatedDocstring: docstring
+            generatedDocstring: docstring,
           });
-          markdownRows.push(`| \`${funcName}\` | Function | \`${filePath}:${lineNum}\` | Automated export documentation |`);
+          markdownRows.push(
+            `| \`${funcName}\` | Function | \`${filePath}:${lineNum}\` | Automated export documentation |`,
+          );
         }
       }
 
@@ -91,7 +102,9 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
       while ((im = ifaceRegex.exec(content)) !== null) {
         const ifaceName = im[1];
         const lineNum = content.slice(0, im.index).split("\n").length;
-        const prevLines = lines.slice(Math.max(0, lineNum - 4), lineNum - 1).join("\n");
+        const prevLines = lines
+          .slice(Math.max(0, lineNum - 4), lineNum - 1)
+          .join("\n");
         if (!prevLines.includes("*/") && !prevLines.includes("/**")) {
           const doc = `/**\n * Represents the contract and data model for ${ifaceName}.\n */`;
           undocumentedSymbols.push({
@@ -100,20 +113,24 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
             filePath,
             line: lineNum,
             signature: `export interface ${ifaceName}`,
-            generatedDocstring: doc
+            generatedDocstring: doc,
           });
-          markdownRows.push(`| \`${ifaceName}\` | Interface | \`${filePath}:${lineNum}\` | Interface data contract |`);
+          markdownRows.push(
+            `| \`${ifaceName}\` | Interface | \`${filePath}:${lineNum}\` | Interface data contract |`,
+          );
         }
       }
     }
 
     // Python def / class analysis
     if (filePath.endsWith(".py")) {
-      const pyFuncRegex = /def\s+([a-zA-Z0-9_]+)\s*(\([^\)]*\))(?:\s*->\s*([^:]+))?:/g;
+      const pyFuncRegex =
+        /def\s+([a-zA-Z0-9_]+)\s*(\([^\)]*\))(?:\s*->\s*([^:]+))?:/g;
       let pm;
       while ((pm = pyFuncRegex.exec(content)) !== null) {
         const funcName = pm[1];
-        if (funcName.startsWith("_") && !funcName.startsWith("__init__")) continue;
+        if (funcName.startsWith("_") && !funcName.startsWith("__init__"))
+          continue;
         const paramsStr = pm[2];
         const returnType = (pm[3] || "None").trim();
         const lineNum = content.slice(0, pm.index).split("\n").length;
@@ -129,9 +146,11 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
             filePath,
             line: lineNum,
             signature: `def ${funcName}${paramsStr} -> ${returnType}:`,
-            generatedDocstring: doc
+            generatedDocstring: doc,
           });
-          markdownRows.push(`| \`${funcName}\` | Python Function | \`${filePath}:${lineNum}\` | Function documentation |`);
+          markdownRows.push(
+            `| \`${funcName}\` | Python Function | \`${filePath}:${lineNum}\` | Function documentation |`,
+          );
         }
       }
     }
@@ -147,17 +166,17 @@ export async function generateDocumentation(options: DocGeneratorOptions): Promi
     isApplicable,
     message: isApplicable
       ? `Localizados ${undocumentedSymbols.length} símbolos públicos sem documentação. Geradas anotações TSDoc/JSDoc e tabela Markdown.`
-      : "Todos os símbolos públicos analisados já contam com documentação ou não foram encontrados símbolos exportados."
+      : "Todos os símbolos públicos analisados já contam com documentação ou não foram encontrados símbolos exportados.",
   };
 }
 
-function buildTsDoc(funcName: string, paramsStr: string, returnType: string): string {
+function buildTsDoc(
+  funcName: string,
+  paramsStr: string,
+  returnType: string,
+): string {
   const cleanParams = paramsStr.replace(/[\(\)]/g, "").trim();
-  const docLines: string[] = [
-    `/**`,
-    ` * ${humanizeName(funcName)}.`,
-    ` *`
-  ];
+  const docLines: string[] = [`/**`, ` * ${humanizeName(funcName)}.`, ` *`];
 
   if (cleanParams) {
     const rawParams = cleanParams.split(",");
@@ -166,7 +185,9 @@ function buildTsDoc(funcName: string, paramsStr: string, returnType: string): st
       const pName = parts[0]?.trim();
       const pType = parts[1]?.trim() || "any";
       if (pName) {
-        docLines.push(` * @param {${pType}} ${pName} - Parameter description for ${pName}`);
+        docLines.push(
+          ` * @param {${pType}} ${pName} - Parameter description for ${pName}`,
+        );
       }
     }
   }
@@ -176,12 +197,16 @@ function buildTsDoc(funcName: string, paramsStr: string, returnType: string): st
   return docLines.join("\n");
 }
 
-function buildPyDoc(funcName: string, paramsStr: string, returnType: string): string {
+function buildPyDoc(
+  funcName: string,
+  paramsStr: string,
+  returnType: string,
+): string {
   const cleanParams = paramsStr.replace(/[\(\)]/g, "").trim();
   const docLines: string[] = [
     `    """${humanizeName(funcName)}.`,
     ``,
-    `    Args:`
+    `    Args:`,
   ];
 
   if (cleanParams) {

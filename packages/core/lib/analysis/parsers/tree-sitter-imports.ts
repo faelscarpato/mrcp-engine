@@ -4,7 +4,7 @@ import {
   EXTENSION_TO_LANGUAGE_MAP,
   initTreeSitter,
   getParser,
-  loadLanguage
+  loadLanguage,
 } from "./tree-sitter-loader.js";
 
 export interface TreeSitterImportResult {
@@ -21,7 +21,11 @@ const IMPORT_NODE_TYPES: Record<string, string[]> = {
   java: ["import_declaration"],
   cpp: ["preproc_include"],
   c: ["preproc_include"],
-  php: ["include_expression", "require_expression", "namespace_use_declaration"],
+  php: [
+    "include_expression",
+    "require_expression",
+    "namespace_use_declaration",
+  ],
   ruby: ["require", "require_relative", "load"],
   cobol: ["copy_statement"],
   pascal: ["uses_clause"],
@@ -31,7 +35,10 @@ const IMPORT_NODE_TYPES: Record<string, string[]> = {
   oracle_plsql: ["package_specification", "package_body_definition"],
 };
 
-function getField(node: TreeSitterNode, fieldName: string): TreeSitterNode | null {
+function getField(
+  node: TreeSitterNode,
+  fieldName: string,
+): TreeSitterNode | null {
   if (typeof node.field === "function") {
     return node.field(fieldName);
   }
@@ -107,7 +114,8 @@ export async function extractImportsWithTreeSitter(
   language: string,
 ): Promise<TreeSitterImportResult> {
   const ext = path.split(".").pop()?.toLowerCase() ?? language.toLowerCase();
-  const treeSitterLang = EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
+  const treeSitterLang =
+    EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
   const nodeTypes = IMPORT_NODE_TYPES[treeSitterLang];
 
   if (!nodeTypes || nodeTypes.length === 0) {
@@ -167,14 +175,21 @@ export async function extractImportsWithTreeSitter(
       }
 
       if (treeSitterLang === "python") {
-        if (node.type === "import_from_statement" || node.type === "import_from") {
-          const mod = getField(node, "module_name") ?? getField(node, "module") ?? node.namedChildren?.[0];
+        if (
+          node.type === "import_from_statement" ||
+          node.type === "import_from"
+        ) {
+          const mod =
+            getField(node, "module_name") ??
+            getField(node, "module") ??
+            node.namedChildren?.[0];
           if (mod) push(mod.text);
           return;
         }
         if (node.type === "import_statement") {
           for (const c of node.namedChildren ?? []) {
-            if (c.type === "dotted_name" || c.type === "identifier") push(c.text);
+            if (c.type === "dotted_name" || c.type === "identifier")
+              push(c.text);
           }
           return;
         }
@@ -199,7 +214,10 @@ export async function extractImportsWithTreeSitter(
 
       if (treeSitterLang === "java") {
         if (node.type === "import_declaration") {
-          const t = node.text.replace(/^import\s+(static\s+)?/, "").replace(/;$/, "").trim();
+          const t = node.text
+            .replace(/^import\s+(static\s+)?/, "")
+            .replace(/;$/, "")
+            .trim();
           if (t) push(t);
           return;
         }
@@ -208,22 +226,34 @@ export async function extractImportsWithTreeSitter(
       if (treeSitterLang === "c" || treeSitterLang === "cpp") {
         if (node.type === "preproc_include") {
           const pathChild = node.namedChildren?.[0];
-          const t = pathChild ? pathChild.text.replace(/^[<"']|[> "']$/g, "") : node.text.replace(/^#include\s+/, "").replace(/[<"'>]/g, "").trim();
+          const t = pathChild
+            ? pathChild.text.replace(/^[<"']|[> "']$/g, "")
+            : node.text
+                .replace(/^#include\s+/, "")
+                .replace(/[<"'>]/g, "")
+                .trim();
           if (t) push(t);
           return;
         }
       }
 
       if (treeSitterLang === "abap" || treeSitterLang === "sap_abap") {
-        if (node.type === "include_statement" || node.type === "tables_statement") {
-          const nameChild = node.namedChildren.find((c) => c.type === "identifier");
+        if (
+          node.type === "include_statement" ||
+          node.type === "tables_statement"
+        ) {
+          const nameChild = node.namedChildren.find(
+            (c) => c.type === "identifier",
+          );
           if (nameChild) push(nameChild.text);
           return;
         }
       }
 
       if (treeSitterLang === "cds" || treeSitterLang === "sap_cds") {
-        const match = node.text.match(/from\s+['"]([^'"]+)['"]/i) || node.text.match(/using\s+['"]([^'"]+)['"]/i);
+        const match =
+          node.text.match(/from\s+['"]([^'"]+)['"]/i) ||
+          node.text.match(/using\s+['"]([^'"]+)['"]/i);
         if (match) {
           push(match[1]);
           return;
@@ -241,7 +271,10 @@ export async function extractImportsWithTreeSitter(
     visit(tree.rootNode);
     return { imports: out };
   } catch (error) {
-    console.error(`Failed to extract imports from ${path} with Tree-sitter:`, error);
+    console.error(
+      `Failed to extract imports from ${path} with Tree-sitter:`,
+      error,
+    );
     return { imports: [] };
   }
 }

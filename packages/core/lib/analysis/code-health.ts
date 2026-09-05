@@ -19,7 +19,8 @@ export interface RefactoringHotspot {
 export interface CodeHealthResult {
   repoUrl: string;
   maintainabilityIndex: number; // 0 - 100
-  maintainabilityRating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL";
+  maintainabilityRating:
+    "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL";
   technicalDebtScore: number; // 0 - 100 (lower is better)
   letterGrade: "A" | "B" | "C" | "D" | "F";
   summary: {
@@ -41,7 +42,9 @@ export interface CodeHealthResult {
   message?: string;
 }
 
-export async function calculateCodeHealth(options: CodeHealthOptions): Promise<CodeHealthResult> {
+export async function calculateCodeHealth(
+  options: CodeHealthOptions,
+): Promise<CodeHealthResult> {
   const { repoUrl } = options;
 
   let graphData = await getCachedAnalysis(repoUrl, false);
@@ -49,7 +52,7 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
     graphData = await runAnalysis({
       repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
-      maxFiles: 2000
+      maxFiles: 2000,
     });
   }
 
@@ -69,19 +72,25 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
         totalFunctions: 0,
         averageComplexityPerFile: 0,
         testToCodeRatio: 0,
-        godModulesCount: 0
+        godModulesCount: 0,
       },
       cognitiveLoadDistribution: { low: 100, moderate: 0, high: 0, extreme: 0 },
       topRefactoringPriorities: [],
       isApplicable: false,
-      message: "Nenhum nó de código foi encontrado para avaliar a saúde do repositório."
+      message:
+        "Nenhum nó de código foi encontrado para avaliar a saúde do repositório.",
     };
   }
 
   const fileNodes = nodes.filter((n) => n.kind === "file");
   const testNodes = fileNodes.filter((n) => {
     const p = (n.path || n.label || "").toLowerCase();
-    return p.includes(".test.") || p.includes(".spec.") || p.includes("__tests__") || p.includes("tests/");
+    return (
+      p.includes(".test.") ||
+      p.includes(".spec.") ||
+      p.includes("__tests__") ||
+      p.includes("tests/")
+    );
   });
 
   let totalLoc = 0;
@@ -96,7 +105,10 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
 
   for (const f of fileNodes) {
     const loc = f.metrics?.loc || f.loc || 50;
-    const complexity = f.metrics?.cyclomaticComplexity || f.metrics?.complexity || (f.complexity ? f.complexity : 5);
+    const complexity =
+      f.metrics?.cyclomaticComplexity ||
+      f.metrics?.complexity ||
+      (f.complexity ? f.complexity : 5);
     const coupling = f.metrics?.fanIn || f.fanIn || 1;
 
     totalLoc += loc;
@@ -121,16 +133,19 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
     }
 
     if (complexity >= 15 || loc >= 250) {
-      const hours = Math.round((complexity * 0.15 + (loc / 100) * 0.5) * 10) / 10;
+      const hours =
+        Math.round((complexity * 0.15 + (loc / 100) * 0.5) * 10) / 10;
       let issue = "Alta densidade de complexidade ciclomática";
       let action = "Decompor funções longas e extrair módulos auxiliares";
 
       if (loc > 600) {
         issue = "Arquivo monolítico com excesso de responsabilidades";
-        action = "Dividir em sub-módulos coesos seguindo o Princípio da Responsabilidade Única (SRP)";
+        action =
+          "Dividir em sub-módulos coesos seguindo o Princípio da Responsabilidade Única (SRP)";
       } else if (coupling > 15) {
         issue = "Alto acoplamento e dependências excessivas";
-        action = "Injetar dependências via interfaces e introduzir camadas de abstração";
+        action =
+          "Injetar dependências via interfaces e introduzir camadas de abstração";
       }
 
       hotspots.push({
@@ -141,12 +156,17 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
         cognitiveLoad,
         estimatedEffortHours: hours,
         primaryIssue: issue,
-        recommendedAction: action
+        recommendedAction: action,
       });
     }
   }
 
-  hotspots.sort((a, b) => (b.cyclomaticComplexity * 2 + b.linesOfCode) - (a.cyclomaticComplexity * 2 + a.linesOfCode));
+  hotspots.sort(
+    (a, b) =>
+      b.cyclomaticComplexity * 2 +
+      b.linesOfCode -
+      (a.cyclomaticComplexity * 2 + a.linesOfCode),
+  );
   const topRefactoringPriorities = hotspots.slice(0, 5);
 
   const fileCount = Math.max(1, fileNodes.length);
@@ -157,17 +177,32 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
   let totalFileMI = 0;
   for (const f of fileNodes) {
     const fileLoc = f.metrics?.loc || f.loc || 50;
-    const fileFnComp = f.metrics?.cyclomaticComplexity || f.metrics?.complexity || (f.complexity ? f.complexity : 5);
+    const fileFnComp =
+      f.metrics?.cyclomaticComplexity ||
+      f.metrics?.complexity ||
+      (f.complexity ? f.complexity : 5);
     const fileVol = Math.max(1, fileLoc * 4.5);
-    const rawFileMI = 171 - 5.2 * Math.log(fileVol) - 0.23 * fileFnComp - 16.2 * Math.log(Math.max(1, fileLoc));
-    const fileNormalizedMI = Math.max(20, Math.min(100, Math.round(rawFileMI * 1.5 + 10)));
+    const rawFileMI =
+      171 -
+      5.2 * Math.log(fileVol) -
+      0.23 * fileFnComp -
+      16.2 * Math.log(Math.max(1, fileLoc));
+    const fileNormalizedMI = Math.max(
+      20,
+      Math.min(100, Math.round(rawFileMI * 1.5 + 10)),
+    );
     totalFileMI += fileNormalizedMI;
   }
-  const normalizedMI = fileNodes.length > 0 ? Math.round(totalFileMI / fileNodes.length) : 100;
+  const normalizedMI =
+    fileNodes.length > 0 ? Math.round(totalFileMI / fileNodes.length) : 100;
 
-  let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" = "EXCELLENT";
+  let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" =
+    "EXCELLENT";
   let letterGrade: "A" | "B" | "C" | "D" | "F" = "A";
-  let techDebt = Math.max(0, Math.min(100, 100 - normalizedMI + (godModulesCount * 5)));
+  let techDebt = Math.max(
+    0,
+    Math.min(100, 100 - normalizedMI + godModulesCount * 5),
+  );
 
   if (normalizedMI >= 80) {
     rating = "EXCELLENT";
@@ -200,19 +235,21 @@ export async function calculateCodeHealth(options: CodeHealthOptions): Promise<C
     summary: {
       totalFiles: fileNodes.length,
       totalLinesOfCode: totalLoc,
-      totalFunctions: nodes.filter((n) => n.kind === "function" || n.kind === "method").length,
+      totalFunctions: nodes.filter(
+        (n) => n.kind === "function" || n.kind === "method",
+      ).length,
       averageComplexityPerFile: avgComplexity,
       testToCodeRatio: testRatio,
-      godModulesCount
+      godModulesCount,
     },
     cognitiveLoadDistribution: {
       low: lowPct,
       moderate: modPct,
       high: highPct,
-      extreme: extPct
+      extreme: extPct,
     },
     topRefactoringPriorities,
     isApplicable: true,
-    message: `Índice de Manutenibilidade: ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`
+    message: `Índice de Manutenibilidade: ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`,
   };
 }

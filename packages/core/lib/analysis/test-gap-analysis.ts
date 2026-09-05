@@ -28,7 +28,9 @@ export interface TestGapAnalysisResult {
   warnings: string[];
 }
 
-export async function findTestCoverageGaps(options: TestGapAnalysisOptions): Promise<TestGapAnalysisResult> {
+export async function findTestCoverageGaps(
+  options: TestGapAnalysisOptions,
+): Promise<TestGapAnalysisResult> {
   const { repoUrl, targetHotspotsOnly = false, generateStubs = true } = options;
   const warnings: string[] = [];
 
@@ -37,7 +39,7 @@ export async function findTestCoverageGaps(options: TestGapAnalysisOptions): Pro
     graphData = await runAnalysis({
       repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
-      maxFiles: 2000
+      maxFiles: 2000,
     });
   }
 
@@ -46,16 +48,36 @@ export async function findTestCoverageGaps(options: TestGapAnalysisOptions): Pro
     if (n.kind !== "file") return false;
     const p = (n.path || n.label || "").toLowerCase();
     const ext = p.split(".").pop() || "";
-    return ["ts", "tsx", "js", "jsx", "mjs", "py", "go", "rs", "java", "cpp", "c"].includes(ext) &&
+    return (
+      [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "mjs",
+        "py",
+        "go",
+        "rs",
+        "java",
+        "cpp",
+        "c",
+      ].includes(ext) &&
       !p.endsWith(".d.ts") &&
       !p.includes("node_modules") &&
-      !p.includes(".git");
+      !p.includes(".git")
+    );
   });
 
   const testFilePaths = new Set(
     files
       .map((f: any) => f.path || f.label || "")
-      .filter((p: string) => p.includes(".test.") || p.includes(".spec.") || p.includes("/test/") || p.includes("/tests/"))
+      .filter(
+        (p: string) =>
+          p.includes(".test.") ||
+          p.includes(".spec.") ||
+          p.includes("/test/") ||
+          p.includes("/tests/"),
+      ),
   );
 
   const gaps: UntestedFunctionGap[] = [];
@@ -85,15 +107,18 @@ export async function findTestCoverageGaps(options: TestGapAnalysisOptions): Pro
     // Verifica se existe arquivo de teste correspondente
     const baseName = filePath.replace(/\.(ts|js|mjs|tsx|jsx|py|go|rs)$/, "");
     const ext = filePath.split(".").pop() || "ts";
-    const testExt = ext === "py" ? ".py" : ext === "go" ? "_test.go" : ".test.ts";
+    const testExt =
+      ext === "py" ? ".py" : ext === "go" ? "_test.go" : ".test.ts";
     const expectedTestPath = `${baseName}${testExt}`;
 
     const hasTest = Array.from(testFilePaths).some(
-      (tp) => tp.includes(baseName) || tp.endsWith(expectedTestPath)
+      (tp) => tp.includes(baseName) || tp.endsWith(expectedTestPath),
     );
 
     if (!hasTest) {
-      const moduleName = fileNode.label ? fileNode.label.replace(/\.[^.]+$/, "") : "handler";
+      const moduleName = fileNode.label
+        ? fileNode.label.replace(/\.[^.]+$/, "")
+        : "handler";
       const testFileSuggested = `${baseName}.test.ts`;
 
       let generatedStubCode: string | undefined;
@@ -114,7 +139,7 @@ describe('${moduleName} unit tests', () => {
         complexity,
         linesOfCode: loc,
         testFileSuggested,
-        generatedStubCode
+        generatedStubCode,
       });
     }
   }
@@ -123,17 +148,21 @@ describe('${moduleName} unit tests', () => {
     return {
       repoUrl,
       isApplicable: false,
-      message: "Não se aplica a esse repositório: Nenhuma função ou módulo de código foi identificado para verificação de testes.",
+      message:
+        "Não se aplica a esse repositório: Nenhuma função ou módulo de código foi identificado para verificação de testes.",
       totalFunctionsAnalyzed: 0,
       untestedHighRiskFunctionsCount: 0,
       coverageHealthPercentage: 100,
       gaps: [],
-      warnings
+      warnings,
     };
   }
 
   const gapCount = gaps.length;
-  const coverageHealthPercentage = Math.max(0, Math.round(((totalFuncs - gapCount) / totalFuncs) * 100));
+  const coverageHealthPercentage = Math.max(
+    0,
+    Math.round(((totalFuncs - gapCount) / totalFuncs) * 100),
+  );
 
   return {
     repoUrl,
@@ -142,6 +171,6 @@ describe('${moduleName} unit tests', () => {
     untestedHighRiskFunctionsCount: gapCount,
     coverageHealthPercentage,
     gaps,
-    warnings
+    warnings,
   };
 }

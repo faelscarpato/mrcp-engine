@@ -126,11 +126,17 @@ export async function loadLanguage(
   try {
     let wasmBytes: Uint8Array;
 
-    if (typeof process !== "undefined" && process.versions && process.versions.node) {
+    if (
+      typeof process !== "undefined" &&
+      process.versions &&
+      process.versions.node
+    ) {
       const fs = await import("fs");
       const path = await import("path");
 
-      const cleanRelPath = wasmPath.startsWith("/") ? wasmPath.slice(1) : wasmPath;
+      const cleanRelPath = wasmPath.startsWith("/")
+        ? wasmPath.slice(1)
+        : wasmPath;
       const possiblePaths = [
         path.join(process.cwd(), "public", cleanRelPath),
         path.join(process.cwd(), cleanRelPath),
@@ -150,7 +156,9 @@ export async function loadLanguage(
       }
 
       if (!foundPath) {
-        console.warn(`[MRCP Tree-sitter] WASM file for ${languageName} not found in candidates.`);
+        console.warn(
+          `[MRCP Tree-sitter] WASM file for ${languageName} not found in candidates.`,
+        );
         return null;
       }
 
@@ -167,7 +175,10 @@ export async function loadLanguage(
     loadedLanguages.set(languageName, language);
     return language;
   } catch (error) {
-    console.warn(`Failed to load tree-sitter language for ${languageName}:`, error);
+    console.warn(
+      `Failed to load tree-sitter language for ${languageName}:`,
+      error,
+    );
     return null;
   }
 }

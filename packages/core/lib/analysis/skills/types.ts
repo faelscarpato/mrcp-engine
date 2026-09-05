@@ -5,7 +5,7 @@
 export interface LanguageSkill {
   name: string;
   language: string;
-  aliases: string[];  // Nomes alternativos (ex: "JS" para "JavaScript")
+  aliases: string[]; // Nomes alternativos (ex: "JS" para "JavaScript")
   thresholds: {
     complexityWarning: number;
     complexityCritical: number;
@@ -17,5 +17,5 @@ export interface LanguageSkill {
     warning: string[];
     critical: string[];
   };
-  protectedPatterns: string[];  // Padrões de export que nunca devem ser alterados
+  protectedPatterns: string[]; // Padrões de export que nunca devem ser alterados
 }

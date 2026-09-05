@@ -1,9 +1,9 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const javaSkill: LanguageSkill = {
-  name: 'Java_SOLID_Enterprise_Skill',
-  language: 'Java',
-  aliases: ['Kotlin'],
+  name: "Java_SOLID_Enterprise_Skill",
+  language: "Java",
+  aliases: ["Kotlin"],
   thresholds: {
     complexityWarning: 50,
     complexityCritical: 100,
@@ -29,5 +29,11 @@ export const javaSkill: LanguageSkill = {
       "RESTRIÇÃO: Não adicione novos métodos públicos — apenas refatore os existentes.",
     ],
   },
-  protectedPatterns: ['public class', 'public interface', 'public enum', 'public static', '@Override'],
+  protectedPatterns: [
+    "public class",
+    "public interface",
+    "public enum",
+    "public static",
+    "@Override",
+  ],
 };

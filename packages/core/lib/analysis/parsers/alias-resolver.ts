@@ -30,8 +30,7 @@ export function buildAliasMap(
     }
 
     const compilerOptions = cfg.compilerOptions as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     if (!compilerOptions) continue;
     const paths = compilerOptions.paths as Record<string, string[]> | undefined;
     if (!paths) continue;

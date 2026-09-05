@@ -1,8 +1,8 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const rubySkill: LanguageSkill = {
-  name: 'Ruby_Rails_Convention_Skill',
-  language: 'Ruby',
+  name: "Ruby_Rails_Convention_Skill",
+  language: "Ruby",
   aliases: [],
   thresholds: {
     complexityWarning: 40,
@@ -29,5 +29,5 @@ export const rubySkill: LanguageSkill = {
       "RESTRIÇÃO: Não adicione novos métodos públicos ao model — use decorators ou presenters.",
     ],
   },
-  protectedPatterns: ['def ', 'class ', 'module ', 'attr_'],
+  protectedPatterns: ["def ", "class ", "module ", "attr_"],
 };

@@ -6,7 +6,14 @@ export interface TypeSignatureExtractorOptions {
 }
 
 export interface ExtractedTypeSignature {
-  kind: "INTERFACE" | "TYPE_ALIAS" | "ENUM" | "FUNCTION_DECLARATION" | "CLASS_DECLARATION" | "STRUCT" | "TRAIT";
+  kind:
+    | "INTERFACE"
+    | "TYPE_ALIAS"
+    | "ENUM"
+    | "FUNCTION_DECLARATION"
+    | "CLASS_DECLARATION"
+    | "STRUCT"
+    | "TRAIT";
   name: string;
   filePath: string;
   signatureCode: string;
@@ -24,7 +31,10 @@ export interface TypeSignatureExtractorResult {
   warnings: string[];
 }
 
-function extractSignaturesFromSource(content: string, filePath: string): ExtractedTypeSignature[] {
+function extractSignaturesFromSource(
+  content: string,
+  filePath: string,
+): ExtractedTypeSignature[] {
   const signatures: ExtractedTypeSignature[] = [];
   const lines = content.split("\n");
   const ext = filePath.split(".").pop()?.toLowerCase() || "";
@@ -32,7 +42,8 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
   // 1. TypeScript (.ts, .tsx, .d.ts)
   if (ext === "ts" || ext === "tsx" || filePath.endsWith(".d.ts")) {
     // Interfaces
-    const ifaceRegex = /(?:export\s+)?interface\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?(?:\s+extends\s+[^{]+)?\s*\{([\s\S]*?)\n\}/g;
+    const ifaceRegex =
+      /(?:export\s+)?interface\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?(?:\s+extends\s+[^{]+)?\s*\{([\s\S]*?)\n\}/g;
     let match: RegExpExecArray | null;
     while ((match = ifaceRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
@@ -41,12 +52,13 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
 
     // Type aliases
-    const typeRegex = /(?:export\s+)?type\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?\s*=\s*([^;\n]+(?:;|\n))/g;
+    const typeRegex =
+      /(?:export\s+)?type\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?\s*=\s*([^;\n]+(?:;|\n))/g;
     while ((match = typeRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
       signatures.push({
@@ -54,12 +66,13 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
 
     // Enums
-    const enumRegex = /(?:export\s+)?enum\s+([a-zA-Z0-9_$]+)\s*\{([\s\S]*?)\n\}/g;
+    const enumRegex =
+      /(?:export\s+)?enum\s+([a-zA-Z0-9_$]+)\s*\{([\s\S]*?)\n\}/g;
     while ((match = enumRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
       signatures.push({
@@ -67,12 +80,13 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
 
     // Exported function signatures (stripped bodies)
-    const funcRegex = /export\s+(?:async\s+)?function\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?\s*\(([\s\S]*?)\)(?:\s*:\s*([^{]+))?\s*\{/g;
+    const funcRegex =
+      /export\s+(?:async\s+)?function\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?\s*\(([\s\S]*?)\)(?:\s*:\s*([^{]+))?\s*\{/g;
     while ((match = funcRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
       const funcName = match[1];
@@ -83,12 +97,13 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: funcName,
         filePath,
         signatureCode: `export function ${funcName}(${params})${returnType};`,
-        line
+        line,
       });
     }
 
     // Exported classes (signature header only)
-    const classRegex = /export\s+(?:abstract\s+)?class\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?(?:\s+extends\s+[^{]+)?(?:\s+implements\s+[^{]+)?\s*\{/g;
+    const classRegex =
+      /export\s+(?:abstract\s+)?class\s+([a-zA-Z0-9_$]+)(?:<[^>]+>)?(?:\s+extends\s+[^{]+)?(?:\s+implements\s+[^{]+)?\s*\{/g;
     while ((match = classRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
       signatures.push({
@@ -96,7 +111,7 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: `export declare class ${match[1]} { /* public methods & fields */ }`,
-        line
+        line,
       });
     }
   }
@@ -105,24 +120,28 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
   else if (ext === "py") {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const classMatch = line.match(/^class\s+([a-zA-Z0-9_]+)(?:\(([^)]*)\))?:/);
+      const classMatch = line.match(
+        /^class\s+([a-zA-Z0-9_]+)(?:\(([^)]*)\))?:/,
+      );
       if (classMatch) {
         signatures.push({
           kind: "CLASS_DECLARATION",
           name: classMatch[1],
           filePath,
           signatureCode: line.trim(),
-          line: i + 1
+          line: i + 1,
         });
       }
-      const funcMatch = line.match(/^(?:async\s+)?def\s+([a-zA-Z0-9_]+)\s*\(([^)]*)\)(?:\s*->\s*([^:]+))?:/);
+      const funcMatch = line.match(
+        /^(?:async\s+)?def\s+([a-zA-Z0-9_]+)\s*\(([^)]*)\)(?:\s*->\s*([^:]+))?:/,
+      );
       if (funcMatch) {
         signatures.push({
           kind: "FUNCTION_DECLARATION",
           name: funcMatch[1],
           filePath,
           signatureCode: line.trim(),
-          line: i + 1
+          line: i + 1,
         });
       }
     }
@@ -130,7 +149,8 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
 
   // 3. Go (.go)
   else if (ext === "go") {
-    const goIfaceRegex = /type\s+([a-zA-Z0-9_]+)\s+interface\s*\{([\s\S]*?)\n\}/g;
+    const goIfaceRegex =
+      /type\s+([a-zA-Z0-9_]+)\s+interface\s*\{([\s\S]*?)\n\}/g;
     let match: RegExpExecArray | null;
     while ((match = goIfaceRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
@@ -139,7 +159,7 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
     const goStructRegex = /type\s+([a-zA-Z0-9_]+)\s+struct\s*\{([\s\S]*?)\n\}/g;
@@ -150,14 +170,15 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
   }
 
   // 4. Rust (.rs)
   else if (ext === "rs") {
-    const rustTraitRegex = /pub\s+trait\s+([a-zA-Z0-9_]+)(?:<[^>]+>)?\s*\{([\s\S]*?)\n\}/g;
+    const rustTraitRegex =
+      /pub\s+trait\s+([a-zA-Z0-9_]+)(?:<[^>]+>)?\s*\{([\s\S]*?)\n\}/g;
     let match: RegExpExecArray | null;
     while ((match = rustTraitRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
@@ -166,10 +187,11 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
-    const rustStructRegex = /pub\s+struct\s+([a-zA-Z0-9_]+)(?:<[^>]+>)?\s*\{([\s\S]*?)\n\}/g;
+    const rustStructRegex =
+      /pub\s+struct\s+([a-zA-Z0-9_]+)(?:<[^>]+>)?\s*\{([\s\S]*?)\n\}/g;
     while ((match = rustStructRegex.exec(content)) !== null) {
       const line = content.substring(0, match.index).split("\n").length;
       signatures.push({
@@ -177,7 +199,7 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
         name: match[1],
         filePath,
         signatureCode: match[0].trim(),
-        line
+        line,
       });
     }
   }
@@ -194,17 +216,19 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
           name: classMatch[1],
           filePath,
           signatureCode: line.trim(),
-          line: i + 1
+          line: i + 1,
         });
       }
-      const funcMatch = line.match(/export\s+(?:async\s+)?function\s+([a-zA-Z0-9_$]+)\s*\(([^)]*)\)/);
+      const funcMatch = line.match(
+        /export\s+(?:async\s+)?function\s+([a-zA-Z0-9_$]+)\s*\(([^)]*)\)/,
+      );
       if (funcMatch) {
         signatures.push({
           kind: "FUNCTION_DECLARATION",
           name: funcMatch[1],
           filePath,
           signatureCode: `export function ${funcMatch[1]}(${funcMatch[2]});`,
-          line: i + 1
+          line: i + 1,
         });
       }
     }
@@ -214,7 +238,7 @@ function extractSignaturesFromSource(content: string, filePath: string): Extract
 }
 
 export async function extractTypeSignatures(
-  options: TypeSignatureExtractorOptions
+  options: TypeSignatureExtractorOptions,
 ): Promise<TypeSignatureExtractorResult> {
   const { repoUrl, targetFilePath } = options;
   const warnings: string[] = [];
@@ -233,16 +257,21 @@ export async function extractTypeSignatures(
         totalSignaturesCount: 0,
         tokensSavedEstimate: 0,
         signatures: [],
-        warnings: [`Arquivo '${targetFilePath}' inexistente.`]
+        warnings: [`Arquivo '${targetFilePath}' inexistente.`],
       };
     }
 
     if (fetched.isCorrupted) {
-      warnings.push(`Arquivo '${targetFilePath}' está corrompido ou contém bytes inválidos.`);
+      warnings.push(
+        `Arquivo '${targetFilePath}' está corrompido ou contém bytes inválidos.`,
+      );
     }
 
     totalRawChars += fetched.content.length;
-    const extracted = extractSignaturesFromSource(fetched.content, targetFilePath);
+    const extracted = extractSignaturesFromSource(
+      fetched.content,
+      targetFilePath,
+    );
     allSignatures.push(...extracted);
 
     if (allSignatures.length === 0) {
@@ -260,7 +289,7 @@ export async function extractTypeSignatures(
         totalSignaturesCount: 0,
         tokensSavedEstimate: 0,
         signatures: [],
-        warnings
+        warnings,
       };
     }
   }
@@ -269,18 +298,23 @@ export async function extractTypeSignatures(
   else {
     const files = await findRepoFiles(repoUrl, (p) => {
       const ext = p.split(".").pop()?.toLowerCase() || "";
-      return ["ts", "tsx", "py", "go", "rs", "js", "jsx"].includes(ext) && !p.includes(".test.") && !p.includes(".spec.");
+      return (
+        ["ts", "tsx", "py", "go", "rs", "js", "jsx"].includes(ext) &&
+        !p.includes(".test.") &&
+        !p.includes(".spec.")
+      );
     });
 
     if (files.length === 0) {
       return {
         repoUrl,
         isApplicable: false,
-        message: "Não se aplica a esse repositório: Nenhum arquivo de código-fonte suportado foi encontrado.",
+        message:
+          "Não se aplica a esse repositório: Nenhum arquivo de código-fonte suportado foi encontrado.",
         totalSignaturesCount: 0,
         tokensSavedEstimate: 0,
         signatures: [],
-        warnings
+        warnings,
       };
     }
 
@@ -292,7 +326,10 @@ export async function extractTypeSignatures(
           warnings.push(`Arquivo '${filePath}' está corrompido.`);
         }
         totalRawChars += fetched.content.length;
-        const extracted = extractSignaturesFromSource(fetched.content, filePath);
+        const extracted = extractSignaturesFromSource(
+          fetched.content,
+          filePath,
+        );
         allSignatures.push(...extracted);
       }
     }
@@ -301,18 +338,25 @@ export async function extractTypeSignatures(
       return {
         repoUrl,
         isApplicable: false,
-        message: "Não se aplica a esse repositório: Nenhuma assinatura de tipo ou interface TypeScript/AST foi encontrada nos arquivos analisados.",
+        message:
+          "Não se aplica a esse repositório: Nenhuma assinatura de tipo ou interface TypeScript/AST foi encontrada nos arquivos analisados.",
         totalSignaturesCount: 0,
         tokensSavedEstimate: 0,
         signatures: [],
-        warnings
+        warnings,
       };
     }
   }
 
   // 3. Cálculo de economia de tokens real
-  const signatureChars = allSignatures.reduce((acc, s) => acc + s.signatureCode.length, 0);
-  const tokensSavedEstimate = Math.max(0, Math.round((totalRawChars - signatureChars) / 4));
+  const signatureChars = allSignatures.reduce(
+    (acc, s) => acc + s.signatureCode.length,
+    0,
+  );
+  const tokensSavedEstimate = Math.max(
+    0,
+    Math.round((totalRawChars - signatureChars) / 4),
+  );
 
   return {
     repoUrl,
@@ -321,6 +365,6 @@ export async function extractTypeSignatures(
     totalSignaturesCount: allSignatures.length,
     tokensSavedEstimate,
     signatures: allSignatures,
-    warnings
+    warnings,
   };
 }

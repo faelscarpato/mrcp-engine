@@ -3,7 +3,8 @@ import { getCachedAnalysis } from "../cache.js";
 
 export interface ArchitectureDriftOptions {
   repoUrl: string;
-  architectureType?: "CLEAN_ARCHITECTURE" | "HEXAGONAL" | "FEATURE_FIRST" | "LAYERED";
+  architectureType?:
+    "CLEAN_ARCHITECTURE" | "HEXAGONAL" | "FEATURE_FIRST" | "LAYERED";
   maxAllowedCyclicDependencies?: number;
 }
 
@@ -11,7 +12,10 @@ export interface ArchitectureViolation {
   ruleId: string;
   sourceModule: string;
   targetModule: string;
-  violationType: "UNAUTHORIZED_CROSS_LAYER_IMPORT" | "CIRCULAR_DEPENDENCY" | "GOD_MODULE_EXPANSION";
+  violationType:
+    | "UNAUTHORIZED_CROSS_LAYER_IMPORT"
+    | "CIRCULAR_DEPENDENCY"
+    | "GOD_MODULE_EXPANSION";
   severity: "WARNING" | "ERROR";
   explanation: string;
 }
@@ -24,15 +28,21 @@ export interface ArchitectureDriftResult {
   violations: ArchitectureViolation[];
 }
 
-export async function detectArchitectureDrift(options: ArchitectureDriftOptions): Promise<ArchitectureDriftResult> {
-  const { repoUrl, architectureType = "CLEAN_ARCHITECTURE", maxAllowedCyclicDependencies = 0 } = options;
+export async function detectArchitectureDrift(
+  options: ArchitectureDriftOptions,
+): Promise<ArchitectureDriftResult> {
+  const {
+    repoUrl,
+    architectureType = "CLEAN_ARCHITECTURE",
+    maxAllowedCyclicDependencies = 0,
+  } = options;
 
   let graphData = await getCachedAnalysis(repoUrl, false);
   if (!graphData) {
     graphData = await runAnalysis({
       repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
-      maxFiles: 2000
+      maxFiles: 2000,
     });
   }
 
@@ -58,7 +68,7 @@ export async function detectArchitectureDrift(options: ArchitectureDriftOptions)
         targetModule: edge.target,
         violationType: "CIRCULAR_DEPENDENCY",
         severity: "ERROR",
-        explanation: `Dependência circular direta detectada entre ${edge.source} e ${edge.target}.`
+        explanation: `Dependência circular direta detectada entre ${edge.source} e ${edge.target}.`,
       });
     }
   }
@@ -69,14 +79,17 @@ export async function detectArchitectureDrift(options: ArchitectureDriftOptions)
     const tgt = edge.target.toLowerCase();
 
     // Regra: Módulos de domínio/core não devem importar módulos de infraestrutura/UI
-    if ((src.includes("core") || src.includes("domain")) && (tgt.includes("ui") || tgt.includes("app") || tgt.includes("vscode"))) {
+    if (
+      (src.includes("core") || src.includes("domain")) &&
+      (tgt.includes("ui") || tgt.includes("app") || tgt.includes("vscode"))
+    ) {
       violations.push({
         ruleId: "ARCH-LAYER-002",
         sourceModule: edge.source,
         targetModule: edge.target,
         violationType: "UNAUTHORIZED_CROSS_LAYER_IMPORT",
         severity: "ERROR",
-        explanation: `Violação da Clean Architecture: Módulo de núcleo/domínio (${edge.source}) importando módulo de camada externa (${edge.target}).`
+        explanation: `Violação da Clean Architecture: Módulo de núcleo/domínio (${edge.source}) importando módulo de camada externa (${edge.target}).`,
       });
     }
   }
@@ -90,12 +103,15 @@ export async function detectArchitectureDrift(options: ArchitectureDriftOptions)
         targetModule: node.group || "root",
         violationType: "GOD_MODULE_EXPANSION",
         severity: "WARNING",
-        explanation: `God Module em expansão detectado: ${node.path || node.label} com complexidade ${node.complexity}.`
+        explanation: `God Module em expansão detectado: ${node.path || node.label} com complexidade ${node.complexity}.`,
       });
     }
   }
 
-  const penalty = violations.reduce((acc, v) => acc + (v.severity === "ERROR" ? 15 : 5), 0);
+  const penalty = violations.reduce(
+    (acc, v) => acc + (v.severity === "ERROR" ? 15 : 5),
+    0,
+  );
   const complianceScore = Math.max(0, 100 - penalty);
 
   return {
@@ -103,6 +119,6 @@ export async function detectArchitectureDrift(options: ArchitectureDriftOptions)
     architectureType,
     complianceScore,
     cyclicDependenciesFound: cyclicCount,
-    violations
+    violations,
   };
 }

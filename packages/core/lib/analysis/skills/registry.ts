@@ -1,24 +1,24 @@
 /**
  * MRCP Skills Registry
- * 
+ *
  * Centraliza todas as skills por linguagem e provê um lookup por nome de linguagem.
  * O Skill Injector usa este registry para encontrar a skill correta para cada nó.
  */
 
-import type { LanguageSkill } from './types.js';
-import { typescriptSkill } from './typescript.js';
-import { pythonSkill } from './python.js';
-import { rustSkill } from './rust.js';
-import { goSkill } from './go.js';
-import { javaSkill } from './java.js';
-import { cppSkill } from './cpp.js';
-import { rubySkill } from './ruby.js';
-import { phpSkill } from './php.js';
+import type { LanguageSkill } from "./types.js";
+import { typescriptSkill } from "./typescript.js";
+import { pythonSkill } from "./python.js";
+import { rustSkill } from "./rust.js";
+import { goSkill } from "./go.js";
+import { javaSkill } from "./java.js";
+import { cppSkill } from "./cpp.js";
+import { rubySkill } from "./ruby.js";
+import { phpSkill } from "./php.js";
 
 // Skill genérica de fallback para linguagens sem skill específica
 const genericSkill: LanguageSkill = {
-  name: 'Standard_Clean_Architecture_Skill',
-  language: 'Generic',
+  name: "Standard_Clean_Architecture_Skill",
+  language: "Generic",
   aliases: [],
   thresholds: {
     complexityWarning: 50,

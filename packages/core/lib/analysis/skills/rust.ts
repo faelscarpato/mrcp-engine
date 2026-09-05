@@ -1,8 +1,8 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const rustSkill: LanguageSkill = {
-  name: 'Rust_Ownership_Safety_Skill',
-  language: 'Rust',
+  name: "Rust_Ownership_Safety_Skill",
+  language: "Rust",
   aliases: [],
   thresholds: {
     complexityWarning: 60,
@@ -29,5 +29,11 @@ export const rustSkill: LanguageSkill = {
       "RESTRIÇÃO: Não adicione novos lifetimes genéricos — simplifique os existentes.",
     ],
   },
-  protectedPatterns: ['pub fn', 'pub struct', 'pub enum', 'pub trait', 'pub mod'],
+  protectedPatterns: [
+    "pub fn",
+    "pub struct",
+    "pub enum",
+    "pub trait",
+    "pub mod",
+  ],
 };

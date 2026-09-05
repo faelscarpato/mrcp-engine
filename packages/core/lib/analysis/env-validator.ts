@@ -28,7 +28,9 @@ export interface EnvValidatorResult {
   message?: string;
 }
 
-export async function validateEnvironmentContract(options: EnvValidatorOptions): Promise<EnvValidatorResult> {
+export async function validateEnvironmentContract(
+  options: EnvValidatorOptions,
+): Promise<EnvValidatorResult> {
   const { repoUrl } = options;
 
   // Search for source files and env example files
@@ -52,7 +54,10 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
     );
   });
 
-  const varMap = new Map<string, { files: Set<string>; count: number; hasDefault: boolean }>();
+  const varMap = new Map<
+    string,
+    { files: Set<string>; count: number; hasDefault: boolean }
+  >();
   const exampleVars = new Set<string>();
   const exampleFilesFound: string[] = [];
 
@@ -85,7 +90,8 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
     }
 
     // JS/TS syntax: process.env.<VARIABLE>, process.env['<VARIABLE>'], import.meta.env.<VARIABLE>
-    const jsEnvRegex = /(?:process\.env(?:\?\.|\.)([A-Z0-9_]+)|process\.env\[["']([A-Z0-9_]+)["']|import\.meta\.env(?:\?\.|\.)([A-Z0-9_]+))/g;
+    const jsEnvRegex =
+      /(?:process\.env(?:\?\.|\.)([A-Z0-9_]+)|process\.env\[["']([A-Z0-9_]+)["']|import\.meta\.env(?:\?\.|\.)([A-Z0-9_]+))/g;
     let m;
     while ((m = jsEnvRegex.exec(content)) !== null) {
       const varName = m[1] || m[2] || m[3];
@@ -96,7 +102,8 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
 
     // Python: os.environ.get("VAR"), os.environ["VAR"], os.getenv("VAR")
     if (lowerPath.endsWith(".py")) {
-      const pyEnvRegex = /(?:os\.environ\.get\s*\(\s*["']([A-Z0-9_]+)["']|os\.environ\s*\[\s*["']([A-Z0-9_]+)["']|os\.getenv\s*\(\s*["']([A-Z0-9_]+)["'])/g;
+      const pyEnvRegex =
+        /(?:os\.environ\.get\s*\(\s*["']([A-Z0-9_]+)["']|os\.environ\s*\[\s*["']([A-Z0-9_]+)["']|os\.getenv\s*\(\s*["']([A-Z0-9_]+)["'])/g;
       let pym;
       while ((pym = pyEnvRegex.exec(content)) !== null) {
         const varName = pym[1] || pym[2] || pym[3];
@@ -123,17 +130,27 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
   const securityWarnings: string[] = [];
 
   for (const [name, info] of varMap.entries()) {
-    const isExposed = name.startsWith("NEXT_PUBLIC_") || name.startsWith("VITE_") || name.startsWith("REACT_APP_") || name.startsWith("PUBLIC_");
-    const isSecretName = /SECRET|KEY|PASSWORD|TOKEN|AUTH|CREDENTIAL|PRIVATE/i.test(name);
+    const isExposed =
+      name.startsWith("NEXT_PUBLIC_") ||
+      name.startsWith("VITE_") ||
+      name.startsWith("REACT_APP_") ||
+      name.startsWith("PUBLIC_");
+    const isSecretName =
+      /SECRET|KEY|PASSWORD|TOKEN|AUTH|CREDENTIAL|PRIVATE/i.test(name);
 
-    let inferredType: "string" | "number" | "boolean" | "url" | "secret" = "string";
+    let inferredType: "string" | "number" | "boolean" | "url" | "secret" =
+      "string";
     if (isSecretName) inferredType = "secret";
-    else if (/PORT|TIMEOUT|MAX|MIN|LIMIT|COUNT|RETRIES/i.test(name)) inferredType = "number";
-    else if (/ENABLE|DISABLE|IS_|HAS_|FLAG|DEBUG|PROD/i.test(name)) inferredType = "boolean";
+    else if (/PORT|TIMEOUT|MAX|MIN|LIMIT|COUNT|RETRIES/i.test(name))
+      inferredType = "number";
+    else if (/ENABLE|DISABLE|IS_|HAS_|FLAG|DEBUG|PROD/i.test(name))
+      inferredType = "boolean";
     else if (/URL|URI|ENDPOINT|HOST/i.test(name)) inferredType = "url";
 
     if (isExposed && isSecretName) {
-      securityWarnings.push(`⚠️ Risco de vazamento de credencial: '${name}' está exposta no bundle cliente (prefixo público) contendo termo confidencial.`);
+      securityWarnings.push(
+        `⚠️ Risco de vazamento de credencial: '${name}' está exposta no bundle cliente (prefixo público) contendo termo confidencial.`,
+      );
     }
 
     variables.push({
@@ -143,15 +160,19 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
       inferredType,
       isRequired: !info.hasDefault,
       isExposedToClient: isExposed,
-      hasDefaultInCode: info.hasDefault
+      hasDefaultInCode: info.hasDefault,
     });
   }
 
   variables.sort((a, b) => b.occurrencesCount - a.occurrencesCount);
 
   const foundVarNames = new Set(variables.map((v) => v.name));
-  const undocumentedVariables = variables.filter((v) => !exampleVars.has(v.name)).map((v) => v.name);
-  const unusedExampleVariables = Array.from(exampleVars).filter((name) => !foundVarNames.has(name));
+  const undocumentedVariables = variables
+    .filter((v) => !exampleVars.has(v.name))
+    .map((v) => v.name);
+  const unusedExampleVariables = Array.from(exampleVars).filter(
+    (name) => !foundVarNames.has(name),
+  );
 
   // Generate .env.example
   const dotEnvLines: string[] = [
@@ -159,7 +180,7 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
     `# 🔐 Generated .env.example by MRCP Engine v2.3.0`,
     `# Target Repo: ${repoUrl}`,
     `# ==========================================================`,
-    ``
+    ``,
   ];
 
   for (const v of variables) {
@@ -167,9 +188,12 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
     if (v.inferredType === "number") exampleVal = "3000";
     else if (v.inferredType === "boolean") exampleVal = "true";
     else if (v.inferredType === "url") exampleVal = "https://api.example.com";
-    else if (v.inferredType === "secret") exampleVal = "super_secret_token_change_in_prod";
+    else if (v.inferredType === "secret")
+      exampleVal = "super_secret_token_change_in_prod";
 
-    dotEnvLines.push(`# [Type: ${v.inferredType}] ${v.isRequired ? "Required" : "Optional"} | Usages: ${v.occurrencesCount} files: ${v.files.slice(0, 2).join(", ")}`);
+    dotEnvLines.push(
+      `# [Type: ${v.inferredType}] ${v.isRequired ? "Required" : "Optional"} | Usages: ${v.occurrencesCount} files: ${v.files.slice(0, 2).join(", ")}`,
+    );
     dotEnvLines.push(`${v.name}=${exampleVal}`);
     dotEnvLines.push(``);
   }
@@ -192,11 +216,19 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
       zodType += ".optional()";
     }
 
-    zodLines.push(`  /** Inferred from ${v.files.length} files (${v.files.slice(0, 2).join(", ")}) */`);
+    zodLines.push(
+      `  /** Inferred from ${v.files.length} files (${v.files.slice(0, 2).join(", ")}) */`,
+    );
     zodLines.push(`  ${v.name}: ${zodType},`);
   }
 
-  zodLines.push(`});`, ``, `export type Env = z.infer<typeof envSchema>;`, ``, `export const env = envSchema.parse(process.env);`);
+  zodLines.push(
+    `});`,
+    ``,
+    `export type Env = z.infer<typeof envSchema>;`,
+    ``,
+    `export const env = envSchema.parse(process.env);`,
+  );
 
   const isApplicable = variables.length > 0 || exampleFilesFound.length > 0;
 
@@ -213,7 +245,7 @@ export async function validateEnvironmentContract(options: EnvValidatorOptions):
     isApplicable,
     message: isApplicable
       ? `Detectadas ${variables.length} variáveis de ambiente no código. ${undocumentedVariables.length} não documentadas no .env.example. Schema Zod e template gerados.`
-      : "Nenhuma variável de ambiente encontrada no código analisado."
+      : "Nenhuma variável de ambiente encontrada no código analisado.",
   };
 }
 
@@ -224,11 +256,14 @@ function isValidEnvName(name: string): boolean {
 }
 
 function recordVarUsage(
-  varMap: Map<string, { files: Set<string>; count: number; hasDefault: boolean }>,
+  varMap: Map<
+    string,
+    { files: Set<string>; count: number; hasDefault: boolean }
+  >,
   varName: string,
   filePath: string,
   content: string,
-  matchIndex: number
+  matchIndex: number,
 ) {
   if (!varMap.has(varName)) {
     varMap.set(varName, { files: new Set(), count: 0, hasDefault: false });
@@ -238,7 +273,12 @@ function recordVarUsage(
   entry.count++;
 
   const surrounding = content.slice(matchIndex, matchIndex + 60);
-  if (surrounding.includes("||") || surrounding.includes("??") || surrounding.includes("default") || surrounding.includes("?")) {
+  if (
+    surrounding.includes("||") ||
+    surrounding.includes("??") ||
+    surrounding.includes("default") ||
+    surrounding.includes("?")
+  ) {
     entry.hasDefault = true;
   }
 }

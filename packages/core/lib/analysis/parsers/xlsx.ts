@@ -4,7 +4,8 @@ import type { ParsedDocument, TabularSummary } from "../document-types.js";
 
 export function parseXlsx(buffer: Buffer, filePath: string): ParsedDocument {
   const entries = extractZipEntries(buffer);
-  const sharedStringsXml = entries.get("xl/sharedStrings.xml")?.toString("utf-8") || "";
+  const sharedStringsXml =
+    entries.get("xl/sharedStrings.xml")?.toString("utf-8") || "";
   const workbookXml = entries.get("xl/workbook.xml")?.toString("utf-8") || "";
 
   // 1. Shared Strings Table
@@ -13,7 +14,7 @@ export function parseXlsx(buffer: Buffer, filePath: string): ParsedDocument {
   let siMatch;
   while ((siMatch = siRegex.exec(sharedStringsXml)) !== null) {
     const tMatches = siMatch[1].match(/<t(?:\s[^>]*)?>([^<]*)<\/t>/gi) || [];
-    sharedStrings.push(tMatches.map(t => t.replace(/<[^>]+>/g, "")).join(""));
+    sharedStrings.push(tMatches.map((t) => t.replace(/<[^>]+>/g, "")).join(""));
   }
 
   // 2. Sheet Names
@@ -29,7 +30,9 @@ export function parseXlsx(buffer: Buffer, filePath: string): ParsedDocument {
 
   // 3. Parse Worksheet XMLs
   for (let i = 1; i <= Math.max(1, sheetNames.length); i++) {
-    const sheetXml = entries.get(`xl/worksheets/sheet${i}.xml`)?.toString("utf-8");
+    const sheetXml = entries
+      .get(`xl/worksheets/sheet${i}.xml`)
+      ?.toString("utf-8");
     if (!sheetXml) continue;
 
     const sheetName = sheetNames[i - 1] || `Sheet${i}`;
@@ -61,7 +64,9 @@ export function parseXlsx(buffer: Buffer, filePath: string): ParsedDocument {
 
     if (parsedRows.length > 0) {
       totalRowsCount += parsedRows.length;
-      const headers = parsedRows[0].map((h, colI) => h.trim() || `Col_${colI + 1}`);
+      const headers = parsedRows[0].map(
+        (h, colI) => h.trim() || `Col_${colI + 1}`,
+      );
       const dataRows = parsedRows.slice(1);
 
       tables.push({
@@ -72,12 +77,18 @@ export function parseXlsx(buffer: Buffer, filePath: string): ParsedDocument {
         columns: headers.map((h, cIdx) => ({
           name: h,
           inferredType: "TEXT",
-          nullCount: dataRows.filter(r => !r[cIdx]).length,
-          nullPercentage: dataRows.length > 0 ? Math.round((dataRows.filter(r => !r[cIdx]).length / dataRows.length) * 100) : 0,
-          uniqueCount: new Set(dataRows.map(r => r[cIdx])).size,
-          sampleValues: dataRows.slice(0, 5).map(r => r[cIdx])
+          nullCount: dataRows.filter((r) => !r[cIdx]).length,
+          nullPercentage:
+            dataRows.length > 0
+              ? Math.round(
+                  (dataRows.filter((r) => !r[cIdx]).length / dataRows.length) *
+                    100,
+                )
+              : 0,
+          uniqueCount: new Set(dataRows.map((r) => r[cIdx])).size,
+          sampleValues: dataRows.slice(0, 5).map((r) => r[cIdx]),
         })),
-        previewRows: dataRows.slice(0, 5)
+        previewRows: dataRows.slice(0, 5),
       });
     }
   }
@@ -92,18 +103,18 @@ export function parseXlsx(buffer: Buffer, filePath: string): ParsedDocument {
     lineCount: totalRowsCount,
     estimatedReadingMinutes: Math.max(1, Math.ceil(totalRowsCount / 200)),
     title: `Planilha Excel: ${path.basename(filePath)}`,
-    sections: sheetNames.map(s => ({
+    sections: sheetNames.map((s) => ({
       level: 1,
       title: `Aba: ${s}`,
       characterCount: 0,
       wordCount: 10,
-      hasContent: true
+      hasContent: true,
     })),
     tables,
     links: [],
     keyTerms: sheetNames,
     qualityScore: 92,
     qualityIssues: [],
-    rawTextSnippet: `Planilha com ${tables.length} abas: ${sheetNames.join(", ")}`
+    rawTextSnippet: `Planilha com ${tables.length} abas: ${sheetNames.join(", ")}`,
   };
 }

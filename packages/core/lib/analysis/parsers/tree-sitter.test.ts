@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   extractFunctionsWithTreeSitter,
   extractCallsWithTreeSitter,
-  extractImportsWithTreeSitter
+  extractImportsWithTreeSitter,
 } from "./tree-sitter.js";
 
 describe("Tree-sitter AST Parsers & WASM Pipeline", () => {
@@ -19,15 +19,27 @@ describe("Tree-sitter AST Parsers & WASM Pipeline", () => {
       }
     `;
 
-    const fnResult = await extractFunctionsWithTreeSitter("src/calc.ts", tsCode, "typescript");
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "src/calc.ts",
+      tsCode,
+      "typescript",
+    );
     expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
     expect(fnResult.functions[0].name).toBe("calculateTotal");
     expect(fnResult.functions[0].complexity).toBeGreaterThanOrEqual(2);
 
-    const callResult = await extractCallsWithTreeSitter("src/calc.ts", tsCode, "typescript");
+    const callResult = await extractCallsWithTreeSitter(
+      "src/calc.ts",
+      tsCode,
+      "typescript",
+    );
     expect(callResult.some((c) => c.calleeName === "foo")).toBe(true);
 
-    const importResult = await extractImportsWithTreeSitter("src/calc.ts", tsCode, "typescript");
+    const importResult = await extractImportsWithTreeSitter(
+      "src/calc.ts",
+      tsCode,
+      "typescript",
+    );
     expect(importResult.imports.some((i) => i.raw === "./foo")).toBe(true);
     expect(importResult.imports.some((i) => i.raw === "bar")).toBe(true);
   });
@@ -44,13 +56,23 @@ def process_data(items):
     return len(items)
 `;
 
-    const fnResult = await extractFunctionsWithTreeSitter("script.py", pyCode, "python");
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "script.py",
+      pyCode,
+      "python",
+    );
     expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
     expect(fnResult.functions[0].name).toBe("process_data");
     expect(fnResult.functions[0].complexity).toBeGreaterThanOrEqual(2);
 
-    const importResult = await extractImportsWithTreeSitter("script.py", pyCode, "python");
-    expect(importResult.imports.some((i) => i.raw === "os" || i.raw === "sys")).toBe(true);
+    const importResult = await extractImportsWithTreeSitter(
+      "script.py",
+      pyCode,
+      "python",
+    );
+    expect(
+      importResult.imports.some((i) => i.raw === "os" || i.raw === "sys"),
+    ).toBe(true);
   });
 
   it("should extract SAP CDS view definitions and associations", async () => {
@@ -66,12 +88,22 @@ define root view entity ZI_SalesOrder
 }
 `;
 
-    const fnResult = await extractFunctionsWithTreeSitter("sales.cds", cdsCode, "cds");
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "sales.cds",
+      cdsCode,
+      "cds",
+    );
     expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
     expect(fnResult.functions[0].name).toBe("ZI_SalesOrder");
 
-    const importResult = await extractImportsWithTreeSitter("sales.cds", cdsCode, "cds");
-    expect(importResult.imports.some((i) => i.raw.includes("./common"))).toBe(true);
+    const importResult = await extractImportsWithTreeSitter(
+      "sales.cds",
+      cdsCode,
+      "cds",
+    );
+    expect(importResult.imports.some((i) => i.raw.includes("./common"))).toBe(
+      true,
+    );
   });
 
   it("should extract SAP ABAP methods and implementations", async () => {
@@ -90,11 +122,21 @@ CLASS zcl_invoice_service IMPLEMENTATION.
 ENDCLASS.
 `;
 
-    const fnResult = await extractFunctionsWithTreeSitter("zcl_invoice.abap", abapCode, "abap");
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "zcl_invoice.abap",
+      abapCode,
+      "abap",
+    );
     expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
-    expect(fnResult.functions.some((f) => f.name.includes("process_invoice"))).toBe(true);
+    expect(
+      fnResult.functions.some((f) => f.name.includes("process_invoice")),
+    ).toBe(true);
 
-    const callResult = await extractCallsWithTreeSitter("zcl_invoice.abap", abapCode, "abap");
+    const callResult = await extractCallsWithTreeSitter(
+      "zcl_invoice.abap",
+      abapCode,
+      "abap",
+    );
     expect(callResult.length).toBeGreaterThanOrEqual(0);
   });
 
@@ -113,8 +155,16 @@ CREATE OR REPLACE PACKAGE BODY emp_mgmt AS
 END emp_mgmt;
 `;
 
-    const fnResult = await extractFunctionsWithTreeSitter("emp_mgmt.sql", plsqlCode, "oracle_plsql");
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "emp_mgmt.sql",
+      plsqlCode,
+      "oracle_plsql",
+    );
     expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
-    expect(fnResult.functions.some((f) => f.name.includes("emp_mgmt") || f.name.includes("hire_employee"))).toBe(true);
+    expect(
+      fnResult.functions.some(
+        (f) => f.name.includes("emp_mgmt") || f.name.includes("hire_employee"),
+      ),
+    ).toBe(true);
   });
 });

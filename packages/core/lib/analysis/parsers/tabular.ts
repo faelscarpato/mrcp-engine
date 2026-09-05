@@ -1,10 +1,16 @@
 import path from "path";
-import type { 
-  ParsedDocument, DocumentQualityIssue, TabularColumn, TabularSummary 
+import type {
+  ParsedDocument,
+  DocumentQualityIssue,
+  TabularColumn,
+  TabularSummary,
 } from "../document-types.js";
 
-export function parseTabular(content: string, filePath: string): ParsedDocument {
-  const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
+export function parseTabular(
+  content: string,
+  filePath: string,
+): ParsedDocument {
+  const lines = content.split(/\r?\n/).filter((l) => l.trim().length > 0);
   const qualityIssues: DocumentQualityIssue[] = [];
 
   if (lines.length === 0) {
@@ -23,8 +29,14 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
       links: [],
       keyTerms: [],
       qualityScore: 20,
-      qualityIssues: [{ severity: "CRITICAL", type: "EMPTY_SECTION", description: "Arquivo tabular vazio." }],
-      rawTextSnippet: ""
+      qualityIssues: [
+        {
+          severity: "CRITICAL",
+          type: "EMPTY_SECTION",
+          description: "Arquivo tabular vazio.",
+        },
+      ],
+      rawTextSnippet: "",
     };
   }
 
@@ -66,7 +78,9 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
   }
 
   const rawHeaders = tokenizeLine(lines[0], delimiter);
-  const headers = rawHeaders.map((h, i) => h.replace(/^["']|["']$/g, "").trim() || `col_${i + 1}`);
+  const headers = rawHeaders.map(
+    (h, i) => h.replace(/^["']|["']$/g, "").trim() || `col_${i + 1}`,
+  );
 
   const rows: string[][] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -77,7 +91,7 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
           severity: "WARNING",
           type: "MALFORMED_TABLE",
           line: i + 1,
-          description: `Inconsistência de colunas na linha ${i + 1}: esperado ${headers.length}, recebido ${row.length}`
+          description: `Inconsistência de colunas na linha ${i + 1}: esperado ${headers.length}, recebido ${row.length}`,
         });
       }
     }
@@ -97,7 +111,14 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
 
     for (const r of rows) {
       const v = r[colIdx]?.trim();
-      if (!v || v === "" || v === "null" || v === "NULL" || v === "N/A" || v === "undefined") {
+      if (
+        !v ||
+        v === "" ||
+        v === "null" ||
+        v === "NULL" ||
+        v === "N/A" ||
+        v === "undefined"
+      ) {
         nullCount++;
         continue;
       }
@@ -115,12 +136,14 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
     let inferredType: TabularColumn["inferredType"] = "TEXT";
     if (totalValid > 0) {
       if (intCount / totalValid > 0.8) inferredType = "INTEGER";
-      else if ((intCount + floatCount) / totalValid > 0.8) inferredType = "DECIMAL";
+      else if ((intCount + floatCount) / totalValid > 0.8)
+        inferredType = "DECIMAL";
       else if (boolCount / totalValid > 0.8) inferredType = "BOOLEAN";
       else if (dateCount / totalValid > 0.8) inferredType = "DATE_ISO";
       else if (emailCount / totalValid > 0.8) inferredType = "EMAIL";
       else if (urlCount / totalValid > 0.8) inferredType = "URL";
-      else if (new Set(values).size < totalValid * 0.3) inferredType = "CATEGORICAL";
+      else if (new Set(values).size < totalValid * 0.3)
+        inferredType = "CATEGORICAL";
     }
 
     const uniqueSet = new Set(values);
@@ -128,20 +151,28 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
       name: headerName,
       inferredType,
       nullCount,
-      nullPercentage: rows.length > 0 ? Math.round((nullCount / rows.length) * 100) : 0,
+      nullPercentage:
+        rows.length > 0 ? Math.round((nullCount / rows.length) * 100) : 0,
       uniqueCount: uniqueSet.size,
-      sampleValues: Array.from(uniqueSet).slice(0, 5)
+      sampleValues: Array.from(uniqueSet).slice(0, 5),
     };
   });
 
   // Generate TypeScript Interface
-  const interfaceName = path.basename(filePath, path.extname(filePath)).replace(/[^a-zA-Z0-9]/g, "");
-  const tsProperties = columns.map(c => {
-    const propName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(c.name) ? c.name : `"${c.name}"`;
+  const interfaceName = path
+    .basename(filePath, path.extname(filePath))
+    .replace(/[^a-zA-Z0-9]/g, "");
+  const tsProperties = columns.map((c) => {
+    const propName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(c.name)
+      ? c.name
+      : `"${c.name}"`;
     let tsType = "string";
-    if (c.inferredType === "INTEGER" || c.inferredType === "DECIMAL") tsType = "number";
+    if (c.inferredType === "INTEGER" || c.inferredType === "DECIMAL")
+      tsType = "number";
     else if (c.inferredType === "BOOLEAN") tsType = "boolean";
-    else if (c.inferredType === "CATEGORICAL") tsType = c.sampleValues.map(s => JSON.stringify(s)).join(" | ") || "string";
+    else if (c.inferredType === "CATEGORICAL")
+      tsType =
+        c.sampleValues.map((s) => JSON.stringify(s)).join(" | ") || "string";
     const optional = c.nullCount > 0 ? "?" : "";
     return `  ${propName}${optional}: ${tsType};`;
   });
@@ -154,7 +185,7 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
     totalColumns: headers.length,
     columns,
     generatedTypeScriptSchema,
-    previewRows: rows.slice(0, 5)
+    previewRows: rows.slice(0, 5),
   };
 
   const wordCount = content.split(/\s+/).filter(Boolean).length;
@@ -179,14 +210,14 @@ export function parseTabular(content: string, filePath: string): ParsedDocument 
         title: "Estrutura e Schema da Tabela",
         characterCount: content.length,
         wordCount,
-        hasContent: true
-      }
+        hasContent: true,
+      },
     ],
     tables: [tableSummary],
     links: [],
     keyTerms: headers.slice(0, 20),
     qualityScore: Math.max(20, Math.min(100, score)),
     qualityIssues,
-    rawTextSnippet: lines.slice(0, 5).join("\n")
+    rawTextSnippet: lines.slice(0, 5).join("\n"),
   };
 }

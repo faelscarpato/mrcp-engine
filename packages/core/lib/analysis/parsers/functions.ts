@@ -34,12 +34,10 @@ export async function extractFunctionsFromCode(
   // Try Tree-sitter first if available
   if (isTreeSitterAvailable(ext) || isTreeSitterAvailable(language)) {
     try {
-      const tsRes = await extractFunctionsWithTreeSitter(
-        path,
-        content,
-        ext,
-      );
-      const treeSitterFunctions = Array.isArray(tsRes) ? tsRes : (tsRes?.functions ?? []);
+      const tsRes = await extractFunctionsWithTreeSitter(path, content, ext);
+      const treeSitterFunctions = Array.isArray(tsRes)
+        ? tsRes
+        : (tsRes?.functions ?? []);
       if (treeSitterFunctions.length > 0) {
         return treeSitterFunctions;
       }

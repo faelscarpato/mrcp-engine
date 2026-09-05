@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { validateEnvironmentContract } from './env-validator.js';
+import { describe, it, expect } from "vitest";
+import { validateEnvironmentContract } from "./env-validator.js";
 
-describe('MRCP Environment & Secret Contract Validator Suite', () => {
-  it('should validate workspace env definitions without false positives', async () => {
+describe("MRCP Environment & Secret Contract Validator Suite", () => {
+  it("should validate workspace env definitions without false positives", async () => {
     const result = await validateEnvironmentContract({
-      repoUrl: '.'
+      repoUrl: ".",
     });
 
     expect(result).toBeDefined();
@@ -16,9 +16,9 @@ describe('MRCP Environment & Secret Contract Validator Suite', () => {
     expect(result.securityWarnings.length).toBe(0);
   });
 
-  it('should return non-applicable for empty or non-existent repo', async () => {
+  it("should return non-applicable for empty or non-existent repo", async () => {
     const result = await validateEnvironmentContract({
-      repoUrl: '/non/existent/repo/xyz'
+      repoUrl: "/non/existent/repo/xyz",
     });
 
     expect(result).toBeDefined();

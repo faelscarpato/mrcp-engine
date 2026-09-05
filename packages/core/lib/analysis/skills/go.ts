@@ -1,9 +1,9 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const goSkill: LanguageSkill = {
-  name: 'Go_Idiomatic_Concurrency_Skill',
-  language: 'Go',
-  aliases: ['Golang'],
+  name: "Go_Idiomatic_Concurrency_Skill",
+  language: "Go",
+  aliases: ["Golang"],
   thresholds: {
     complexityWarning: 40,
     complexityCritical: 80,
@@ -29,5 +29,5 @@ export const goSkill: LanguageSkill = {
       "RESTRIÇÃO: Não exporte novos tipos deste pacote — reduza a superfície pública.",
     ],
   },
-  protectedPatterns: ['func ', 'type ', 'var ', 'const '],
+  protectedPatterns: ["func ", "type ", "var ", "const "],
 };

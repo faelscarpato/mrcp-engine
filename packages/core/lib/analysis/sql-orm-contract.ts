@@ -38,13 +38,21 @@ export interface SqlOrmContractResult {
 }
 
 import { parsePrismaSchema, parseSqlDdl } from "./sql-parsers.js";
-export { parsePrismaSchema, parseSqlDdl, mapSqlTypeToTs, mapPrismaTypeToTs } from "./sql-parsers.js";
+export {
+  parsePrismaSchema,
+  parseSqlDdl,
+  mapSqlTypeToTs,
+  mapPrismaTypeToTs,
+} from "./sql-parsers.js";
 
-export async function generateSqlOrmContract(options: SqlOrmContractOptions): Promise<SqlOrmContractResult> {
+export async function generateSqlOrmContract(
+  options: SqlOrmContractOptions,
+): Promise<SqlOrmContractResult> {
   const { repoUrl, schemaFilePath } = options;
   const warnings: string[] = [];
 
-  let detectedType: "PRISMA" | "DRIZZLE" | "TYPEORM" | "SQL_DDL" | "NONE" = "NONE";
+  let detectedType: "PRISMA" | "DRIZZLE" | "TYPEORM" | "SQL_DDL" | "NONE" =
+    "NONE";
   let targetFile: string | undefined = schemaFilePath;
   let fileContent = "";
 
@@ -56,12 +64,16 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
       const fetched = await fetchRepoFile(url, schemaFilePath);
       if (fetched) {
         if (fetched.isCorrupted) {
-          warnings.push(`Arquivo de schema '${schemaFilePath}' está corrompido ou ilegível.`);
+          warnings.push(
+            `Arquivo de schema '${schemaFilePath}' está corrompido ou ilegível.`,
+          );
         }
         fileContent = fetched.content;
         targetFile = schemaFilePath;
       } else {
-        warnings.push(`Arquivo de schema especificado '${schemaFilePath}' não foi encontrado.`);
+        warnings.push(
+          `Arquivo de schema especificado '${schemaFilePath}' não foi encontrado.`,
+        );
       }
     }
 
@@ -102,7 +114,8 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
     if (targetFile.endsWith(".prisma")) detectedType = "PRISMA";
     else if (targetFile.endsWith(".sql")) detectedType = "SQL_DDL";
     else if (targetFile.includes(".entity.ts")) detectedType = "TYPEORM";
-    else if (targetFile.includes("schema") || targetFile.includes("models")) detectedType = "DRIZZLE";
+    else if (targetFile.includes("schema") || targetFile.includes("models"))
+      detectedType = "DRIZZLE";
   }
 
   // 4. Se nenhum schema foi detectado ou o conteúdo é vazio
@@ -111,11 +124,12 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
       schemaDetected: "NONE",
       schemaFilePath: targetFile,
       isApplicable: false,
-      message: "Não se aplica a esse repositório: Nenhum arquivo de schema Prisma, Drizzle, TypeORM ou SQL DDL foi detectado.",
+      message:
+        "Não se aplica a esse repositório: Nenhum arquivo de schema Prisma, Drizzle, TypeORM ou SQL DDL foi detectado.",
       tablesCount: 0,
       tables: [],
       generatedTypescriptInterface: "",
-      warnings
+      warnings,
     };
   }
 
@@ -134,7 +148,9 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
       }
     }
   } catch (err: any) {
-    warnings.push(`Falha ao realizar parse do arquivo de schema '${targetFile}': ${err.message}`);
+    warnings.push(
+      `Falha ao realizar parse do arquivo de schema '${targetFile}': ${err.message}`,
+    );
   }
 
   if (tables.length === 0) {
@@ -146,7 +162,7 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
       tablesCount: 0,
       tables: [],
       generatedTypescriptInterface: "",
-      warnings
+      warnings,
     };
   }
 
@@ -167,6 +183,6 @@ export async function generateSqlOrmContract(options: SqlOrmContractOptions): Pr
     tablesCount: tables.length,
     tables,
     generatedTypescriptInterface: interfaces,
-    warnings
+    warnings,
   };
 }

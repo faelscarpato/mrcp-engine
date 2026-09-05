@@ -17,7 +17,13 @@ export interface MonorepoGraphOptions {
 export interface MonorepoGraphResult {
   repoUrl: string;
   isMonorepo: boolean;
-  monorepoTool: "pnpm-workspace" | "npm/yarn-workspaces" | "lerna" | "turborepo" | "nx" | "NONE";
+  monorepoTool:
+    | "pnpm-workspace"
+    | "npm/yarn-workspaces"
+    | "lerna"
+    | "turborepo"
+    | "nx"
+    | "NONE";
   packagesCount: number;
   packages: WorkspacePackage[];
   topologicalBuildOrder: string[][]; // Array of build stages (parallelizable within stage)
@@ -27,7 +33,9 @@ export interface MonorepoGraphResult {
   message?: string;
 }
 
-export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promise<MonorepoGraphResult> {
+export async function analyzeMonorepoGraph(
+  options: MonorepoGraphOptions,
+): Promise<MonorepoGraphResult> {
   const { repoUrl, changedFiles = [] } = options;
 
   // Search for monorepo configuration files and package.json files
@@ -44,7 +52,13 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
     );
   });
 
-  let monorepoTool: "pnpm-workspace" | "npm/yarn-workspaces" | "lerna" | "turborepo" | "nx" | "NONE" = "NONE";
+  let monorepoTool:
+    | "pnpm-workspace"
+    | "npm/yarn-workspaces"
+    | "lerna"
+    | "turborepo"
+    | "nx"
+    | "NONE" = "NONE";
   let isMonorepo = false;
 
   if (files.some((f) => f.includes("pnpm-workspace"))) {
@@ -76,7 +90,9 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
   }
 
   // Discover all packages
-  const pkgFiles = files.filter((f) => f.endsWith("package.json") && f !== "package.json");
+  const pkgFiles = files.filter(
+    (f) => f.endsWith("package.json") && f !== "package.json",
+  );
   if (pkgFiles.length > 0 && !isMonorepo) {
     isMonorepo = true;
     monorepoTool = "npm/yarn-workspaces";
@@ -96,14 +112,15 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
               version: "1.0.0",
               private: false,
               internalDependencies: [],
-              externalDependenciesCount: 0
-            }
+              externalDependenciesCount: 0,
+            },
           ]
         : [],
       topologicalBuildOrder: [["single-root-package"]],
       cyclicDependencies: [],
       isApplicable: false,
-      message: "O repositório é um projeto standalone (não é um Monorepo com workspaces)."
+      message:
+        "O repositório é um projeto standalone (não é um Monorepo com workspaces).",
     };
   }
 
@@ -116,7 +133,10 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
     try {
       const parsed = JSON.parse(file.content);
       if (parsed.name) {
-        pkgMap.set(parsed.name, { pkg: parsed, path: pf.replace(/\/package\.json$/, "") });
+        pkgMap.set(parsed.name, {
+          pkg: parsed,
+          path: pf.replace(/\/package\.json$/, ""),
+        });
         allPkgNames.add(parsed.name);
       }
     } catch {
@@ -128,7 +148,11 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
   const dependencyGraph = new Map<string, Set<string>>(); // pkg -> set of internal dependencies
 
   for (const [name, { pkg, path }] of pkgMap.entries()) {
-    const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}), ...(pkg.peerDependencies || {}) };
+    const deps = {
+      ...(pkg.dependencies || {}),
+      ...(pkg.devDependencies || {}),
+      ...(pkg.peerDependencies || {}),
+    };
     const internalDeps: string[] = [];
     let externalCount = 0;
 
@@ -148,7 +172,7 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
       version: pkg.version || "1.0.0",
       private: Boolean(pkg.private),
       internalDependencies: internalDeps,
-      externalDependenciesCount: externalCount
+      externalDependenciesCount: externalCount,
     });
   }
 
@@ -175,7 +199,9 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
     for (const pkgName of remaining) {
       const deps = dependencyGraph.get(pkgName) || new Set();
       // Can build if all internal dependencies are already resolved
-      const allDepsResolved = Array.from(deps).every((d) => resolved.has(d) || !remaining.has(d));
+      const allDepsResolved = Array.from(deps).every(
+        (d) => resolved.has(d) || !remaining.has(d),
+      );
       if (allDepsResolved) {
         currentStage.push(pkgName);
       }
@@ -232,6 +258,6 @@ export async function analyzeMonorepoGraph(options: MonorepoGraphOptions): Promi
     cyclicDependencies,
     affectedPackages,
     isApplicable: true,
-    message: `Monorepo (${monorepoTool}) com ${packages.length} pacotes mapeados. Pipeline ordenado em ${buildStages.length} estágios de compilação sem ciclos.`
+    message: `Monorepo (${monorepoTool}) com ${packages.length} pacotes mapeados. Pipeline ordenado em ${buildStages.length} estágios de compilação sem ciclos.`,
   };
 }

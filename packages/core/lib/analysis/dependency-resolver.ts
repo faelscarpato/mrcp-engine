@@ -34,9 +34,14 @@ export interface DependencyResolverResult {
 }
 
 export async function resolveDependencyCompatibility(
-  options: DependencyResolverOptions
+  options: DependencyResolverOptions,
 ): Promise<DependencyResolverResult> {
-  const { packageName, targetVersion = "latest", manifestFilePath = "package.json", repoUrl } = options;
+  const {
+    packageName,
+    targetVersion = "latest",
+    manifestFilePath = "package.json",
+    repoUrl,
+  } = options;
   const warnings: string[] = [];
 
   const cleanPkg = packageName.trim();
@@ -53,7 +58,7 @@ export async function resolveDependencyCompatibility(
       safeInstallCommand: "",
       isApplicable: false,
       message: "Não se aplica: Nenhum nome de pacote fornecido.",
-      warnings: ["Nome do pacote está vazio."]
+      warnings: ["Nome do pacote está vazio."],
     };
   }
 
@@ -63,7 +68,7 @@ export async function resolveDependencyCompatibility(
     const encoded = encodeURIComponent(cleanPkg);
     const registryUrl = `https://registry.npmjs.org/${encoded}`;
     const res = await fetch(registryUrl, {
-      headers: { Accept: "application/json" }
+      headers: { Accept: "application/json" },
     });
 
     if (res.status === 404) {
@@ -79,7 +84,9 @@ export async function resolveDependencyCompatibility(
         safeInstallCommand: "",
         isApplicable: false,
         message: `Não se aplica: O pacote '${cleanPkg}' não foi encontrado no registro oficial do NPM.`,
-        warnings: [`Pacote '${cleanPkg}' inexistente ou privado no registry do NPM (HTTP 404).`]
+        warnings: [
+          `Pacote '${cleanPkg}' inexistente ou privado no registry do NPM (HTTP 404).`,
+        ],
       };
     }
 
@@ -104,8 +111,9 @@ export async function resolveDependencyCompatibility(
       conflicts: [],
       safeInstallCommand: `npm install ${cleanPkg}@${targetVersion}`,
       isApplicable: false,
-      message: "Não foi possível verificar a compatibilidade devido à indisponibilidade do NPM Registry.",
-      warnings
+      message:
+        "Não foi possível verificar a compatibilidade devido à indisponibilidade do NPM Registry.",
+      warnings,
     };
   }
 
@@ -122,8 +130,11 @@ export async function resolveDependencyCompatibility(
     resolvedVersion = targetVersion;
   } else {
     // Procura a versão mais alta que satisfaça ou corresponda
-    const matched = allVersions.filter((v) => v.startsWith(targetVersion.replace(/[\^~>=<]/g, "").split(".")[0]));
-    resolvedVersion = matched.length > 0 ? matched[matched.length - 1] : latestTag;
+    const matched = allVersions.filter((v) =>
+      v.startsWith(targetVersion.replace(/[\^~>=<]/g, "").split(".")[0]),
+    );
+    resolvedVersion =
+      matched.length > 0 ? matched[matched.length - 1] : latestTag;
   }
 
   const versionDetails = npmData.versions?.[resolvedVersion] || {};
@@ -142,14 +153,19 @@ export async function resolveDependencyCompatibility(
         const allLocalDeps = {
           ...(pkgJson.dependencies || {}),
           ...(pkgJson.devDependencies || {}),
-          ...(pkgJson.peerDependencies || {})
+          ...(pkgJson.peerDependencies || {}),
         };
         Object.assign(projectDeps, allLocalDeps);
         if (allLocalDeps[cleanPkg]) {
-          currentInstalledVersion = allLocalDeps[cleanPkg].replace(/[\^~]/g, "");
+          currentInstalledVersion = allLocalDeps[cleanPkg].replace(
+            /[\^~]/g,
+            "",
+          );
         }
       } catch (err: any) {
-        warnings.push(`Arquivo ${manifestFilePath} no repositório está corrompido ou contém JSON inválido.`);
+        warnings.push(
+          `Arquivo ${manifestFilePath} no repositório está corrompido ou contém JSON inválido.`,
+        );
       }
     }
   }
@@ -161,21 +177,28 @@ export async function resolveDependencyCompatibility(
   if (currentInstalledVersion && resolvedVersion) {
     const currentMajor = parseInt(currentInstalledVersion.split(".")[0], 10);
     const targetMajor = parseInt(resolvedVersion.split(".")[0], 10);
-    if (!isNaN(currentMajor) && !isNaN(targetMajor) && targetMajor > currentMajor) {
+    if (
+      !isNaN(currentMajor) &&
+      !isNaN(targetMajor) &&
+      targetMajor > currentMajor
+    ) {
       hasBreakingChanges = true;
       breakingChangeDetails.push(
-        `Major version jump detectado (${currentInstalledVersion} -> ${resolvedVersion}). Risco de quebra de APIs públicas.`
+        `Major version jump detectado (${currentInstalledVersion} -> ${resolvedVersion}). Risco de quebra de APIs públicas.`,
       );
     }
   }
 
   if (isDeprecated) {
-    breakingChangeDetails.push(`A versão ${resolvedVersion} está marcada como DEPRECATED: ${deprecationReason}`);
+    breakingChangeDetails.push(
+      `A versão ${resolvedVersion} está marcada como DEPRECATED: ${deprecationReason}`,
+    );
   }
 
   // 4. Verificação de conflitos de Peer Dependencies
   const conflicts: DependencyConflict[] = [];
-  const peerDeps: Record<string, string> = versionDetails.peerDependencies || {};
+  const peerDeps: Record<string, string> =
+    versionDetails.peerDependencies || {};
 
   for (const [peerPkg, requiredRange] of Object.entries(peerDeps)) {
     const installed = projectDeps[peerPkg];
@@ -183,7 +206,11 @@ export async function resolveDependencyCompatibility(
       // Exemplo simplificado de checagem de major
       const reqMajor = requiredRange.replace(/[\^~>=<]/g, "").split(".")[0];
       const instMajor = installed.replace(/[\^~>=<]/g, "").split(".")[0];
-      const isCompat = !reqMajor || !instMajor || reqMajor === instMajor || requiredRange.includes(installed);
+      const isCompat =
+        !reqMajor ||
+        !instMajor ||
+        reqMajor === instMajor ||
+        requiredRange.includes(installed);
       conflicts.push({
         peerPackage: peerPkg,
         requiredRange,
@@ -191,7 +218,7 @@ export async function resolveDependencyCompatibility(
         isCompatible: isCompat,
         reason: isCompat
           ? `Compatível com a versão instalada (${installed}).`
-          : `Incompatibilidade de peer dependency: ${peerPkg}@${requiredRange} requerido, mas ${installed} está instalado.`
+          : `Incompatibilidade de peer dependency: ${peerPkg}@${requiredRange} requerido, mas ${installed} está instalado.`,
       });
     }
   }
@@ -212,6 +239,6 @@ export async function resolveDependencyCompatibility(
     conflicts,
     safeInstallCommand,
     isApplicable: true,
-    warnings
+    warnings,
   };
 }

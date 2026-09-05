@@ -1,4 +1,7 @@
-import type { ApiParameter, ApiRouteDefinition } from "./api-contract-generator.js";
+import type {
+  ApiParameter,
+  ApiRouteDefinition,
+} from "./api-contract-generator.js";
 
 export function sanitizeMethodName(method: string, path: string): string {
   const cleanPath = path
@@ -10,7 +13,10 @@ export function sanitizeMethodName(method: string, path: string): string {
   return `${m}_${cleanPath || "root"}`;
 }
 
-export function extractParamsFromSource(code: string, routePath: string): ApiParameter[] {
+export function extractParamsFromSource(
+  code: string,
+  routePath: string,
+): ApiParameter[] {
   const params: ApiParameter[] = [];
   const seen = new Set<string>();
 
@@ -25,30 +31,45 @@ export function extractParamsFromSource(code: string, routePath: string): ApiPar
     }
   }
 
-  const queryRegex = /(?:req\.query\.(\w+)|req\.query\[["'](\w+)["']|searchParams\.get\(["'](\w+)["']\))/g;
+  const queryRegex =
+    /(?:req\.query\.(\w+)|req\.query\[["'](\w+)["']|searchParams\.get\(["'](\w+)["']\))/g;
   let qm: RegExpExecArray | null;
   while ((qm = queryRegex.exec(code)) !== null) {
     const qName = qm[1] || qm[2] || qm[3];
     if (qName && !seen.has(qName)) {
       seen.add(qName);
-      params.push({ name: qName, in: "query", required: false, type: "string" });
+      params.push({
+        name: qName,
+        in: "query",
+        required: false,
+        type: "string",
+      });
     }
   }
 
   return params;
 }
 
-export function extractParamsFromBlock(block: string, routePath: string): ApiParameter[] {
+export function extractParamsFromBlock(
+  block: string,
+  routePath: string,
+): ApiParameter[] {
   const params: ApiParameter[] = [];
   const seen = new Set<string>();
 
-  const queryRegex = /(?:req\.query\.(\w+)|req\.query\[["'](\w+)["']|searchParams\.get\(["'](\w+)["']\))/g;
+  const queryRegex =
+    /(?:req\.query\.(\w+)|req\.query\[["'](\w+)["']|searchParams\.get\(["'](\w+)["']\))/g;
   let qm: RegExpExecArray | null;
   while ((qm = queryRegex.exec(block)) !== null) {
     const qName = qm[1] || qm[2] || qm[3];
     if (qName && !seen.has(qName)) {
       seen.add(qName);
-      params.push({ name: qName, in: "query", required: false, type: "string" });
+      params.push({
+        name: qName,
+        in: "query",
+        required: false,
+        type: "string",
+      });
     }
   }
 
@@ -65,7 +86,10 @@ export function extractParamsFromBlock(block: string, routePath: string): ApiPar
   return params;
 }
 
-export function buildTypeScriptSdkSnippet(repoUrl: string, uniqueRoutes: ApiRouteDefinition[]): string {
+export function buildTypeScriptSdkSnippet(
+  repoUrl: string,
+  uniqueRoutes: ApiRouteDefinition[],
+): string {
   const sdkLines: string[] = [
     `// ==========================================================`,
     `// 🚀 Auto-Generated Typed API Client SDK for ${repoUrl}`,
@@ -81,21 +105,24 @@ export function buildTypeScriptSdkSnippet(repoUrl: string, uniqueRoutes: ApiRout
     `    if (!res.ok) throw new Error(\`API error \${res.status}: \${res.statusText}\`);`,
     `    return res.json() as Promise<T>;`,
     `  }`,
-    ``
+    ``,
   ];
 
   for (const r of uniqueRoutes) {
     const methodName = sanitizeMethodName(r.method, r.path);
     const pathParams = r.parameters.filter((p) => p.in === "path");
     const queryParams = r.parameters.filter((p) => p.in === "query");
-    const hasBody = r.method === "POST" || r.method === "PUT" || r.method === "PATCH";
+    const hasBody =
+      r.method === "POST" || r.method === "PUT" || r.method === "PATCH";
 
     const args: string[] = [];
     if (pathParams.length > 0) {
       pathParams.forEach((p) => args.push(`${p.name}: string`));
     }
     if (queryParams.length > 0) {
-      args.push(`query?: { ${queryParams.map((q) => `${q.name}${q.required ? "" : "?"}: string`).join("; ")} }`);
+      args.push(
+        `query?: { ${queryParams.map((q) => `${q.name}${q.required ? "" : "?"}: string`).join("; ")} }`,
+      );
     }
     if (hasBody) {
       args.push(`body?: Record<string, any>`);

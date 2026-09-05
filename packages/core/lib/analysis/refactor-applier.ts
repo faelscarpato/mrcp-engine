@@ -25,8 +25,16 @@ export interface RefactorApplierResult {
   warnings: string[];
 }
 
-export async function applyAstRefactoring(options: RefactorApplierOptions): Promise<RefactorApplierResult> {
-  const { action, targetSymbol, newSymbolName, targetFilePath, dryRun = true } = options;
+export async function applyAstRefactoring(
+  options: RefactorApplierOptions,
+): Promise<RefactorApplierResult> {
+  const {
+    action,
+    targetSymbol,
+    newSymbolName,
+    targetFilePath,
+    dryRun = true,
+  } = options;
   const warnings: string[] = [];
   const modifiedFiles: string[] = [];
 
@@ -41,7 +49,7 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
       modifiedFiles: [],
       diffSummary: "",
       dryRun,
-      warnings: ["targetSymbol não informado."]
+      warnings: ["targetSymbol não informado."],
     };
   }
 
@@ -50,7 +58,8 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
     return {
       status: "warning",
       isApplicable: false,
-      message: "Não se aplica: 'targetFilePath' deve ser especificado para aplicar a refatoração.",
+      message:
+        "Não se aplica: 'targetFilePath' deve ser especificado para aplicar a refatoração.",
       actionApplied: action,
       targetSymbol,
       newSymbolName,
@@ -58,7 +67,7 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
       modifiedFiles: [],
       diffSummary: "",
       dryRun,
-      warnings: ["targetFilePath não informado."]
+      warnings: ["targetFilePath não informado."],
     };
   }
 
@@ -76,7 +85,7 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
       modifiedFiles: [],
       diffSummary: "",
       dryRun,
-      warnings: [`Arquivo '${targetFilePath}' não existe.`]
+      warnings: [`Arquivo '${targetFilePath}' não existe.`],
     };
   }
 
@@ -84,7 +93,9 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
   try {
     originalContent = await fs.promises.readFile(resolvedPath, "utf-8");
     if (originalContent.includes("\u0000")) {
-      warnings.push(`Arquivo '${targetFilePath}' contém bytes nulos ou está corrompido.`);
+      warnings.push(
+        `Arquivo '${targetFilePath}' contém bytes nulos ou está corrompido.`,
+      );
     }
   } catch (err: any) {
     return {
@@ -99,7 +110,7 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
       modifiedFiles: [],
       diffSummary: "",
       dryRun,
-      warnings: [err.message]
+      warnings: [err.message],
     };
   }
 
@@ -120,11 +131,14 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
         modifiedFiles: [],
         diffSummary: "",
         dryRun,
-        warnings: ["newSymbolName ausente."]
+        warnings: ["newSymbolName ausente."],
       };
     }
 
-    const regex = new RegExp(`\\b${targetSymbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
+    const regex = new RegExp(
+      `\\b${targetSymbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+      "g",
+    );
     const matchesCount = (originalContent.match(regex) || []).length;
 
     if (matchesCount === 0) {
@@ -140,7 +154,7 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
         modifiedFiles: [],
         diffSummary: "Nenhuma ocorrência do símbolo encontrada.",
         dryRun,
-        warnings
+        warnings,
       };
     }
 
@@ -150,7 +164,10 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
   } else if (action === "EXTRACT_INTERFACE") {
     const interfaceName = newSymbolName || `I${targetSymbol}`;
     // Procura classe ou objeto
-    const classRegex = new RegExp(`class\\s+${targetSymbol}\\b[^{]*\\{([\\s\\S]*?)\\}`, "m");
+    const classRegex = new RegExp(
+      `class\\s+${targetSymbol}\\b[^{]*\\{([\\s\\S]*?)\\}`,
+      "m",
+    );
     const classMatch = originalContent.match(classRegex);
 
     if (!classMatch) {
@@ -166,14 +183,20 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
         modifiedFiles: [],
         diffSummary: "",
         dryRun,
-        warnings
+        warnings,
       };
     }
 
     const classBody = classMatch[1];
     // Extrai métodos públicos
-    const methodMatches = Array.from(classBody.matchAll(/([a-zA-Z0-9_$]+)\s*\(([^)]*)\)\s*(?::\s*([^{]+))?\{/g));
-    const methods = methodMatches.map((m) => `  ${m[1]}(${m[2].trim()}): ${m[3] ? m[3].trim() : "any"};`);
+    const methodMatches = Array.from(
+      classBody.matchAll(
+        /([a-zA-Z0-9_$]+)\s*\(([^)]*)\)\s*(?::\s*([^{]+))?\{/g,
+      ),
+    );
+    const methods = methodMatches.map(
+      (m) => `  ${m[1]}(${m[2].trim()}): ${m[3] ? m[3].trim() : "any"};`,
+    );
 
     const interfaceCode = `export interface ${interfaceName} {\n${methods.length > 0 ? methods.join("\n") : "  // Propriedades e métodos da interface\n"}\n}\n\n`;
     updatedContent = `${interfaceCode}${originalContent}`;
@@ -185,7 +208,8 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
       return {
         status: "error",
         isApplicable: false,
-        message: "Parâmetro 'newSymbolName' (novo caminho do import) é obrigatório.",
+        message:
+          "Parâmetro 'newSymbolName' (novo caminho do import) é obrigatório.",
         actionApplied: action,
         targetSymbol,
         targetFilePath,
@@ -193,11 +217,14 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
         modifiedFiles: [],
         diffSummary: "",
         dryRun,
-        warnings
+        warnings,
       };
     }
 
-    const importRegex = new RegExp(`(import\\s+.*?\\s+from\\s+['"])${targetSymbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(['"])`, "g");
+    const importRegex = new RegExp(
+      `(import\\s+.*?\\s+from\\s+['"])${targetSymbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(['"])`,
+      "g",
+    );
     if (!importRegex.test(originalContent)) {
       return {
         status: "not_found",
@@ -211,11 +238,14 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
         modifiedFiles: [],
         diffSummary: "",
         dryRun,
-        warnings
+        warnings,
       };
     }
 
-    updatedContent = originalContent.replace(importRegex, `$1${newImportPath}$2`);
+    updatedContent = originalContent.replace(
+      importRegex,
+      `$1${newImportPath}$2`,
+    );
     diffSummary = `Caminho do import atualizado de '${targetSymbol}' para '${newImportPath}'.${dryRun ? " (Simulação)" : " (Gravado)"}`;
     modifiedFiles.push(targetFilePath);
   }
@@ -225,7 +255,9 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
     try {
       await fs.promises.writeFile(resolvedPath, updatedContent, "utf-8");
     } catch (err: any) {
-      warnings.push(`Erro ao gravar alterações em '${targetFilePath}': ${err.message}`);
+      warnings.push(
+        `Erro ao gravar alterações em '${targetFilePath}': ${err.message}`,
+      );
     }
   }
 
@@ -240,6 +272,6 @@ export async function applyAstRefactoring(options: RefactorApplierOptions): Prom
     modifiedFiles,
     diffSummary,
     dryRun,
-    warnings
+    warnings,
   };
 }

@@ -2,15 +2,33 @@ import { runAnalysis } from "./pipeline.js";
 import { processRepositoryHotspots } from "./mrcp-skill-injector.js";
 import { calculateCodeHealth, CodeHealthResult } from "./code-health.js";
 import { runSecurityAudit, SecurityAuditResult } from "./security-audit.js";
-import { detectArchitectureDrift, ArchitectureDriftResult } from "./architecture-drift.js";
-import { findTestCoverageGaps, TestCoverageGapResult } from "./test-gap-analysis.js";
+import {
+  detectArchitectureDrift,
+  ArchitectureDriftResult,
+} from "./architecture-drift.js";
+import {
+  findTestCoverageGaps,
+  TestCoverageGapResult,
+} from "./test-gap-analysis.js";
 import { findDeadCode, DeadCodePrunerResult } from "./dead-code-pruner.js";
-import { validateEnvironmentContract, EnvValidatorResult } from "./env-validator.js";
-import { generateApiContract, ApiContractResult } from "./api-contract-generator.js";
+import {
+  validateEnvironmentContract,
+  EnvValidatorResult,
+} from "./env-validator.js";
+import {
+  generateApiContract,
+  ApiContractResult,
+} from "./api-contract-generator.js";
 import { analyzeMonorepoGraph, MonorepoGraphResult } from "./monorepo-graph.js";
 import { generateDocumentation, DocGeneratorResult } from "./doc-generator.js";
-import { generateSqlOrmContract, SqlOrmContractResult } from "./sql-orm-contract.js";
-import { analyzeDocumentRepository, DocumentRepositoryAnalysis } from "./document-analyzer.js";
+import {
+  generateSqlOrmContract,
+  SqlOrmContractResult,
+} from "./sql-orm-contract.js";
+import {
+  analyzeDocumentRepository,
+  DocumentRepositoryAnalysis,
+} from "./document-analyzer.js";
 import { saveEndpointOutput, setCachedAnalysis } from "../cache.js";
 
 export interface FullSuiteOptions {
@@ -68,41 +86,74 @@ export interface FullSuiteResult {
   };
 }
 
-export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Promise<FullSuiteResult> {
-  const { repoUrl, githubToken = process.env.GITHUB_TOKEN, generateStubs = true } = options;
+export async function runFullRepositoryDiagnostic(
+  options: FullSuiteOptions,
+): Promise<FullSuiteResult> {
+  const {
+    repoUrl,
+    githubToken = process.env.GITHUB_TOKEN,
+    generateStubs = true,
+  } = options;
   const startTime = Date.now();
   const pipelineStatus: PipelineStepStatus[] = [];
   const reports: FullSuiteResult["reports"] = {};
 
-  console.log(`[MRCP Suite] 🚀 Iniciando Diagnóstico Completo Otimizado para: ${repoUrl}`);
+  console.log(
+    `[MRCP Suite] 🚀 Iniciando Diagnóstico Completo Otimizado para: ${repoUrl}`,
+  );
 
-  // Helper para executar etapa com medição de tempo e persistência progressiva
+  // Helper para executar etapa com medição de tempo, timeout e persistência progressiva
+  const STEP_TIMEOUT_MS = 45_000;
   async function runStep<T>(
     stepName: string,
     endpointKey: string,
-    fn: () => Promise<T>
+    fn: () => Promise<T>,
   ): Promise<T | null> {
     const stepStart = Date.now();
     try {
-      const res = await fn();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                `Step "${stepName}" timed out after ${STEP_TIMEOUT_MS / 1000}s`,
+              ),
+            ),
+          STEP_TIMEOUT_MS,
+        ),
+      );
+      const res = await Promise.race([fn(), timeoutPromise]);
       const duration = Date.now() - stepStart;
       saveEndpointOutput(endpointKey, repoUrl, res);
-      pipelineStatus.push({ step: stepName, status: "SUCCESS", durationMs: duration });
+      pipelineStatus.push({
+        step: stepName,
+        status: "SUCCESS",
+        durationMs: duration,
+      });
       return res;
     } catch (err: any) {
       const duration = Date.now() - stepStart;
       console.warn(`[MRCP Suite] ⚠️ Aviso na etapa ${stepName}:`, err.message);
-      pipelineStatus.push({ step: stepName, status: "ERROR", durationMs: duration, message: err.message });
+      pipelineStatus.push({
+        step: stepName,
+        status: "ERROR",
+        durationMs: duration,
+        message: err.message,
+      });
       return null;
     }
   }
 
   // 1. AST Graph Pipeline (Base fundamental para todas as análises)
-  const astResult = await runStep("AST Graph Analysis", "analyze_repository", async () => {
-    const res = await runAnalysis({ repoUrl, githubToken, maxFiles: 2000 });
-    await setCachedAnalysis(repoUrl, res);
-    return res;
-  });
+  const astResult = await runStep(
+    "AST Graph Analysis",
+    "analyze_repository",
+    async () => {
+      const res = await runAnalysis({ repoUrl, githubToken, maxFiles: 2000 });
+      await setCachedAnalysis(repoUrl, res);
+      return res;
+    },
+  );
   reports.astGraph = astResult;
   const nodes = astResult?.analysis?.nodes || astResult?.nodes || [];
 
@@ -119,20 +170,67 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     monoRes,
     docRes,
     sqlRes,
-    docIntelRes
+    docIntelRes,
   ] = await Promise.all([
-    runStep("Skill Contracts Generation", "skills_contract", async () => (nodes.length > 0 ? processRepositoryHotspots(nodes) : [])),
-    runStep("Code Health & Maintainability Scoring", "code_metrics_health_scorer", async () => calculateCodeHealth({ repoUrl })),
-    runStep("Security & Compliance Audit", "security_compliance_audit", async () => runSecurityAudit({ repoUrl })),
-    runStep("Architecture Drift & Dependency Cycle Detection", "architectural_drift_detector", async () => detectArchitectureDrift({ repoUrl })),
-    runStep("Test Coverage Gap Analysis", "auto_test_coverage_gap_finder", async () => findTestCoverageGaps({ repoUrl, generateStubs })),
-    runStep("Dead Code & Unused Exports Detection", "dead_code_pruner", async () => findDeadCode({ repoUrl })),
-    runStep("Environment Variables & Secrets Contract", "env_secret_contract_validator", async () => validateEnvironmentContract({ repoUrl })),
-    runStep("API Contract & OpenAPI 3.0 Extraction", "api_contract_generator", async () => generateApiContract({ repoUrl })),
-    runStep("Monorepo Topology & Build Pipeline Analysis", "monorepo_package_graph_analyzer", async () => analyzeMonorepoGraph({ repoUrl })),
-    runStep("Docstring & API Reference Generation", "docstring_api_doc_generator", async () => generateDocumentation({ repoUrl })),
-    runStep("SQL / ORM Schema Contract Analysis", "sql_schema_orm_contract_generator", async () => generateSqlOrmContract({ repoUrl })),
-    runStep("Document Intelligence & Knowledge Graph", "document_analyzer", async () => analyzeDocumentRepository({ repoUrl, githubToken, maxFiles: 30 }))
+    runStep("Skill Contracts Generation", "skills_contract", async () =>
+      nodes.length > 0 ? processRepositoryHotspots(nodes) : [],
+    ),
+    runStep(
+      "Code Health & Maintainability Scoring",
+      "code_metrics_health_scorer",
+      async () => calculateCodeHealth({ repoUrl }),
+    ),
+    runStep(
+      "Security & Compliance Audit",
+      "security_compliance_audit",
+      async () => runSecurityAudit({ repoUrl }),
+    ),
+    runStep(
+      "Architecture Drift & Dependency Cycle Detection",
+      "architectural_drift_detector",
+      async () => detectArchitectureDrift({ repoUrl }),
+    ),
+    runStep(
+      "Test Coverage Gap Analysis",
+      "auto_test_coverage_gap_finder",
+      async () => findTestCoverageGaps({ repoUrl, generateStubs }),
+    ),
+    runStep(
+      "Dead Code & Unused Exports Detection",
+      "dead_code_pruner",
+      async () => findDeadCode({ repoUrl }),
+    ),
+    runStep(
+      "Environment Variables & Secrets Contract",
+      "env_secret_contract_validator",
+      async () => validateEnvironmentContract({ repoUrl }),
+    ),
+    runStep(
+      "API Contract & OpenAPI 3.0 Extraction",
+      "api_contract_generator",
+      async () => generateApiContract({ repoUrl }),
+    ),
+    runStep(
+      "Monorepo Topology & Build Pipeline Analysis",
+      "monorepo_package_graph_analyzer",
+      async () => analyzeMonorepoGraph({ repoUrl }),
+    ),
+    runStep(
+      "Docstring & API Reference Generation",
+      "docstring_api_doc_generator",
+      async () => generateDocumentation({ repoUrl }),
+    ),
+    runStep(
+      "SQL / ORM Schema Contract Analysis",
+      "sql_schema_orm_contract_generator",
+      async () => generateSqlOrmContract({ repoUrl }),
+    ),
+    runStep(
+      "Document Intelligence & Knowledge Graph",
+      "document_analyzer",
+      async () =>
+        analyzeDocumentRepository({ repoUrl, githubToken, maxFiles: 30 }),
+    ),
   ]);
 
   if (skillRes) reports.skillContracts = skillRes;
@@ -163,10 +261,13 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
   const apiRoutesCount = reports.apiContract?.totalRoutes ?? 0;
   const envCount = reports.envValidator?.totalVariablesDetected ?? 0;
   const monorepoTool = reports.monorepoGraph?.monorepoTool ?? "NONE";
-  const totalFiles = reports.codeHealth?.summary?.totalFiles ?? nodes.filter((n: any) => n.kind === "file").length;
+  const totalFiles =
+    reports.codeHealth?.summary?.totalFiles ??
+    nodes.filter((n: any) => n.kind === "file").length;
   const totalLoc = reports.codeHealth?.summary?.totalLinesOfCode ?? 0;
   const totalDocs = reports.documentIntelligence?.totalDocumentsAnalyzed ?? 0;
-  const docScore = reports.documentIntelligence?.documentQualityIndex?.overallScore ?? 100;
+  const docScore =
+    reports.documentIntelligence?.documentQualityIndex?.overallScore ?? 100;
 
   const executiveSummary = {
     maintainabilityIndex: mi,
@@ -184,11 +285,16 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     totalFilesAnalyzed: totalFiles,
     totalLinesOfCode: totalLoc,
     totalDocumentsAnalyzed: totalDocs,
-    documentQualityScore: docScore
+    documentQualityScore: docScore,
   };
 
   // Gerar Dashboard Executivo em Markdown
-  const dashboardMarkdown = generateExecutiveDashboardMarkdown(repoUrl, executiveSummary, pipelineStatus, reports);
+  const dashboardMarkdown = generateExecutiveDashboardMarkdown(
+    repoUrl,
+    executiveSummary,
+    pipelineStatus,
+    reports,
+  );
 
   const fullResult: FullSuiteResult = {
     repoUrl,
@@ -197,12 +303,14 @@ export async function runFullRepositoryDiagnostic(options: FullSuiteOptions): Pr
     pipelineStatus,
     executiveSummary,
     executiveDashboardMarkdown: dashboardMarkdown,
-    reports
+    reports,
   };
 
   // Salva resultado consolidado final
   saveEndpointOutput("full_repository_diagnostic_suite", repoUrl, fullResult);
-  console.log(`[MRCP Suite] ✅ Diagnóstico Completo Finalizado em ${totalDuration}ms. Gravado em mrcp-analysis.json!`);
+  console.log(
+    `[MRCP Suite] ✅ Diagnóstico Completo Finalizado em ${totalDuration}ms. Gravado em mrcp-analysis.json!`,
+  );
 
   return fullResult;
 }
@@ -211,7 +319,7 @@ function generateExecutiveDashboardMarkdown(
   repoUrl: string,
   summary: FullSuiteResult["executiveSummary"],
   pipeline: PipelineStepStatus[],
-  reports: FullSuiteResult["reports"]
+  reports: FullSuiteResult["reports"],
 ): string {
   const lines: string[] = [
     `# 🧠 MRCP Engine - Relatório de Diagnóstico Estrutural Completo`,
@@ -240,25 +348,38 @@ function generateExecutiveDashboardMarkdown(
     `---`,
     ``,
     `## 🎯 Principais Hotspots de Refatoração Recomendados`,
-    ``
+    ``,
   ];
 
-  if (reports.documentIntelligence && reports.documentIntelligence.totalDocumentsAnalyzed > 0) {
+  if (
+    reports.documentIntelligence &&
+    reports.documentIntelligence.totalDocumentsAnalyzed > 0
+  ) {
     lines.push(
       `## 📑 Base de Conhecimento & Documentação Mapeada`,
       ``,
       `* **Total de Documentos:** ${reports.documentIntelligence.totalDocumentsAnalyzed} (${reports.documentIntelligence.totalWords.toLocaleString()} palavras, ${reports.documentIntelligence.totalTables} tabelas)`,
       `* **Document Quality Index (DQI):** **${reports.documentIntelligence.documentQualityIndex.overallScore}/100** (${reports.documentIntelligence.documentQualityIndex.letterGrade})`,
-      `* **Formatos Detectados:** ${Object.entries(reports.documentIntelligence.formatsDistribution).filter(([_, c]) => c > 0).map(([f, c]) => `\`${f}\`: ${c}`).join(' | ')}`,
+      `* **Formatos Detectados:** ${Object.entries(
+        reports.documentIntelligence.formatsDistribution,
+      )
+        .filter(([_, c]) => c > 0)
+        .map(([f, c]) => `\`${f}\`: ${c}`)
+        .join(" | ")}`,
       ``,
       `---`,
-      ``
+      ``,
     );
   }
 
-  if (reports.codeHealth?.topRefactoringPriorities && reports.codeHealth.topRefactoringPriorities.length > 0) {
+  if (
+    reports.codeHealth?.topRefactoringPriorities &&
+    reports.codeHealth.topRefactoringPriorities.length > 0
+  ) {
     for (const h of reports.codeHealth.topRefactoringPriorities.slice(0, 3)) {
-      lines.push(`* **\`${h.file}\`** (Complexidade: ${h.cyclomaticComplexity}, LOC: ${h.linesOfCode})`);
+      lines.push(
+        `* **\`${h.file}\`** (Complexidade: ${h.cyclomaticComplexity}, LOC: ${h.linesOfCode})`,
+      );
       lines.push(`  * *Problema:* ${h.primaryIssue}`);
       lines.push(`  * *Ação:* ${h.recommendedAction}`);
     }
@@ -267,9 +388,14 @@ function generateExecutiveDashboardMarkdown(
   }
 
   lines.push(``, `---`, ``, `## 🛡️ Alertas de Segurança & Conformidade`, ``);
-  if (reports.securityAudit?.vulnerabilities && reports.securityAudit.vulnerabilities.length > 0) {
+  if (
+    reports.securityAudit?.vulnerabilities &&
+    reports.securityAudit.vulnerabilities.length > 0
+  ) {
     for (const v of reports.securityAudit.vulnerabilities.slice(0, 5)) {
-      lines.push(`* **[${v.severity}]** \`${v.file}:${v.line || 1}\` - ${v.description}`);
+      lines.push(
+        `* **[${v.severity}]** \`${v.file}:${v.line || 1}\` - ${v.description}`,
+      );
     }
   } else {
     lines.push(`* ✅ Nenhuma vulnerabilidade estática detectada.`);
@@ -279,7 +405,7 @@ function generateExecutiveDashboardMarkdown(
     ``,
     `---`,
     ``,
-    `*Gerado deterministamente pelo MRCP Engine v2.4.0 sem alucinações de LLM.*`
+    `*Gerado deterministamente pelo MRCP Engine v2.4.0 sem alucinações de LLM.*`,
   );
 
   return lines.join("\n");

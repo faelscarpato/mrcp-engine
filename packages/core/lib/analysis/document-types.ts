@@ -36,7 +36,15 @@ export interface DocumentSection {
 
 export interface TabularColumn {
   name: string;
-  inferredType: "INTEGER" | "DECIMAL" | "BOOLEAN" | "DATE_ISO" | "EMAIL" | "URL" | "CATEGORICAL" | "TEXT";
+  inferredType:
+    | "INTEGER"
+    | "DECIMAL"
+    | "BOOLEAN"
+    | "DATE_ISO"
+    | "EMAIL"
+    | "URL"
+    | "CATEGORICAL"
+    | "TEXT";
   nullCount: number;
   nullPercentage: number;
   uniqueCount: number;
@@ -66,7 +74,13 @@ export interface DocumentLink {
 
 export interface DocumentQualityIssue {
   severity: "CRITICAL" | "WARNING" | "INFO";
-  type: "BROKEN_LINK" | "PLACEHOLDER_TEXT" | "EMPTY_SECTION" | "MALFORMED_TABLE" | "CORRUPTED_FILE" | "LOW_READABILITY";
+  type:
+    | "BROKEN_LINK"
+    | "PLACEHOLDER_TEXT"
+    | "EMPTY_SECTION"
+    | "MALFORMED_TABLE"
+    | "CORRUPTED_FILE"
+    | "LOW_READABILITY";
   line?: number;
   description: string;
   snippet?: string;
@@ -89,7 +103,12 @@ export interface ParsedDocument {
   keyTerms: string[];
   tasks?: { total: number; completed: number; pending: number };
   codeSnippetsCount?: number;
-  logSummary?: { totalEntries: number; errorCount: number; warningCount: number; topErrors: string[] };
+  logSummary?: {
+    totalEntries: number;
+    errorCount: number;
+    warningCount: number;
+    topErrors: string[];
+  };
   qualityScore: number; // 0-100
   qualityIssues: DocumentQualityIssue[];
   rawTextSnippet: string;
@@ -108,7 +127,12 @@ export interface DocumentKnowledgeGraph {
   edges: Array<{
     from: string;
     to: string;
-    type: "CONTAINS" | "REFERENCES_DOC" | "DEFINES_ENTITY" | "MENTIONS_TOPIC" | "SUBSECTION_OF";
+    type:
+      | "CONTAINS"
+      | "REFERENCES_DOC"
+      | "DEFINES_ENTITY"
+      | "MENTIONS_TOPIC"
+      | "SUBSECTION_OF";
     label?: string;
   }>;
 }

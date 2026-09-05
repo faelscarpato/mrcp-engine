@@ -1,4 +1,8 @@
-import { findRepoFiles, fetchRepoFile, fetchRepoBuffer } from "./repo-fetcher.js";
+import {
+  findRepoFiles,
+  fetchRepoFile,
+  fetchRepoBuffer,
+} from "./repo-fetcher.js";
 import {
   DocumentCategory,
   DocumentFormat,
@@ -10,16 +14,19 @@ import {
   ParsedDocument,
   DocumentKnowledgeGraph,
   DocumentRepositoryAnalysis,
-  classifyCategory
+  classifyCategory,
 } from "./documents/types.js";
-import { parseMarkdown, parseMarkdownTable } from "./documents/markdown-parser.js";
+import {
+  parseMarkdown,
+  parseMarkdownTable,
+} from "./documents/markdown-parser.js";
 import { parseTabular } from "./documents/tabular-parser.js";
 import {
   parsePlainText,
   parseStructuredData,
   parseDocx,
   parseXlsx,
-  parsePdfText
+  parsePdfText,
 } from "./documents/binary-parser.js";
 
 // Re-export all types and format parsers
@@ -36,18 +43,37 @@ export interface AnalyzeDocumentRepoOptions {
 }
 
 const DOCUMENT_EXTENSIONS = new Set([
-  "md", "markdown", "mdx",
-  "csv", "tsv", "tab", "psv",
-  "txt", "text", "note", "rst", "org", "adoc", "asciidoc",
+  "md",
+  "markdown",
+  "mdx",
+  "csv",
+  "tsv",
+  "tab",
+  "psv",
+  "txt",
+  "text",
+  "note",
+  "rst",
+  "org",
+  "adoc",
+  "asciidoc",
   "docx",
-  "xlsx", "xls",
+  "xlsx",
+  "xls",
   "pdf",
-  "json", "jsonl", "yaml", "yml", "xml", "toml",
-  "log", "rtf", "doc"
+  "json",
+  "jsonl",
+  "yaml",
+  "yml",
+  "xml",
+  "toml",
+  "log",
+  "rtf",
+  "doc",
 ]);
 
 export async function analyzeDocumentRepository(
-  opts: AnalyzeDocumentRepoOptions
+  opts: AnalyzeDocumentRepoOptions,
 ): Promise<DocumentRepositoryAnalysis> {
   const { repoUrl, githubToken } = opts;
   const maxFiles = opts.maxFiles || 500;
@@ -62,7 +88,7 @@ export async function analyzeDocumentRepository(
       }
       return DOCUMENT_EXTENSIONS.has(ext);
     },
-    githubToken
+    githubToken,
   );
 
   const cappedFiles = allFiles.slice(0, maxFiles);
@@ -81,7 +107,7 @@ export async function analyzeDocumentRepository(
     YAML: 0,
     XML: 0,
     LOG: 0,
-    RTF: 0
+    RTF: 0,
   };
 
   const categoriesDistribution: Record<DocumentCategory, number> = {
@@ -93,7 +119,7 @@ export async function analyzeDocumentRepository(
     RESEARCH_OR_ACADEMIC: 0,
     SYSTEM_LOGS: 0,
     CONFIGURATION_DATA: 0,
-    GENERAL_DOCUMENT: 0
+    GENERAL_DOCUMENT: 0,
   };
 
   // 2. Fetch and parse document files in concurrent batches
@@ -112,7 +138,12 @@ export async function analyzeDocumentRepository(
               formatsDistribution.MARKDOWN++;
               categoriesDistribution[doc.category]++;
             }
-          } else if (ext === "csv" || ext === "tsv" || ext === "tab" || ext === "psv") {
+          } else if (
+            ext === "csv" ||
+            ext === "tsv" ||
+            ext === "tab" ||
+            ext === "psv"
+          ) {
             const file = await fetchRepoFile(repoUrl, filePath, githubToken);
             if (file) {
               const doc = parseTabular(file.content, filePath);
@@ -121,7 +152,11 @@ export async function analyzeDocumentRepository(
               categoriesDistribution[doc.category]++;
             }
           } else if (ext === "docx") {
-            const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
+            const buffer = await fetchRepoBuffer(
+              repoUrl,
+              filePath,
+              githubToken,
+            );
             if (buffer) {
               const doc = parseDocx(buffer, filePath);
               parsedDocs.push(doc);
@@ -129,7 +164,11 @@ export async function analyzeDocumentRepository(
               categoriesDistribution[doc.category]++;
             }
           } else if (ext === "xlsx" || ext === "xls") {
-            const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
+            const buffer = await fetchRepoBuffer(
+              repoUrl,
+              filePath,
+              githubToken,
+            );
             if (buffer) {
               const doc = parseXlsx(buffer, filePath);
               parsedDocs.push(doc);
@@ -137,14 +176,24 @@ export async function analyzeDocumentRepository(
               categoriesDistribution[doc.category]++;
             }
           } else if (ext === "pdf") {
-            const buffer = await fetchRepoBuffer(repoUrl, filePath, githubToken);
+            const buffer = await fetchRepoBuffer(
+              repoUrl,
+              filePath,
+              githubToken,
+            );
             if (buffer) {
               const doc = parsePdfText(buffer, filePath);
               parsedDocs.push(doc);
               formatsDistribution.PDF++;
               categoriesDistribution[doc.category]++;
             }
-          } else if (ext === "json" || ext === "jsonl" || ext === "yaml" || ext === "yml" || ext === "xml") {
+          } else if (
+            ext === "json" ||
+            ext === "jsonl" ||
+            ext === "yaml" ||
+            ext === "yml" ||
+            ext === "xml"
+          ) {
             const file = await fetchRepoFile(repoUrl, filePath, githubToken);
             if (file) {
               const doc = parseStructuredData(file.content, filePath);
@@ -162,9 +211,12 @@ export async function analyzeDocumentRepository(
             }
           }
         } catch (err: any) {
-          console.warn(`[Document Analyzer] Erro ao analisar ${filePath}:`, err.message);
+          console.warn(
+            `[Document Analyzer] Erro ao analisar ${filePath}:`,
+            err.message,
+          );
         }
-      })
+      }),
     );
   }
 
@@ -187,8 +239,8 @@ export async function analyzeDocumentRepository(
       metrics: {
         wordCount: doc.wordCount,
         qualityScore: doc.qualityScore,
-        readingMinutes: doc.estimatedReadingMinutes
-      }
+        readingMinutes: doc.estimatedReadingMinutes,
+      },
     });
 
     const topicNodeId = `topic:${doc.category}`;
@@ -198,13 +250,13 @@ export async function analyzeDocumentRepository(
         id: topicNodeId,
         label: doc.category.replace(/_/g, " "),
         kind: "topic",
-        group: "topics"
+        group: "topics",
       });
     }
     graphEdges.push({
       from: docNodeId,
       to: topicNodeId,
-      type: "MENTIONS_TOPIC"
+      type: "MENTIONS_TOPIC",
     });
 
     for (const sec of doc.sections) {
@@ -213,12 +265,12 @@ export async function analyzeDocumentRepository(
         id: secNodeId,
         label: sec.title,
         kind: "section",
-        group: doc.category
+        group: doc.category,
       });
       graphEdges.push({
         from: docNodeId,
         to: secNodeId,
-        type: "CONTAINS"
+        type: "CONTAINS",
       });
     }
 
@@ -228,24 +280,26 @@ export async function analyzeDocumentRepository(
         id: tblNodeId,
         label: `${tbl.tableName} (${tbl.totalRows} linhas)`,
         kind: "table",
-        group: "tabular"
+        group: "tabular",
       });
       graphEdges.push({
         from: docNodeId,
         to: tblNodeId,
-        type: "CONTAINS"
+        type: "CONTAINS",
       });
     }
 
     for (const link of doc.links) {
       if (!link.isExternal && !link.isAnchor) {
-        const targetDoc = parsedDocs.find(d => d.path.endsWith(link.url) || link.url.endsWith(d.filename));
+        const targetDoc = parsedDocs.find(
+          (d) => d.path.endsWith(link.url) || link.url.endsWith(d.filename),
+        );
         if (targetDoc) {
           graphEdges.push({
             from: docNodeId,
             to: `doc:${targetDoc.path}`,
             type: "REFERENCES_DOC",
-            label: link.label
+            label: link.label,
           });
         }
       }
@@ -259,13 +313,13 @@ export async function analyzeDocumentRepository(
           id: entityId,
           label: term,
           kind: "entity",
-          group: "entities"
+          group: "entities",
         });
       }
       graphEdges.push({
         from: docNodeId,
         to: entityId,
-        type: "DEFINES_ENTITY"
+        type: "DEFINES_ENTITY",
       });
     }
   }
@@ -273,13 +327,21 @@ export async function analyzeDocumentRepository(
   // 4. Calculate Aggregate Metrics
   const totalWords = parsedDocs.reduce((acc, d) => acc + d.wordCount, 0);
   const totalTables = parsedDocs.reduce((acc, d) => acc + d.tables.length, 0);
-  const allIssues = parsedDocs.flatMap(d => d.qualityIssues);
-  const criticalIssues = allIssues.filter(i => i.severity === "CRITICAL").length;
-  const warningIssues = allIssues.filter(i => i.severity === "WARNING").length;
+  const allIssues = parsedDocs.flatMap((d) => d.qualityIssues);
+  const criticalIssues = allIssues.filter(
+    (i) => i.severity === "CRITICAL",
+  ).length;
+  const warningIssues = allIssues.filter(
+    (i) => i.severity === "WARNING",
+  ).length;
 
-  const avgQuality = parsedDocs.length > 0
-    ? Math.round(parsedDocs.reduce((acc, d) => acc + d.qualityScore, 0) / parsedDocs.length)
-    : 100;
+  const avgQuality =
+    parsedDocs.length > 0
+      ? Math.round(
+          parsedDocs.reduce((acc, d) => acc + d.qualityScore, 0) /
+            parsedDocs.length,
+        )
+      : 100;
 
   let letterGrade: "A+" | "A" | "B" | "C" | "D" | "F" = "A";
   if (avgQuality >= 95) letterGrade = "A+";
@@ -289,7 +351,7 @@ export async function analyzeDocumentRepository(
   else if (avgQuality >= 50) letterGrade = "D";
   else letterGrade = "F";
 
-  const masterKnowledgeIndex = parsedDocs.map(d => ({
+  const masterKnowledgeIndex = parsedDocs.map((d) => ({
     filePath: d.path,
     title: d.title,
     format: d.format,
@@ -297,13 +359,16 @@ export async function analyzeDocumentRepository(
     wordCount: d.wordCount,
     readingMinutes: d.estimatedReadingMinutes,
     qualityScore: d.qualityScore,
-    mainTopics: d.sections.map(s => s.title).slice(0, 5),
-    schemaOrTables: d.tables.map(t => `${t.tableName} (${t.totalRows}x${t.totalColumns})`)
+    mainTopics: d.sections.map((s) => s.title).slice(0, 5),
+    schemaOrTables: d.tables.map(
+      (t) => `${t.tableName} (${t.totalRows}x${t.totalColumns})`,
+    ),
   }));
 
   const recommendedLookupPaths: Record<string, string[]> = {};
   for (const doc of parsedDocs) {
-    if (!recommendedLookupPaths[doc.category]) recommendedLookupPaths[doc.category] = [];
+    if (!recommendedLookupPaths[doc.category])
+      recommendedLookupPaths[doc.category] = [];
     recommendedLookupPaths[doc.category].push(doc.path);
   }
 
@@ -319,7 +384,7 @@ export async function analyzeDocumentRepository(
   const systemDirective = [
     `[MRCP DOCUMENT INTELLIGENCE DIRECTIVE]`,
     `Este repositório contém ${parsedDocs.length} documentos e bases de conhecimento (~${totalWords.toLocaleString()} palavras, ${totalTables} tabelas).`,
-    `Para responder perguntas do usuário sem alucinar, utilize os caminhos de documentos mapeados no masterKnowledgeIndex.`
+    `Para responder perguntas do usuário sem alucinar, utilize os caminhos de documentos mapeados no masterKnowledgeIndex.`,
   ].join(" ");
 
   return {
@@ -338,18 +403,18 @@ export async function analyzeDocumentRepository(
       totalIssues: allIssues.length,
       criticalIssues,
       warnings: warningIssues,
-      summary: `Document Quality Index ${avgQuality}/100 (Nota ${letterGrade}) com ${criticalIssues} alertas críticos e ${warningIssues} avisos.`
+      summary: `Document Quality Index ${avgQuality}/100 (Nota ${letterGrade}) com ${criticalIssues} alertas críticos e ${warningIssues} avisos.`,
     },
     knowledgeGraph: {
       nodes: graphNodes,
-      edges: graphEdges
+      edges: graphEdges,
     },
     masterKnowledgeIndex,
     documents: parsedDocs,
     llmQueryDirectives: {
       systemDirective,
       recommendedLookupPaths,
-      glossary
-    }
+      glossary,
+    },
   };
 }

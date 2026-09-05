@@ -1,17 +1,24 @@
 import path from "path";
 import { classifyCategory } from "./utils.js";
-import type { 
-  ParsedDocument, DocumentSection, DocumentLink, TabularSummary, 
-  DocumentQualityIssue, TabularColumn 
+import type {
+  ParsedDocument,
+  DocumentSection,
+  DocumentLink,
+  TabularSummary,
+  DocumentQualityIssue,
+  TabularColumn,
 } from "../document-types.js";
 
-function parseMarkdownTable(lines: string[], name: string): TabularSummary | null {
+function parseMarkdownTable(
+  lines: string[],
+  name: string,
+): TabularSummary | null {
   try {
     const headerLine = lines[0];
     const headers = headerLine
       .split("|")
       .slice(1, -1)
-      .map(h => h.trim())
+      .map((h) => h.trim())
       .filter(Boolean);
 
     if (headers.length === 0) return null;
@@ -23,7 +30,7 @@ function parseMarkdownTable(lines: string[], name: string): TabularSummary | nul
       const cells = dLine
         .split("|")
         .slice(1, -1)
-        .map(c => c.trim());
+        .map((c) => c.trim());
       previewRows.push(cells);
     }
 
@@ -42,9 +49,14 @@ function parseMarkdownTable(lines: string[], name: string): TabularSummary | nul
         name: h,
         inferredType: isNum ? "DECIMAL" : "TEXT",
         nullCount: dataLines.length - nonNull,
-        nullPercentage: dataLines.length > 0 ? Math.round(((dataLines.length - nonNull) / dataLines.length) * 100) : 0,
+        nullPercentage:
+          dataLines.length > 0
+            ? Math.round(
+                ((dataLines.length - nonNull) / dataLines.length) * 100,
+              )
+            : 0,
         uniqueCount: nonNull,
-        sampleValues: previewRows.map(r => r[colIdx]).filter(Boolean)
+        sampleValues: previewRows.map((r) => r[colIdx]).filter(Boolean),
       };
     });
 
@@ -54,14 +66,18 @@ function parseMarkdownTable(lines: string[], name: string): TabularSummary | nul
       totalRows: dataLines.length,
       totalColumns: headers.length,
       columns,
-      previewRows
+      previewRows,
     };
   } catch {
     return null;
   }
 }
 
-export function parseMarkdown(content: string, filePath: string, allFilePaths: string[] = []): ParsedDocument {
+export function parseMarkdown(
+  content: string,
+  filePath: string,
+  allFilePaths: string[] = [],
+): ParsedDocument {
   const lines = content.split(/\r?\n/);
   const sections: DocumentSection[] = [];
   const links: DocumentLink[] = [];
@@ -116,14 +132,16 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
     if (inCodeBlock) continue;
 
     // Check for quality placeholder issues
-    const placeholderMatch = trimmed.match(/\b(TODO|FIXME|TBD|LOREM IPSUM|PLACEHOLDER|XXX)\b/i);
+    const placeholderMatch = trimmed.match(
+      /\b(TODO|FIXME|TBD|LOREM IPSUM|PLACEHOLDER|XXX)\b/i,
+    );
     if (placeholderMatch && !trimmed.startsWith("- [ ]")) {
       qualityIssues.push({
         severity: "INFO",
         type: "PLACEHOLDER_TEXT",
         line: i + 1,
         description: `Texto de rascunho ou pendência detectado: '${placeholderMatch[1]}'`,
-        snippet: trimmed.slice(0, 100)
+        snippet: trimmed.slice(0, 100),
       });
     }
 
@@ -143,7 +161,8 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
     while ((match = linkRegex.exec(line)) !== null) {
       const label = match[1];
       const url = match[2];
-      const isExternal = url.startsWith("http://") || url.startsWith("https://");
+      const isExternal =
+        url.startsWith("http://") || url.startsWith("https://");
       const isAnchor = url.startsWith("#");
       let isBrokenRelative = false;
 
@@ -151,9 +170,15 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
         const cleanUrl = url.split("?")[0].split("#")[0];
         const normalizedTarget = cleanUrl.replace(/^\.\//, "");
         const dir = path.dirname(filePath);
-        const resolvedPath = path.posix.normalize(dir === "." ? normalizedTarget : `${dir}/${normalizedTarget}`);
+        const resolvedPath = path.posix.normalize(
+          dir === "." ? normalizedTarget : `${dir}/${normalizedTarget}`,
+        );
         const exists = allFilePaths.some(
-          p => p === resolvedPath || p === normalizedTarget || p.endsWith("/" + normalizedTarget) || p.endsWith(normalizedTarget)
+          (p) =>
+            p === resolvedPath ||
+            p === normalizedTarget ||
+            p.endsWith("/" + normalizedTarget) ||
+            p.endsWith(normalizedTarget),
         );
         if (!exists) {
           isBrokenRelative = true;
@@ -162,7 +187,7 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
             type: "BROKEN_LINK",
             line: i + 1,
             description: `Link relativo potencialmente quebrado: '${url}'`,
-            snippet: line.trim()
+            snippet: line.trim(),
           });
         }
       }
@@ -175,7 +200,11 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
     let bMatch;
     while ((bMatch = boldRegex.exec(line)) !== null) {
       const term = bMatch[1].replace(/[:\-]+$/, "").trim();
-      if (term.length >= 3 && term.length <= 40 && !/^(TODO|FIXME|NOTE|WARNING|IMPORTANT|TIP)$/i.test(term)) {
+      if (
+        term.length >= 3 &&
+        term.length <= 40 &&
+        !/^(TODO|FIXME|NOTE|WARNING|IMPORTANT|TIP)$/i.test(term)
+      ) {
         keyTermsSet.add(term);
       }
     }
@@ -186,7 +215,10 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
       const level = headingMatch[1].length;
       const hTitle = headingMatch[2].trim().replace(/\*\*/g, "");
 
-      if (level === 1 && (!title || title === path.basename(filePath, path.extname(filePath)))) {
+      if (
+        level === 1 &&
+        (!title || title === path.basename(filePath, path.extname(filePath)))
+      ) {
         title = hTitle;
       }
 
@@ -195,7 +227,7 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
           severity: "WARNING",
           type: "EMPTY_SECTION",
           line: currentSection.line,
-          description: `Seção vazia sem conteúdo textual: '${currentSection.title}'`
+          description: `Seção vazia sem conteúdo textual: '${currentSection.title}'`,
         });
       }
 
@@ -205,7 +237,7 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
         line: i + 1,
         characterCount: 0,
         wordCount: 0,
-        hasContent: false
+        hasContent: false,
       };
       sections.push(currentSection);
       continue;
@@ -216,7 +248,10 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
       tableBuffer.push(trimmed);
     } else {
       if (tableBuffer.length >= 2) {
-        const parsedTbl = parseMarkdownTable(tableBuffer, `Tabela Linha ${i - tableBuffer.length + 1}`);
+        const parsedTbl = parseMarkdownTable(
+          tableBuffer,
+          `Tabela Linha ${i - tableBuffer.length + 1}`,
+        );
         if (parsedTbl) tables.push(parsedTbl);
       }
       tableBuffer = [];
@@ -260,7 +295,9 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
     lineCount,
     estimatedReadingMinutes,
     title,
-    description: description || (sections[0]?.title ? `Documentação cobrindo ${sections[0].title}` : ""),
+    description:
+      description ||
+      (sections[0]?.title ? `Documentação cobrindo ${sections[0].title}` : ""),
     sections,
     tables,
     links,
@@ -269,6 +306,6 @@ export function parseMarkdown(content: string, filePath: string, allFilePaths: s
     codeSnippetsCount,
     qualityScore,
     qualityIssues,
-    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " ")
+    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " "),
   };
 }

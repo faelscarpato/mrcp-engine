@@ -20,7 +20,9 @@ export interface DeadCodePrunerResult {
   pruneRecommendationCommand: string;
 }
 
-export async function findDeadCode(options: DeadCodePrunerOptions): Promise<DeadCodePrunerResult> {
+export async function findDeadCode(
+  options: DeadCodePrunerOptions,
+): Promise<DeadCodePrunerResult> {
   const { repoUrl } = options;
 
   let graphData = await getCachedAnalysis(repoUrl, false);
@@ -28,7 +30,7 @@ export async function findDeadCode(options: DeadCodePrunerOptions): Promise<Dead
     graphData = await runAnalysis({
       repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
-      maxFiles: 2000
+      maxFiles: 2000,
     });
   }
 
@@ -39,12 +41,17 @@ export async function findDeadCode(options: DeadCodePrunerOptions): Promise<Dead
   const deadSymbols: DeadSymbol[] = [];
 
   for (const node of nodes) {
-    if (node.kind === "file" && !targetEdges.has(node.id) && !node.entrypoint && !node.path?.includes("index")) {
+    if (
+      node.kind === "file" &&
+      !targetEdges.has(node.id) &&
+      !node.entrypoint &&
+      !node.path?.includes("index")
+    ) {
       deadSymbols.push({
         symbolName: node.label || node.id,
         filePath: node.path || node.label || "",
         type: "UNUSED_EXPORT",
-        line: 1
+        line: 1,
       });
     }
   }
@@ -54,6 +61,6 @@ export async function findDeadCode(options: DeadCodePrunerOptions): Promise<Dead
     totalDeadSymbolsFound: deadSymbols.length,
     estimatedBytesRemovable: deadSymbols.length * 1200,
     deadSymbols,
-    pruneRecommendationCommand: "npx mrcp-engine prune --auto"
+    pruneRecommendationCommand: "npx mrcp-engine prune --auto",
   };
 }

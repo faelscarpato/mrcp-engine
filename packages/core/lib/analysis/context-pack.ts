@@ -37,7 +37,11 @@ function sliceRelevantCode(content: string, keywords: string[]): string {
 
   // 1. Mantém os imports do topo
   for (let i = 0; i < Math.min(15, lines.length); i++) {
-    if (lines[i].startsWith("import ") || lines[i].startsWith("from ") || lines[i].startsWith("require(")) {
+    if (
+      lines[i].startsWith("import ") ||
+      lines[i].startsWith("from ") ||
+      lines[i].startsWith("require(")
+    ) {
       selectedLines.add(i);
     }
   }
@@ -65,7 +69,10 @@ function sliceRelevantCode(content: string, keywords: string[]): string {
 
   const sortedIndices = Array.from(selectedLines).sort((a, b) => a - b);
   if (sortedIndices.length === 0) {
-    return lines.slice(0, 40).join("\n") + "\n// ... [restante do arquivo omitido pelo MRCP Context Pruner]";
+    return (
+      lines.slice(0, 40).join("\n") +
+      "\n// ... [restante do arquivo omitido pelo MRCP Context Pruner]"
+    );
   }
 
   const resultSnippets: string[] = [];
@@ -73,7 +80,9 @@ function sliceRelevantCode(content: string, keywords: string[]): string {
 
   for (const idx of sortedIndices) {
     if (prevIdx !== -1 && idx > prevIdx + 1) {
-      resultSnippets.push("\n  // ... [linhas intermediárias filtradas pelo MRCP Engine]\n");
+      resultSnippets.push(
+        "\n  // ... [linhas intermediárias filtradas pelo MRCP Engine]\n",
+      );
     }
     resultSnippets.push(lines[idx]);
     prevIdx = idx;
@@ -82,7 +91,9 @@ function sliceRelevantCode(content: string, keywords: string[]): string {
   return resultSnippets.join("\n");
 }
 
-export async function buildContextPack(options: ContextPackOptions): Promise<ContextPackResult> {
+export async function buildContextPack(
+  options: ContextPackOptions,
+): Promise<ContextPackResult> {
   const { repoUrl, taskDescription, maxTokenBudget = 8000 } = options;
   const warnings: string[] = [];
 
@@ -91,7 +102,7 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
     graphData = await runAnalysis({
       repoUrl,
       githubToken: process.env.GITHUB_TOKEN,
-      maxFiles: 2000
+      maxFiles: 2000,
     });
   }
 
@@ -109,7 +120,9 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
     const label = (node.label || "").toLowerCase();
     const nodePath = (node.path || node.id || "").toLowerCase();
 
-    const matches = taskKeywords.some((kw) => label.includes(kw) || nodePath.includes(kw));
+    const matches = taskKeywords.some(
+      (kw) => label.includes(kw) || nodePath.includes(kw),
+    );
     if (matches || (node.complexity && node.complexity > 30)) {
       matchedNodes.push(node);
     }
@@ -135,7 +148,7 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
       pruningEfficiency: "0%",
       contextPack: [],
       compactPromptPayload: "",
-      warnings
+      warnings,
     };
   }
 
@@ -150,7 +163,9 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
     const fetched = await fetchRepoFile(repoUrl, filePath);
 
     if (!fetched || !fetched.content) {
-      warnings.push(`Arquivo '${filePath}' não pôde ser recuperado para inclusão no Context Pack.`);
+      warnings.push(
+        `Arquivo '${filePath}' não pôde ser recuperado para inclusão no Context Pack.`,
+      );
       continue;
     }
 
@@ -168,13 +183,24 @@ export async function buildContextPack(options: ContextPackOptions): Promise<Con
       filePath,
       relevanceReason: `Módulo relevante para '${taskDescription}' (Complexidade: ${node.complexity || 1})`,
       extractedCodeSnippet: realSnippet,
-      tokenCount: tokens
+      tokenCount: tokens,
     });
   }
 
-  const totalTokens = contextPack.reduce((acc, item) => acc + item.tokenCount, 0);
-  const rawTokensEstimate = Math.max(totalTokens, Math.round(totalRawChars / 3.8));
-  const reductionPct = rawTokensEstimate > 0 ? Math.round(((rawTokensEstimate - totalTokens) / rawTokensEstimate) * 100) : 0;
+  const totalTokens = contextPack.reduce(
+    (acc, item) => acc + item.tokenCount,
+    0,
+  );
+  const rawTokensEstimate = Math.max(
+    totalTokens,
+    Math.round(totalRawChars / 3.8),
+  );
+  const reductionPct =
+    rawTokensEstimate > 0
+      ? Math.round(
+          ((rawTokensEstimate - totalTokens) / rawTokensEstimate) * 100,
+        )
+      : 0;
   const pruningEfficiency = `${Math.max(0, Math.min(95, reductionPct))}% token reduction vs full files`;
 
   const savedTokens = Math.max(0, rawTokensEstimate - totalTokens);
@@ -204,6 +230,6 @@ ${contextPack.map((item) => `--- File: ${item.filePath} (${item.relevanceReason}
     pruningEfficiency,
     contextPack,
     compactPromptPayload,
-    warnings
+    warnings,
   };
 }

@@ -1,10 +1,22 @@
-import type { AnalysisSource, AnalysisContext, PartialAnalysis, ProgressEvent } from "../types.js";
+import type {
+  AnalysisSource,
+  AnalysisContext,
+  PartialAnalysis,
+  ProgressEvent,
+} from "../types.js";
 import { buildGraph, type FileEntry } from "../graph-builder.js";
-import { isSourceFile, isConfigFile, isIgnoredPath } from "../parsers/language.js";
+import {
+  isSourceFile,
+  isConfigFile,
+  isIgnoredPath,
+} from "../parsers/language.js";
 import * as fs from "fs";
 import * as path from "path";
 
-async function walkDir(dir: string, fileList: string[] = []): Promise<string[]> {
+async function walkDir(
+  dir: string,
+  fileList: string[] = [],
+): Promise<string[]> {
   const files = await fs.promises.readdir(dir);
   for (const file of files) {
     if (isIgnoredPath(file)) continue;
@@ -25,10 +37,13 @@ export const localDirSource: AnalysisSource = {
   canRun(ctx: AnalysisContext): boolean {
     return ctx.targetType === "local";
   },
-  async run(ctx: AnalysisContext, onProgress: (p: ProgressEvent) => void): Promise<PartialAnalysis> {
+  async run(
+    ctx: AnalysisContext,
+    onProgress: (p: ProgressEvent) => void,
+  ): Promise<PartialAnalysis> {
     const maxFiles = ctx.maxFiles ?? 1900;
     const maxBytes = ctx.maxBytesPerFile ?? 200_000;
-    
+
     // Convert file:// if needed or use raw path
     let targetPath = ctx.repoUrl;
     if (targetPath.startsWith("file://")) {
@@ -39,30 +54,41 @@ export const localDirSource: AnalysisSource = {
       }
     }
 
-    onProgress({ pct: 10, label: "Scanning local directory", sourceId: "local-dir" });
-    
+    onProgress({
+      pct: 10,
+      label: "Scanning local directory",
+      sourceId: "local-dir",
+    });
+
     let allFiles: string[] = [];
     try {
       allFiles = await walkDir(targetPath);
     } catch (e) {
-      throw new Error(`Failed to read local directory: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(
+        `Failed to read local directory: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
 
-    const sourceItems = allFiles
-      .filter((p) => {
-        // Convert back to posix for check
-        const posixPath = p.split(path.sep).join("/");
-        return isSourceFile(posixPath) || isConfigFile(posixPath);
-      });
+    const sourceItems = allFiles.filter((p) => {
+      // Convert back to posix for check
+      const posixPath = p.split(path.sep).join("/");
+      return isSourceFile(posixPath) || isConfigFile(posixPath);
+    });
 
     const capped = sourceItems.slice(0, maxFiles);
-    
-    onProgress({ pct: 30, label: `Reading ${capped.length} files`, sourceId: "local-dir" });
-    
+
+    onProgress({
+      pct: 30,
+      label: `Reading ${capped.length} files`,
+      sourceId: "local-dir",
+    });
+
     const files: FileEntry[] = [];
     const limitations: string[] = [];
     if (sourceItems.length > maxFiles) {
-      limitations.push(`Analyzed ${maxFiles} of ${sourceItems.length} source files (cap).`);
+      limitations.push(
+        `Analyzed ${maxFiles} of ${sourceItems.length} source files (cap).`,
+      );
     }
 
     let done = 0;
@@ -72,7 +98,10 @@ export const localDirSource: AnalysisSource = {
         if (stat.size <= maxBytes) {
           const content = await fs.promises.readFile(item, "utf-8");
           // Convert absolute to relative path for the graph
-          const relPath = path.relative(targetPath, item).split(path.sep).join("/");
+          const relPath = path
+            .relative(targetPath, item)
+            .split(path.sep)
+            .join("/");
           files.push({ path: relPath, content, size: stat.size });
         }
       } catch (e) {
@@ -81,11 +110,19 @@ export const localDirSource: AnalysisSource = {
       done++;
       if (done % 50 === 0 || done === capped.length) {
         const pct = 30 + Math.floor((done / capped.length) * 50);
-        onProgress({ pct, label: `Parsing local sources (${done}/${capped.length})`, sourceId: "local-dir" });
+        onProgress({
+          pct,
+          label: `Parsing local sources (${done}/${capped.length})`,
+          sourceId: "local-dir",
+        });
       }
     }
 
-    onProgress({ pct: 88, label: "Building dependency graph", sourceId: "local-dir" });
+    onProgress({
+      pct: 88,
+      label: "Building dependency graph",
+      sourceId: "local-dir",
+    });
     const partial = await buildGraph(files);
     partial.limitations = [...(partial.limitations ?? []), ...limitations];
     partial.quality = sourceItems.length > maxFiles ? "partial" : "full";

@@ -140,7 +140,11 @@ export async function buildGraph(files: FileEntry[]): Promise<PartialAnalysis> {
     // Try Tree-sitter first for accurate AST-based extraction
     let functions: ExtractedFunction[];
     try {
-      const tsRes = await extractFunctionsWithTreeSitter(f.path, f.content, lang);
+      const tsRes = await extractFunctionsWithTreeSitter(
+        f.path,
+        f.content,
+        lang,
+      );
       functions = Array.isArray(tsRes) ? tsRes : (tsRes?.functions ?? []);
       if (!functions.length) {
         functions = await extractFunctionsFromCode(f.path, f.content, lang);
@@ -305,5 +309,5 @@ export {
   detectCycles,
   computeAdvancedMetrics,
   identifyGodModules,
-  type CycleResult
+  type CycleResult,
 } from "./graph-advanced-metrics.js";

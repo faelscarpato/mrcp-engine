@@ -1,10 +1,17 @@
 import path from "path";
 import { classifyCategory } from "./utils.js";
-import type { 
-  ParsedDocument, DocumentSection, TabularSummary, TabularColumn, DocumentFormat 
+import type {
+  ParsedDocument,
+  DocumentSection,
+  TabularSummary,
+  TabularColumn,
+  DocumentFormat,
 } from "../document-types.js";
 
-export function parseStructuredData(content: string, filePath: string): ParsedDocument {
+export function parseStructuredData(
+  content: string,
+  filePath: string,
+): ParsedDocument {
   const isJson = filePath.endsWith(".json") || filePath.endsWith(".jsonl");
   const isYaml = filePath.endsWith(".yaml") || filePath.endsWith(".yml");
   const isXml = filePath.endsWith(".xml");
@@ -26,19 +33,23 @@ export function parseStructuredData(content: string, filePath: string): ParsedDo
           title: `Chaves Raiz (${keys.length})`,
           characterCount: content.length,
           wordCount: keys.length,
-          hasContent: true
+          hasContent: true,
         });
 
         // If top-level array of objects, convert to tabular summary
-        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "object") {
+        if (
+          Array.isArray(parsed) &&
+          parsed.length > 0 &&
+          typeof parsed[0] === "object"
+        ) {
           const itemKeys = Object.keys(parsed[0]);
-          const cols: TabularColumn[] = itemKeys.map(k => ({
+          const cols: TabularColumn[] = itemKeys.map((k) => ({
             name: k,
             inferredType: typeof parsed[0][k] === "number" ? "DECIMAL" : "TEXT",
             nullCount: 0,
             nullPercentage: 0,
             uniqueCount: parsed.length,
-            sampleValues: parsed.slice(0, 5).map(it => it[k])
+            sampleValues: parsed.slice(0, 5).map((it) => it[k]),
           }));
           tables.push({
             tableName: path.basename(filePath),
@@ -46,7 +57,7 @@ export function parseStructuredData(content: string, filePath: string): ParsedDo
             totalRows: parsed.length,
             totalColumns: itemKeys.length,
             columns: cols,
-            previewRows: parsed.slice(0, 5).map(it => Object.values(it))
+            previewRows: parsed.slice(0, 5).map((it) => Object.values(it)),
           });
         }
       }
@@ -72,6 +83,6 @@ export function parseStructuredData(content: string, filePath: string): ParsedDo
     keyTerms,
     qualityScore: 95,
     qualityIssues: [],
-    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " ")
+    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " "),
   };
 }

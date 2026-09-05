@@ -56,7 +56,7 @@ export function parsePdfText(buffer: Buffer, filePath: string): ParsedDocument {
         const inner = tja[1];
         const innerStrings = inner.match(/\((.*?)\)/g) || [];
         const combined = innerStrings
-          .map(s => s.slice(1, -1).replace(/\\([()\\])/g, "$1"))
+          .map((s) => s.slice(1, -1).replace(/\\([()\\])/g, "$1"))
           .join("");
         if (combined.trim()) textLines.push(combined.trim());
       }
@@ -72,7 +72,7 @@ export function parsePdfText(buffer: Buffer, filePath: string): ParsedDocument {
       title: title,
       characterCount: fullText.length,
       wordCount,
-      hasContent: true
+      hasContent: true,
     });
   }
 
@@ -91,7 +91,17 @@ export function parsePdfText(buffer: Buffer, filePath: string): ParsedDocument {
     links: [],
     keyTerms: textLines.slice(0, 10),
     qualityScore: wordCount > 0 ? 88 : 40,
-    qualityIssues: wordCount === 0 ? [{ severity: "WARNING", type: "PLACEHOLDER_TEXT", description: "PDF sem camada de texto vetorial (possível imagem escaneada requerendo OCR futuro)." }] : [],
-    rawTextSnippet: fullText.slice(0, 500)
+    qualityIssues:
+      wordCount === 0
+        ? [
+            {
+              severity: "WARNING",
+              type: "PLACEHOLDER_TEXT",
+              description:
+                "PDF sem camada de texto vetorial (possível imagem escaneada requerendo OCR futuro).",
+            },
+          ]
+        : [],
+    rawTextSnippet: fullText.slice(0, 500),
   };
 }

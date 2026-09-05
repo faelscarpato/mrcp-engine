@@ -3,7 +3,7 @@ import {
   extractParamsFromSource,
   extractParamsFromBlock,
   buildTypeScriptSdkSnippet,
-  sanitizeMethodName
+  sanitizeMethodName,
 } from "./api-sdk-builder.js";
 
 export interface ApiParameter {
@@ -17,7 +17,14 @@ export interface ApiParameter {
 export interface ApiRouteDefinition {
   path: string;
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS" | "HEAD";
-  framework: "Next.js" | "Express" | "Fastify" | "Hono" | "FastAPI" | "Flask" | "Generic";
+  framework:
+    | "Next.js"
+    | "Express"
+    | "Fastify"
+    | "Hono"
+    | "FastAPI"
+    | "Flask"
+    | "Generic";
   sourceFile: string;
   handlerName?: string;
   parameters: ApiParameter[];
@@ -44,7 +51,9 @@ export interface ApiContractResult {
   message?: string;
 }
 
-export async function generateApiContract(options: ApiContractOptions): Promise<ApiContractResult> {
+export async function generateApiContract(
+  options: ApiContractOptions,
+): Promise<ApiContractResult> {
   const { repoUrl } = options;
 
   // Search for potential route files
@@ -79,7 +88,10 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
     const content = file.content;
 
     // 1. Next.js App Router (app/**/route.ts)
-    if (filePath.includes("app/") && (filePath.endsWith("route.ts") || filePath.endsWith("route.js"))) {
+    if (
+      filePath.includes("app/") &&
+      (filePath.endsWith("route.ts") || filePath.endsWith("route.js"))
+    ) {
       detectedFrameworks.add("Next.js App Router");
       let routePath = filePath
         .replace(/^.*app\//, "/")
@@ -88,9 +100,18 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
       if (!routePath.startsWith("/")) routePath = "/" + routePath;
       if (routePath === "") routePath = "/";
 
-      const methods: Array<"GET" | "POST" | "PUT" | "DELETE" | "PATCH"> = ["GET", "POST", "PUT", "DELETE", "PATCH"];
+      const methods: Array<"GET" | "POST" | "PUT" | "DELETE" | "PATCH"> = [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+      ];
       for (const m of methods) {
-        const methodRegex = new RegExp(`export\\s+(async\\s+)?function\\s+${m}\\b|export\\s+const\\s+${m}\\s*=`, "g");
+        const methodRegex = new RegExp(
+          `export\\s+(async\\s+)?function\\s+${m}\\b|export\\s+const\\s+${m}\\s*=`,
+          "g",
+        );
         if (methodRegex.test(content)) {
           const params = extractParamsFromSource(content, routePath);
           routes.push({
@@ -100,21 +121,31 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
             sourceFile: filePath,
             handlerName: m,
             parameters: params,
-            summary: `${m} handler for ${routePath}`
+            summary: `${m} handler for ${routePath}`,
           });
         }
       }
     }
 
     // 2. Next.js Pages Router (pages/api/** or api/**)
-    else if (filePath.includes("pages/api/") || (filePath.startsWith("api/") && !filePath.includes("/route."))) {
+    else if (
+      filePath.includes("pages/api/") ||
+      (filePath.startsWith("api/") && !filePath.includes("/route."))
+    ) {
       detectedFrameworks.add("Next.js Pages / Vercel Functions");
-      let routePath = "/" + filePath.replace(/\.(ts|js|mjs)$/, "").replace(/\[(\w+)\]/g, "{$1}");
-      if (routePath.endsWith("/index")) routePath = routePath.replace(/\/index$/, "") || "/";
+      let routePath =
+        "/" +
+        filePath.replace(/\.(ts|js|mjs)$/, "").replace(/\[(\w+)\]/g, "{$1}");
+      if (routePath.endsWith("/index"))
+        routePath = routePath.replace(/\/index$/, "") || "/";
 
       // Check if it's the consolidated index router or the new routes dictionary
-      const normalizedPath = filePath.replace(/\\/g, '/');
-      if (normalizedPath.endsWith("api/index.ts") || normalizedPath.endsWith("api/index.js") || normalizedPath.endsWith("api/routes.ts")) {
+      const normalizedPath = filePath.replace(/\\/g, "/");
+      if (
+        normalizedPath.endsWith("api/index.ts") ||
+        normalizedPath.endsWith("api/index.js") ||
+        normalizedPath.endsWith("api/routes.ts")
+      ) {
         // Fallback para index legado
         const subRouteRegex = /urlPath\s*===?\s*["']([^"']+)["']/g;
         // Nova versão dicionário routes.ts
@@ -128,7 +159,9 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
           if (foundRoutes.has(subPath)) continue;
           foundRoutes.add(subPath);
 
-          const hasPost = content.slice(match.index, match.index + 500).includes("req.body");
+          const hasPost = content
+            .slice(match.index, match.index + 500)
+            .includes("req.body");
           const method = hasPost ? "POST" : "GET";
           routes.push({
             path: subPath,
@@ -136,8 +169,11 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
             framework: "Next.js",
             sourceFile: filePath,
             handlerName: subPath.replace(/^\/api\//, ""),
-            parameters: extractParamsFromBlock(content.slice(match.index, match.index + 800), subPath),
-            summary: `Consolidated API endpoint for ${subPath}`
+            parameters: extractParamsFromBlock(
+              content.slice(match.index, match.index + 800),
+              subPath,
+            ),
+            summary: `Consolidated API endpoint for ${subPath}`,
           });
         }
 
@@ -146,7 +182,9 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
           if (foundRoutes.has(subPath)) continue;
           foundRoutes.add(subPath);
 
-          const hasPost = content.slice(match.index, match.index + 500).includes("req.body");
+          const hasPost = content
+            .slice(match.index, match.index + 500)
+            .includes("req.body");
           const method = hasPost ? "POST" : "GET";
           routes.push({
             path: subPath,
@@ -154,12 +192,16 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
             framework: "Next.js",
             sourceFile: filePath,
             handlerName: subPath.replace(/^\/api\//, ""),
-            parameters: extractParamsFromBlock(content.slice(match.index, match.index + 800), subPath),
-            summary: `Dictionary API endpoint for ${subPath}`
+            parameters: extractParamsFromBlock(
+              content.slice(match.index, match.index + 800),
+              subPath,
+            ),
+            summary: `Dictionary API endpoint for ${subPath}`,
           });
         }
       } else {
-        const hasReqMethodCheck = /req\.method\s*===?\s*["'](GET|POST|PUT|DELETE|PATCH)["']/gi;
+        const hasReqMethodCheck =
+          /req\.method\s*===?\s*["'](GET|POST|PUT|DELETE|PATCH)["']/gi;
         let match;
         let foundAny = false;
         while ((match = hasReqMethodCheck.exec(content)) !== null) {
@@ -172,7 +214,7 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
             sourceFile: filePath,
             handlerName: "handler",
             parameters: extractParamsFromSource(content, routePath),
-            summary: `Handler for ${routePath}`
+            summary: `Handler for ${routePath}`,
           });
         }
         if (!foundAny) {
@@ -183,17 +225,22 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
             sourceFile: filePath,
             handlerName: "default",
             parameters: extractParamsFromSource(content, routePath),
-            summary: `Default handler for ${routePath}`
+            summary: `Default handler for ${routePath}`,
           });
         }
       }
     }
 
     // 3. Express / Fastify / Hono (app.get, router.post, fastify.get, hono.get)
-    const expressRegex = /(?:app|router|fastify|server)\.(get|post|put|delete|patch)\s*\(\s*["']([^"']+)["']/gi;
+    const expressRegex =
+      /(?:app|router|fastify|server)\.(get|post|put|delete|patch)\s*\(\s*["']([^"']+)["']/gi;
     let expMatch;
     while ((expMatch = expressRegex.exec(content)) !== null) {
-      const frameworkName = content.includes("fastify") ? "Fastify" : content.includes("hono") ? "Hono" : "Express";
+      const frameworkName = content.includes("fastify")
+        ? "Fastify"
+        : content.includes("hono")
+          ? "Hono"
+          : "Express";
       detectedFrameworks.add(frameworkName);
       const method = expMatch[1].toUpperCase() as any;
       let expPath = expMatch[2];
@@ -205,14 +252,18 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
         method,
         framework: frameworkName,
         sourceFile: filePath,
-        parameters: extractParamsFromSource(content.slice(expMatch.index, expMatch.index + 1000), normalizedPath),
-        summary: `${method} endpoint on ${normalizedPath}`
+        parameters: extractParamsFromSource(
+          content.slice(expMatch.index, expMatch.index + 1000),
+          normalizedPath,
+        ),
+        summary: `${method} endpoint on ${normalizedPath}`,
       });
     }
 
     // 4. FastAPI / Flask in Python
     if (filePath.endsWith(".py")) {
-      const fastApiRegex = /@(app|router)\.(get|post|put|delete|patch)\s*\(\s*["']([^"']+)["']/gi;
+      const fastApiRegex =
+        /@(app|router)\.(get|post|put|delete|patch)\s*\(\s*["']([^"']+)["']/gi;
       let pyMatch;
       while ((pyMatch = fastApiRegex.exec(content)) !== null) {
         detectedFrameworks.add("FastAPI");
@@ -223,26 +274,35 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
           method,
           framework: "FastAPI",
           sourceFile: filePath,
-          parameters: extractParamsFromSource(content.slice(pyMatch.index, pyMatch.index + 800), pyPath),
-          summary: `FastAPI route on ${pyPath}`
+          parameters: extractParamsFromSource(
+            content.slice(pyMatch.index, pyMatch.index + 800),
+            pyPath,
+          ),
+          summary: `FastAPI route on ${pyPath}`,
         });
       }
 
-      const flaskRegex = /@app\.route\s*\(\s*["']([^"']+)["'](?:,\s*methods\s*=\s*\[([^\]]+)\])?/gi;
+      const flaskRegex =
+        /@app\.route\s*\(\s*["']([^"']+)["'](?:,\s*methods\s*=\s*\[([^\]]+)\])?/gi;
       let flaskMatch;
       while ((flaskMatch = flaskRegex.exec(content)) !== null) {
         detectedFrameworks.add("Flask");
         const fPath = flaskMatch[1];
         const methodsStr = flaskMatch[2] || '"GET"';
-        const methods = methodsStr.match(/"(\w+)"|'(\w+)'/g)?.map((m) => m.replace(/["']/g, "").toUpperCase()) || ["GET"];
+        const methods = methodsStr
+          .match(/"(\w+)"|'(\w+)'/g)
+          ?.map((m) => m.replace(/["']/g, "").toUpperCase()) || ["GET"];
         for (const m of methods) {
           routes.push({
             path: fPath.replace(/<(?:\w+:)?(\w+)>/g, "{$1}"),
             method: m as any,
             framework: "Flask",
             sourceFile: filePath,
-            parameters: extractParamsFromSource(content.slice(flaskMatch.index, flaskMatch.index + 800), fPath),
-            summary: `Flask endpoint for ${fPath}`
+            parameters: extractParamsFromSource(
+              content.slice(flaskMatch.index, flaskMatch.index + 800),
+              fPath,
+            ),
+            summary: `Flask endpoint for ${fPath}`,
           });
         }
       }
@@ -268,9 +328,9 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
     info: {
       title: "MRCP Auto-Generated API Contract",
       version: "1.0.0",
-      description: `Automated API schema extracted deterministically from ${uniqueRoutes.length} codebase routes without LLM hallucinations.`
+      description: `Automated API schema extracted deterministically from ${uniqueRoutes.length} codebase routes without LLM hallucinations.`,
     },
-    paths: {}
+    paths: {},
   };
 
   for (const r of uniqueRoutes) {
@@ -283,18 +343,18 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
         name: p.name,
         in: p.in,
         required: p.required,
-        schema: { type: p.type || "string" }
+        schema: { type: p.type || "string" },
       })),
       responses: {
         "200": {
           description: "Successful operation",
           content: {
             "application/json": {
-              schema: { type: "object" }
-            }
-          }
-        }
-      }
+              schema: { type: "object" },
+            },
+          },
+        },
+      },
     };
     openapiSpec.paths[r.path][r.method.toLowerCase()] = operationObj;
   }
@@ -312,8 +372,13 @@ export async function generateApiContract(options: ApiContractOptions): Promise<
     isApplicable,
     message: isApplicable
       ? `Identificadas ${uniqueRoutes.length} rotas de API em ${detectedFrameworks.size > 0 ? Array.from(detectedFrameworks).join(", ") : "código"}. Contrato OpenAPI 3.0 e SDK TypeScript gerados com sucesso.`
-      : "Nenhuma rota ou framework de API (Next.js, Express, Fastify, Hono, FastAPI, Flask) foi detectada no repositório."
+      : "Nenhuma rota ou framework de API (Next.js, Express, Fastify, Hono, FastAPI, Flask) foi detectada no repositório.",
   };
 }
 
-export { buildTypeScriptSdkSnippet, extractParamsFromSource, extractParamsFromBlock, sanitizeMethodName } from "./api-sdk-builder.js";
+export {
+  buildTypeScriptSdkSnippet,
+  extractParamsFromSource,
+  extractParamsFromBlock,
+  sanitizeMethodName,
+} from "./api-sdk-builder.js";

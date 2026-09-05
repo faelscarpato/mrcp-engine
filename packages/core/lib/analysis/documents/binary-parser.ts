@@ -7,18 +7,25 @@ import {
   TabularSummary,
   TabularColumn,
   DocumentQualityIssue,
-  classifyCategory
+  classifyCategory,
 } from "./types.js";
 import { extractZipEntries } from "./zip-extractor.js";
 
 // 1. Plain Text / Notes / Logs Parser
-export function parsePlainText(content: string, filePath: string): ParsedDocument {
+export function parsePlainText(
+  content: string,
+  filePath: string,
+): ParsedDocument {
   const lines = content.split(/\r?\n/);
   const sections: DocumentSection[] = [];
   const qualityIssues: DocumentQualityIssue[] = [];
   const keyTermsSet = new Set<string>();
 
-  const isLog = filePath.endsWith(".log") || content.includes("[INFO]") || content.includes("[ERROR]") || content.includes("[WARN]");
+  const isLog =
+    filePath.endsWith(".log") ||
+    content.includes("[INFO]") ||
+    content.includes("[ERROR]") ||
+    content.includes("[WARN]");
 
   let logSummary: ParsedDocument["logSummary"] = undefined;
   if (isLog) {
@@ -34,10 +41,10 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
       }
     }
     logSummary = {
-      totalEntries: lines.filter(l => l.trim().length > 0).length,
+      totalEntries: lines.filter((l) => l.trim().length > 0).length,
       errorCount,
       warningCount,
-      topErrors
+      topErrors,
     };
   }
 
@@ -47,7 +54,7 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
     line: 1,
     characterCount: 0,
     wordCount: 0,
-    hasContent: false
+    hasContent: false,
   };
   sections.push(currentSection);
 
@@ -56,28 +63,36 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
     const trimmed = line.trim();
 
     const nextLine = lines[i + 1]?.trim() || "";
-    if (trimmed.length > 3 && (nextLine.startsWith("===") || nextLine.startsWith("---"))) {
+    if (
+      trimmed.length > 3 &&
+      (nextLine.startsWith("===") || nextLine.startsWith("---"))
+    ) {
       currentSection = {
         level: nextLine.startsWith("===") ? 1 : 2,
         title: trimmed,
         line: i + 1,
         characterCount: 0,
         wordCount: 0,
-        hasContent: true
+        hasContent: true,
       };
       sections.push(currentSection);
       i++;
       continue;
     }
 
-    if (trimmed.length > 4 && trimmed.length < 60 && trimmed === trimmed.toUpperCase() && /^[A-Z0-9\s:_-]+$/.test(trimmed)) {
+    if (
+      trimmed.length > 4 &&
+      trimmed.length < 60 &&
+      trimmed === trimmed.toUpperCase() &&
+      /^[A-Z0-9\s:_-]+$/.test(trimmed)
+    ) {
       currentSection = {
         level: 2,
         title: trimmed,
         line: i + 1,
         characterCount: 0,
         wordCount: 0,
-        hasContent: true
+        hasContent: true,
       };
       sections.push(currentSection);
       continue;
@@ -94,7 +109,7 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
         severity: "INFO",
         type: "PLACEHOLDER_TEXT",
         line: i + 1,
-        description: `Pendência textual encontrada: '${ph[1]}'`
+        description: `Pendência textual encontrada: '${ph[1]}'`,
       });
     }
 
@@ -130,12 +145,15 @@ export function parsePlainText(content: string, filePath: string): ParsedDocumen
     logSummary,
     qualityScore: Math.max(20, Math.min(100, score)),
     qualityIssues,
-    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " ")
+    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " "),
   };
 }
 
 // 2. Structured Data Parser (JSON / YAML / XML)
-export function parseStructuredData(content: string, filePath: string): ParsedDocument {
+export function parseStructuredData(
+  content: string,
+  filePath: string,
+): ParsedDocument {
   const isJson = filePath.endsWith(".json") || filePath.endsWith(".jsonl");
   const isYaml = filePath.endsWith(".yaml") || filePath.endsWith(".yml");
   const isXml = filePath.endsWith(".xml");
@@ -157,18 +175,22 @@ export function parseStructuredData(content: string, filePath: string): ParsedDo
           title: `Chaves Raiz (${keys.length})`,
           characterCount: content.length,
           wordCount: keys.length,
-          hasContent: true
+          hasContent: true,
         });
 
-        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "object") {
+        if (
+          Array.isArray(parsed) &&
+          parsed.length > 0 &&
+          typeof parsed[0] === "object"
+        ) {
           const itemKeys = Object.keys(parsed[0]);
-          const cols: TabularColumn[] = itemKeys.map(k => ({
+          const cols: TabularColumn[] = itemKeys.map((k) => ({
             name: k,
             inferredType: typeof parsed[0][k] === "number" ? "DECIMAL" : "TEXT",
             nullCount: 0,
             nullPercentage: 0,
             uniqueCount: parsed.length,
-            sampleValues: parsed.slice(0, 5).map(it => it[k])
+            sampleValues: parsed.slice(0, 5).map((it) => it[k]),
           }));
           tables.push({
             tableName: path.basename(filePath),
@@ -176,7 +198,7 @@ export function parseStructuredData(content: string, filePath: string): ParsedDo
             totalRows: parsed.length,
             totalColumns: itemKeys.length,
             columns: cols,
-            previewRows: parsed.slice(0, 5).map(it => Object.values(it))
+            previewRows: parsed.slice(0, 5).map((it) => Object.values(it)),
           });
         }
       }
@@ -200,7 +222,7 @@ export function parseStructuredData(content: string, filePath: string): ParsedDo
     keyTerms,
     qualityScore: 95,
     qualityIssues: [],
-    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " ")
+    rawTextSnippet: content.slice(0, 500).replace(/[\r\n]+/g, " "),
   };
 }
 

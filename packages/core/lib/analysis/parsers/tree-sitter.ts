@@ -5,10 +5,16 @@ import {
   EXTENSION_TO_LANGUAGE_MAP,
   initTreeSitter,
   getParser,
-  loadLanguage
+  loadLanguage,
 } from "./tree-sitter-loader.js";
-import { CallExpression, extractCallsWithTreeSitter } from "./tree-sitter-calls.js";
-import { TreeSitterImportResult, extractImportsWithTreeSitter } from "./tree-sitter-imports.js";
+import {
+  CallExpression,
+  extractCallsWithTreeSitter,
+} from "./tree-sitter-calls.js";
+import {
+  TreeSitterImportResult,
+  extractImportsWithTreeSitter,
+} from "./tree-sitter-imports.js";
 
 // Re-export everything for seamless backward compatibility
 export * from "./tree-sitter-loader.js";
@@ -61,7 +67,11 @@ const FUNCTION_NODE_TYPES: Record<string, string[]> = {
   cds: ["view_entity_definition", "view_definition"],
   sap_cds: ["view_entity_definition", "view_definition"],
   abap: ["method_implementation", "method_definition_item", "report_statement"],
-  sap_abap: ["method_implementation", "method_definition_item", "report_statement"],
+  sap_abap: [
+    "method_implementation",
+    "method_definition_item",
+    "report_statement",
+  ],
   plsql: [
     "package_definition",
     "package_body_definition",
@@ -80,14 +90,20 @@ const FUNCTION_NODE_TYPES: Record<string, string[]> = {
   ],
 };
 
-function getField(node: TreeSitterNode, fieldName: string): TreeSitterNode | null {
+function getField(
+  node: TreeSitterNode,
+  fieldName: string,
+): TreeSitterNode | null {
   if (typeof node.field === "function") {
     return node.field(fieldName);
   }
   return null;
 }
 
-function extractFunctionName(node: TreeSitterNode, parent?: TreeSitterNode): string {
+function extractFunctionName(
+  node: TreeSitterNode,
+  parent?: TreeSitterNode,
+): string {
   const nameField = getField(node, "name");
   if (nameField) return nameField.text;
 
@@ -174,7 +190,16 @@ function extractFunctions(
   }
 
   for (const child of node.namedChildren ?? []) {
-    functions.push(...extractFunctions(child, content, functionTypes, filePath, language, node));
+    functions.push(
+      ...extractFunctions(
+        child,
+        content,
+        functionTypes,
+        filePath,
+        language,
+        node,
+      ),
+    );
   }
 
   return functions;
@@ -186,7 +211,8 @@ export async function extractFunctionsWithTreeSitter(
   language: string,
 ): Promise<TreeSitterParseResult> {
   const ext = path.split(".").pop()?.toLowerCase() ?? language.toLowerCase();
-  const treeSitterLang = EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
+  const treeSitterLang =
+    EXTENSION_TO_LANGUAGE_MAP[ext] || language.toLowerCase();
   const functionTypes = FUNCTION_NODE_TYPES[treeSitterLang];
 
   if (!functionTypes || functionTypes.length === 0) {
@@ -211,7 +237,13 @@ export async function extractFunctionsWithTreeSitter(
       return { functions: [] };
     }
 
-    const functions = extractFunctions(tree.rootNode, content, functionTypes, path, treeSitterLang);
+    const functions = extractFunctions(
+      tree.rootNode,
+      content,
+      functionTypes,
+      path,
+      treeSitterLang,
+    );
     return { functions };
   } catch (error) {
     console.error(`Failed to parse ${path} with Tree-sitter:`, error);

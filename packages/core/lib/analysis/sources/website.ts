@@ -1,55 +1,84 @@
-import type { AnalysisSource, AnalysisContext, PartialAnalysis, ProgressEvent } from "../types.js";
+import type {
+  AnalysisSource,
+  AnalysisContext,
+  PartialAnalysis,
+  ProgressEvent,
+} from "../types.js";
 import { buildGraph, type FileEntry } from "../graph-builder.js";
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer";
 
 export const websiteSource: AnalysisSource = {
   id: "website",
   canRun(ctx: AnalysisContext): boolean {
     return ctx.targetType === "website";
   },
-  async run(ctx: AnalysisContext, onProgress: (p: ProgressEvent) => void): Promise<PartialAnalysis> {
-    onProgress({ pct: 10, label: "Fetching website content", sourceId: "website" });
-    
+  async run(
+    ctx: AnalysisContext,
+    onProgress: (p: ProgressEvent) => void,
+  ): Promise<PartialAnalysis> {
+    onProgress({
+      pct: 10,
+      label: "Fetching website content",
+      sourceId: "website",
+    });
+
     try {
       let html = "";
       try {
-        const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+        const browser = await puppeteer.launch({
+          headless: true,
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        });
         const page = await browser.newPage();
-        await page.goto(ctx.repoUrl, { waitUntil: 'networkidle2' });
-        
+        await page.goto(ctx.repoUrl, { waitUntil: "networkidle2" });
+
         // Remove lixo cognitivo: scripts, styles e SVGs pesados
         await page.evaluate(() => {
-          document.querySelectorAll('script, style, svg, iframe, noscript').forEach(el => el.remove());
+          document
+            .querySelectorAll("script, style, svg, iframe, noscript")
+            .forEach((el) => el.remove());
         });
-        
+
         html = await page.content();
         await browser.close();
       } catch (puppeteerError) {
-        console.warn("[Website Source] Puppeteer falhou. Fazendo fallback para fetch padrão.", puppeteerError);
+        console.warn(
+          "[Website Source] Puppeteer falhou. Fazendo fallback para fetch padrão.",
+          puppeteerError,
+        );
         const response = await fetch(ctx.repoUrl);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         html = await response.text();
       }
-      
-      onProgress({ pct: 50, label: "Parsing HTML structure", sourceId: "website" });
-      
+
+      onProgress({
+        pct: 50,
+        label: "Parsing HTML structure",
+        sourceId: "website",
+      });
+
       const files: FileEntry[] = [
         {
           path: "index.html",
           content: html,
-          size: html.length
-        }
+          size: html.length,
+        },
       ];
 
       // 1-Level Spider: Extract JS and CSS links to map architecture
       const { extractImports } = await import("../parsers/imports.js");
       const imports = extractImports("index.html", html);
       const uniqueUrls = new Set<string>();
-      
+
       for (const imp of imports) {
-        if (imp.raw.endsWith(".js") || imp.raw.endsWith(".css") || imp.raw.endsWith(".jsx") || imp.raw.endsWith(".ts")) {
+        if (
+          imp.raw.endsWith(".js") ||
+          imp.raw.endsWith(".css") ||
+          imp.raw.endsWith(".jsx") ||
+          imp.raw.endsWith(".ts")
+        ) {
           try {
             const url = new URL(imp.raw, ctx.repoUrl).href;
             uniqueUrls.add(url);
@@ -60,7 +89,11 @@ export const websiteSource: AnalysisSource = {
       }
 
       if (uniqueUrls.size > 0) {
-        onProgress({ pct: 60, label: `Spidering ${uniqueUrls.size} assets`, sourceId: "website" });
+        onProgress({
+          pct: 60,
+          label: `Spidering ${uniqueUrls.size} assets`,
+          sourceId: "website",
+        });
         const fetchPromises = Array.from(uniqueUrls).map(async (url) => {
           try {
             const res = await fetch(url);
@@ -68,11 +101,13 @@ export const websiteSource: AnalysisSource = {
               const content = await res.text();
               const urlObj = new URL(url);
               // Clean the path to look like a normal file in the graph
-              const path = urlObj.pathname.startsWith("/") ? urlObj.pathname.slice(1) : urlObj.pathname;
+              const path = urlObj.pathname.startsWith("/")
+                ? urlObj.pathname.slice(1)
+                : urlObj.pathname;
               return {
                 path: path || "unknown",
                 content,
-                size: content.length
+                size: content.length,
               };
             }
           } catch {
@@ -81,18 +116,26 @@ export const websiteSource: AnalysisSource = {
           return null;
         });
 
-        const fetchedFiles = (await Promise.all(fetchPromises)).filter((f) => f !== null) as FileEntry[];
+        const fetchedFiles = (await Promise.all(fetchPromises)).filter(
+          (f) => f !== null,
+        ) as FileEntry[];
         files.push(...fetchedFiles);
       }
 
-      onProgress({ pct: 88, label: "Building HTML graph", sourceId: "website" });
+      onProgress({
+        pct: 88,
+        label: "Building HTML graph",
+        sourceId: "website",
+      });
       const partial = await buildGraph(files);
       partial.quality = "full";
-      
+
       onProgress({ pct: 100, label: "Analysis complete", sourceId: "website" });
       return partial;
     } catch (e) {
-      throw new Error(`Failed to parse website: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(
+        `Failed to parse website: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   },
 };

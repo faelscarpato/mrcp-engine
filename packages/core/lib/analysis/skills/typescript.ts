@@ -1,9 +1,9 @@
-import type { LanguageSkill } from './types.js';
+import type { LanguageSkill } from "./types.js";
 
 export const typescriptSkill: LanguageSkill = {
-  name: 'Enterprise_TS_Modularization_Skill',
-  language: 'TypeScript',
-  aliases: ['JavaScript', 'TSX', 'JSX'],
+  name: "Enterprise_TS_Modularization_Skill",
+  language: "TypeScript",
+  aliases: ["JavaScript", "TSX", "JSX"],
   thresholds: {
     complexityWarning: 50,
     complexityCritical: 100,
@@ -29,5 +29,11 @@ export const typescriptSkill: LanguageSkill = {
       "Extraia constantes mágicas, elimine code paths duplicados e substitua switches por mapas de estratégia.",
     ],
   },
-  protectedPatterns: ['export default', 'export function', 'export const', 'export type', 'export interface'],
+  protectedPatterns: [
+    "export default",
+    "export function",
+    "export const",
+    "export type",
+    "export interface",
+  ],
 };

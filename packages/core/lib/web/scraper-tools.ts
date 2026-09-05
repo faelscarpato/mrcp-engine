@@ -32,9 +32,42 @@ export interface SmartSearchResult {
 
 // --- Helpers e Stopwords ---
 const STOPWORDS = new Set([
-  "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das",
-  "em", "no", "na", "nos", "nas", "por", "para", "com", "sem", "que", "como", "e", "ou",
-  "mas", "se", "ate", "sobre", "ao", "aos", "qual", "quais", "onde", "quando"
+  "o",
+  "a",
+  "os",
+  "as",
+  "um",
+  "uma",
+  "uns",
+  "umas",
+  "de",
+  "do",
+  "da",
+  "dos",
+  "das",
+  "em",
+  "no",
+  "na",
+  "nos",
+  "nas",
+  "por",
+  "para",
+  "com",
+  "sem",
+  "que",
+  "como",
+  "e",
+  "ou",
+  "mas",
+  "se",
+  "ate",
+  "sobre",
+  "ao",
+  "aos",
+  "qual",
+  "quais",
+  "onde",
+  "quando",
 ]);
 
 function normalizeText(text: string): string {
@@ -53,18 +86,22 @@ function extractKeywords(query: string): string[] {
 }
 
 const FETCH_HEADERS = {
-  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-  "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7"
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
 };
 
 // --- Ferramenta 1: Busca Simples (DuckDuckGo) ---
 export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
   try {
-    const res = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
-      headers: FETCH_HEADERS,
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
+      {
+        headers: FETCH_HEADERS,
+        cache: "no-store",
+      },
+    );
 
     if (!res.ok) throw new Error(`Falha HTTP: ${res.status}`);
 
@@ -83,7 +120,9 @@ export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
         try {
           const urlObj = new URL(`https:${url}`);
           url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
-        } catch { /* ignora erro de parse */ }
+        } catch {
+          /* ignora erro de parse */
+        }
       }
 
       if (title && url) {
@@ -108,11 +147,13 @@ export async function scrapeUrl(url: string): Promise<ScrapedPage> {
     const $ = cheerio.load(html);
 
     // Remove a poluição da DOM para economizar tokens
-    $("script, style, nav, footer, header, aside, iframe, noscript, svg, form, button").remove();
+    $(
+      "script, style, nav, footer, header, aside, iframe, noscript, svg, form, button",
+    ).remove();
 
     const title = $("title").text().trim() || url;
     const headings: string[] = [];
-    
+
     $("h1, h2, h3").each((_, el) => {
       const hText = $(el).text().trim();
       if (hText) headings.push(hText);
@@ -129,55 +170,82 @@ export async function scrapeUrl(url: string): Promise<ScrapedPage> {
     };
   } catch (error) {
     console.error(`Erro ao raspar ${url}:`, error);
-    return { title: "Erro", headings: [], wordCount: 0, text: "Falha na extração." };
+    return {
+      title: "Erro",
+      headings: [],
+      wordCount: 0,
+      text: "Falha na extração.",
+    };
   }
 }
 
 // --- Ferramenta 3: Rankeador ---
 function rankResults(query: string, results: SearchResult[]): RankedResult[] {
   const keywords = extractKeywords(query);
-  if (keywords.length === 0) return results.map(r => ({ ...r, score: 0, coverage: 0, matched: [], missing: [] }));
+  if (keywords.length === 0)
+    return results.map((r) => ({
+      ...r,
+      score: 0,
+      coverage: 0,
+      matched: [],
+      missing: [],
+    }));
 
   const normalizedQuery = normalizeText(query);
 
-  return results.map((result, index) => {
-    let score = 0;
-    const matched = new Set<string>();
-    const normTitle = normalizeText(result.title);
-    const normUrl = normalizeText(result.url);
-    const normSnippet = normalizeText(result.snippet);
+  return results
+    .map((result, index) => {
+      let score = 0;
+      const matched = new Set<string>();
+      const normTitle = normalizeText(result.title);
+      const normUrl = normalizeText(result.url);
+      const normSnippet = normalizeText(result.snippet);
 
-    keywords.forEach((kw) => {
-      let kwScore = 0;
-      if (normTitle.includes(kw)) { kwScore += 3; matched.add(kw); }
-      if (normUrl.includes(kw)) { kwScore += 2; matched.add(kw); }
-      if (normSnippet.includes(kw)) { kwScore += 1; matched.add(kw); }
-      score += kwScore;
-    });
+      keywords.forEach((kw) => {
+        let kwScore = 0;
+        if (normTitle.includes(kw)) {
+          kwScore += 3;
+          matched.add(kw);
+        }
+        if (normUrl.includes(kw)) {
+          kwScore += 2;
+          matched.add(kw);
+        }
+        if (normSnippet.includes(kw)) {
+          kwScore += 1;
+          matched.add(kw);
+        }
+        score += kwScore;
+      });
 
-    if (normTitle.includes(normalizedQuery)) score += 5;
-    if (normSnippet.includes(normalizedQuery)) score += 3;
+      if (normTitle.includes(normalizedQuery)) score += 5;
+      if (normSnippet.includes(normalizedQuery)) score += 3;
 
-    score -= (index * 0.1); // Penalidade leve por estar mais abaixo na busca original
+      score -= index * 0.1; // Penalidade leve por estar mais abaixo na busca original
 
-    const missing = keywords.filter(kw => !matched.has(kw));
-    return {
-      ...result,
-      score: Number(Math.max(0, score).toFixed(2)),
-      coverage: Number((matched.size / keywords.length).toFixed(2)),
-      matched: Array.from(matched),
-      missing
-    };
-  }).sort((a, b) => b.score - a.score);
+      const missing = keywords.filter((kw) => !matched.has(kw));
+      return {
+        ...result,
+        score: Number(Math.max(0, score).toFixed(2)),
+        coverage: Number((matched.size / keywords.length).toFixed(2)),
+        matched: Array.from(matched),
+        missing,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
 }
 
 // --- Ferramenta 4: Pipeline Completo (Orquestrador) ---
-export async function smartSearchPipeline(query: string, topN: number = 2, minScore: number = 0): Promise<SmartSearchResult> {
+export async function smartSearchPipeline(
+  query: string,
+  topN: number = 2,
+  minScore: number = 0,
+): Promise<SmartSearchResult> {
   const rawResults = await searchDuckDuckGo(query);
   const keywords = extractKeywords(query);
   const ranked = rankResults(query, rawResults);
 
-  const bestResults = ranked.filter(r => r.score >= minScore).slice(0, topN);
+  const bestResults = ranked.filter((r) => r.score >= minScore).slice(0, topN);
 
   const scrapedPromises = bestResults.map(async (res) => {
     const page = await scrapeUrl(res.url);
