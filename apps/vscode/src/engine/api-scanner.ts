@@ -18,7 +18,7 @@ export function extractApiRoutes(
         const line = lines[i];
         const lineNum = i + 1;
 
-        const match = line.match(/['"](\/api\/[a-zA-Z0-9_\-\/]+)['"]\s*:/);
+        const match = line.match(/['"](\/api\/[a-zA-Z0-9_\-/]+)['"]\s*:/);
         if (match) {
           const canonical = match[1];
           const isAlias = line.includes("routeHandlers[");
@@ -27,7 +27,7 @@ export function extractApiRoutes(
           const aliases: string[] = [];
           for (let j = i + 1; j < Math.min(lines.length, i + 8); j++) {
             const aMatch = lines[j].match(
-              /['"](\/api\/[a-zA-Z0-9_\-\/]+)['"]\s*:\s*.*routeHandlers\[['"]([^'"]+)['"]\]/,
+              /['"](\/api\/[a-zA-Z0-9_\-/]+)['"]\s*:\s*.*routeHandlers\[['"]([^'"]+)['"]\]/,
             );
             if (aMatch && aMatch[2] === canonical) {
               aliases.push(aMatch[1]);
@@ -49,7 +49,9 @@ export function extractApiRoutes(
           }
         }
       }
-    } catch {}
+    } catch {
+      // api/routes.ts pode não estar presente ou conter erros de parsing
+    }
   }
 
   // 1.1 Legacy Analyze api/index.ts (Fallback if dictionary not used)
@@ -64,7 +66,7 @@ export function extractApiRoutes(
         const lineNum = i + 1;
 
         const conditionMatches = Array.from(
-          line.matchAll(/urlPath\s*===?\s*['"](\/api\/[a-zA-Z0-9_\-\/]+)['"]/g),
+          line.matchAll(/urlPath\s*===?\s*['"](\/api\/[a-zA-Z0-9_\-/]+)['"]/g),
         ).map((m) => m[1]);
         if (conditionMatches.length > 0) {
           const canonical = conditionMatches[0];
@@ -84,7 +86,9 @@ export function extractApiRoutes(
           }
         }
       }
-    } catch {}
+    } catch {
+      // api/index.ts legado pode estar ausente ou conter erros de parsing
+    }
   }
 
   // 2. Scan api/mcp.ts explicitly

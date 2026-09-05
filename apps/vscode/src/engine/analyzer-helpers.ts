@@ -52,7 +52,9 @@ export async function scanDir(
         result.push(fullPath);
       }
     }
-  } catch {}
+  } catch {
+    // Diretório pode falhar ao ser lido (permissoes ou remoção concorrente)
+  }
 }
 
 export function processDocumentFiles(
@@ -86,7 +88,9 @@ export function processDocumentFiles(
         wordCount,
         qualityScore: quality,
       });
-    } catch {}
+    } catch {
+      // Arquivo pode ser removido ou não ser legível no momento da leitura
+    }
   }
   return docItems;
 }

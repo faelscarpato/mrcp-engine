@@ -33,7 +33,9 @@ export function detectDuplicateModules(
           });
         }
       }
-    } catch {}
+    } catch {
+      // Diretório de análise pode estar ausente ou conter permissões restritas
+    }
   }
 
   return duplicates;

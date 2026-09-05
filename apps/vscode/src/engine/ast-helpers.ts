@@ -76,7 +76,7 @@ export const SECRET_RULES = [
   },
   {
     rule: "Dangerous Eval",
-    regex: /(?<![\/\*a-zA-Z0-9_])eval\s*\([^)]+\)/,
+    regex: /(?<![/*a-zA-Z0-9_])eval\s*\([^)]+\)/,
     severity: "high" as const,
     msg: "Arbitrary code execution risk with eval().",
   },

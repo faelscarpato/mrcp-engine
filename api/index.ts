@@ -33,11 +33,9 @@ export default async function handler(req: any, res: any) {
     });
   } catch (error: any) {
     console.error(`Erro na rota ${urlPath}:`, error);
-    return res
-      .status(500)
-      .json({
-        status: "error",
-        details: error.message || "Erro interno do servidor.",
-      });
+    return res.status(500).json({
+      status: "error",
+      details: error.message || "Erro interno do servidor.",
+    });
   }
 }

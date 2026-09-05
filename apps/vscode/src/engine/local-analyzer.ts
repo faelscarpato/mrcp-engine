@@ -73,7 +73,9 @@ export async function analyzeWorkspaceLocally(
             definedEnvVars.add(match[1]);
           }
         }
-      } catch {}
+      } catch {
+        // .env pode não ser legível; segue para o próximo candidato
+      }
     }
   }
 
@@ -95,12 +97,16 @@ export async function analyzeWorkspaceLocally(
       testFileMap.add(base.replace(/(\.test|\.spec)/, ""));
       try {
         allTestFilesContent.push(fs.readFileSync(f, "utf8"));
-      } catch {}
+      } catch {
+        // Arquivo de teste pode ter sido removido ou não ser legível
+      }
     }
     if (CODE_EXTENSIONS.has(path.extname(f).toLowerCase())) {
       try {
         fileContentsMap.set(f, fs.readFileSync(f, "utf8"));
-      } catch {}
+      } catch {
+        // Arquivo de código pode ter sido removido ou não ser legível
+      }
     }
   }
   const combinedTestContent = allTestFilesContent.join("\n");
@@ -165,7 +171,9 @@ export async function analyzeWorkspaceLocally(
       totalFunctionComplexity += processed.fnComplexity;
       totalFunctionCount += processed.fnCount;
       analyzedFiles.push(processed.analysis);
-    } catch {}
+    } catch {
+      // Falha pontual em um arquivo não deve interromper a análise completa
+    }
   }
 
   // 2. Extract Complete HTTP Routes & Aliases
@@ -265,7 +273,9 @@ export async function analyzeWorkspaceLocally(
         }
       }
     }
-  } catch {}
+  } catch {
+    // Workspace pode não ser um repositório git completo; mantém "local-dev"
+  }
 
   const provenance: MrcpProvenanceMetadata = {
     generatedAt: new Date().toISOString(),

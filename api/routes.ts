@@ -16,7 +16,9 @@ export const routeHandlers: Record<
     if (fs.existsSync(rootJsonPath)) {
       try {
         analysisData = JSON.parse(fs.readFileSync(rootJsonPath, "utf-8"));
-      } catch {}
+      } catch {
+        // JSON existente pode estar corrompido; reanalisa na sequência
+      }
     }
     if (!analysisData) {
       const { runFullRepositoryDiagnostic } =
