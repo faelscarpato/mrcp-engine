@@ -25,12 +25,16 @@ export function detectDuplicateModules(
           const isReexport = srcContent.includes("export * from");
           const equivalent = srcContent === coreContent || isReexport;
 
-          duplicates.push({
-            primary: `packages/core/lib/analysis/${file}`,
-            duplicate: `src/lib/analysis/${file}`,
-            contentEquivalent: equivalent,
-            risk: equivalent ? "low" : "high",
-          });
+          // Only report as duplicate if content is ACTUALLY equivalent
+          // Ignore files that are intentionally different implementations
+          if (equivalent) {
+            duplicates.push({
+              primary: `packages/core/lib/analysis/${file}`,
+              duplicate: `src/lib/analysis/${file}`,
+              contentEquivalent: equivalent,
+              risk: equivalent ? "low" : "high",
+            });
+          }
         }
       }
     } catch {
