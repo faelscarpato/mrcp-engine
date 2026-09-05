@@ -1,9 +1,9 @@
 ---
 name: Bug report
 about: Something returned wrong data, crashed, or timed out
-title: '[BUG] '
+title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 **Describe the bug**
@@ -13,6 +13,7 @@ A clear, concise description of what went wrong.
 e.g. `mrcp_security_compliance_audit` / `GET /api/security-audit?repo=...`
 
 **How you called it**
+
 - [ ] MCP (via IDE/agent) — which client: <!-- Claude Desktop, Cursor, Windsurf, VS Code, etc. -->
 - [ ] REST API directly (`curl`, HTTP client)
 - [ ] VS Code / Cursor / Windsurf extension
@@ -27,6 +28,7 @@ What you expected the JSON/response to contain.
 What you actually got — paste the raw JSON response or error if possible.
 
 **Environment**
+
 - MRCP Engine version: <!-- `npx mrcp-engine --version` or the npm version installed -->
 - Node.js version:
 - OS:
