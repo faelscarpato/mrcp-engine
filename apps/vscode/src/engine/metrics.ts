@@ -22,13 +22,13 @@ export function detectDuplicateModules(
         if (fs.existsSync(coreFilePath) && fs.statSync(srcFilePath).isFile()) {
           const srcContent = fs.readFileSync(srcFilePath, "utf8");
           const coreContent = fs.readFileSync(coreFilePath, "utf8");
-          
+
           // Re-exports are NOT duplicates - they are intentional references
           const isReexport = srcContent.trim().startsWith("export * from");
           if (isReexport) {
             continue; // Skip re-exports, they're not duplicates
           }
-          
+
           // Only report as duplicate if content is EXACTLY equivalent
           const equivalent = srcContent === coreContent;
 
