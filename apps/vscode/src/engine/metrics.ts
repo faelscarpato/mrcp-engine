@@ -22,17 +22,22 @@ export function detectDuplicateModules(
         if (fs.existsSync(coreFilePath) && fs.statSync(srcFilePath).isFile()) {
           const srcContent = fs.readFileSync(srcFilePath, "utf8");
           const coreContent = fs.readFileSync(coreFilePath, "utf8");
-          const isReexport = srcContent.includes("export * from");
-          const equivalent = srcContent === coreContent || isReexport;
+          
+          // Re-exports are NOT duplicates - they are intentional references
+          const isReexport = srcContent.trim().startsWith("export * from");
+          if (isReexport) {
+            continue; // Skip re-exports, they're not duplicates
+          }
+          
+          // Only report as duplicate if content is EXACTLY equivalent
+          const equivalent = srcContent === coreContent;
 
-          // Only report as duplicate if content is ACTUALLY equivalent
-          // Ignore files that are intentionally different implementations
           if (equivalent) {
             duplicates.push({
               primary: `packages/core/lib/analysis/${file}`,
               duplicate: `src/lib/analysis/${file}`,
               contentEquivalent: equivalent,
-              risk: equivalent ? "low" : "high",
+              risk: "low",
             });
           }
         }
