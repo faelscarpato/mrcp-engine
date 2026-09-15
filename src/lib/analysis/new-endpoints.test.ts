@@ -23,14 +23,16 @@ describe("MRCP Engine - Real Intelligence & Non-Applicable Handling", () => {
     expect(result).toBeDefined();
     expect(result.packageName).toBe("react");
     expect(result.isApplicable).toBe(true);
-    
+
     // ✅ Validar que é uma versão válida no formato semver
     expect(result.resolvedVersion).toMatch(/^\d+\.\d+\.\d+$/);
     // ✅ Garantir que é React 19.x (compatível com expectativa original)
     expect(result.resolvedVersion).toMatch(/^19\./);
-    
+
     // ✅ Validar que o comando de instalação é seguro
-    expect(result.safeInstallCommand).toMatch(/npm install react@\d+\.\d+\.\d+/);
+    expect(result.safeInstallCommand).toMatch(
+      /npm install react@\d+\.\d+\.\d+/,
+    );
   });
 
   it("1b. mrcp_dependency_compatibility_resolver should return non-applicable for non-existent package", async () => {
