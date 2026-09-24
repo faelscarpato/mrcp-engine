@@ -1,6 +1,6 @@
 {
   "name": "@mrcp/api",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "type": "module",
   "dependencies": {
     "@vercel/node": "^5.9.5",

@@ -1,4 +1,4 @@
-# 🧩 MRCP Engine — Extensão para VS Code, Cursor & Windsurf v2.6.0
+# 🧩 MRCP Engine — Extensão para VS Code, Cursor & Windsurf v2.6.2
 
 > **Deterministic AI Context & Code Health Cockpit**  
 > Redução de até 95% no consumo de tokens para LLMs, auditoria de segurança estática, índice de manutenibilidade e visualização de grafos AST diretamente no seu editor de código com suporte completo a **TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, SAP CDS, SAP ABAP e Oracle PL/SQL**.

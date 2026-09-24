@@ -98,7 +98,7 @@ ${deadCodeItems.length === 0 ? "* ✅ **Código Morto:** Nenhum export zumbi enc
 ${testGaps.length === 0 ? "* ✅ **Cobertura:** Nenhuma função de alta complexidade sem teste detectada." : testGaps.map((g) => `* **Gap de Teste**: Função \`${g.functionName}()\` (Complexidade: ${g.complexity}) em \`${g.file}:${g.line}\` sem teste unitário correspondente.`).join("\n")}
 
 ---
-*Gerado deterministicamente por MRCP-Engine v2.5.0 (Fingerprint: ${provenance.workspaceFingerprint})*
+*Gerado deterministicamente por MRCP-Engine v2.6.2 (Fingerprint: ${provenance.workspaceFingerprint})*
 `;
 
   const reportPath = path.join(

@@ -114,7 +114,7 @@ function renderHeader() {
     `${c.cyan}${c.bold}╔════════════════════════════════════════════════════════════════════════════╗${c.reset}`,
   );
   console.log(
-    `${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.5.0             ║${c.reset}`,
+    `${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.6.2             ║${c.reset}`,
   );
   console.log(
     `${c.cyan}${c.bold}║       Machine-Readable Context Protocol • Engenharia de AST Sem Alucinação ║${c.reset}`,

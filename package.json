@@ -1,6 +1,6 @@
 {
   "name": "mrcp-engine",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Deterministic AST code-intelligence engine for AI agents — MCP server + REST API for architecture analysis, security audits, and doc generation.",
   "keywords": [
     "mcp",
