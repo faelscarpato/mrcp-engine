@@ -12,6 +12,7 @@ export default tseslint.config(
       ".output",
       ".vinxi",
       "node_modules",
+      "apps/vscode/out",
       "packages/tree-sitter-oracle-plsql",
       "packages/tree-sitter-sap-abap",
       "packages/tree-sitter-sap-cds",

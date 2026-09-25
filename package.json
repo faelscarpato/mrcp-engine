@@ -1,6 +1,6 @@
 {
   "name": "mrcp-engine",
-  "version": "2.6.1",
+  "version": "2.7.1",
   "description": "Deterministic AST code-intelligence engine for AI agents — MCP server + REST API for architecture analysis, security audits, and doc generation.",
   "keywords": [
     "mcp",
@@ -49,16 +49,23 @@
   },
   "bin": {
     "mrcp": "bin/mrcp.js",
-    "mrcp-engine": "bin/mrcp.js"
+    "mrcp-engine": "bin/mrcp.js",
+    "mrcp-auto": "bin/mrcp-autonomous.ts"
   },
   "files": [
     "bin/",
+    "packages/cli/",
+    "packages/core/",
+    "api/",
+    "TRIADE_ORQUESTRACAO_AUTONOMA.md",
     "README.md",
+    "README.pt-BR.md",
     "LICENSE"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "date-fns": "^4.1.0",
+    "tsx": "^4.23.12",
     "tree-sitter-c": "^0.24.1",
     "tree-sitter-cobol": "^0.0.1",
     "tree-sitter-cpp": "^0.23.4",

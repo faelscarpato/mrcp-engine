@@ -100,6 +100,23 @@ export function activate(context: vscode.ExtensionContext) {
 
   // 5. Register Commands
   context.subscriptions.push(
+    vscode.commands.registerCommand("mrcp.startAutonomous", async () => {
+      const prompt = await vscode.window.showInputBox({
+        title: "🧠 MRCP Engine — Modo Autônomo (Tech Lead)",
+        prompt: "Digite a descrição do projeto a ser construído pela Tríade:",
+        placeHolder: "Ex: Crie um SaaS de clínicas médicas com agendamento",
+      });
+
+      if (!prompt) return;
+
+      const terminal =
+        vscode.window.terminals.find((t) => t.name === "MRCP Autonomous") ||
+        vscode.window.createTerminal("MRCP Autonomous");
+
+      terminal.show();
+      terminal.sendText(`npx mrcp-engine auto "${prompt}"`);
+    }),
+
     vscode.commands.registerCommand("mrcp.runFullSuite", () =>
       runFullSuiteCommand(cmdContext),
     ),

@@ -2,7 +2,7 @@
   "name": "mrcp-vscode",
   "displayName": "MRCP Engine — Deterministic AI Context & Code Health Cockpit",
   "description": "Deterministic repository intelligence, ultra-lean LLM context packing (95% token savings), AST security audit, cyclomatic health scoring, and architecture graph visualization.",
-  "version": "2.6.1",
+  "version": "2.7.1",
   "publisher": "mrcp-engine",
   "license": "MIT",
   "repository": {
@@ -77,6 +77,11 @@
       ]
     },
     "commands": [
+      {
+        "command": "mrcp.startAutonomous",
+        "title": "MRCP: Iniciar Orquestrador Autônomo (Tech Lead)",
+        "icon": "$(hubot)"
+      },
       {
         "command": "mrcp.runFullSuite",
         "title": "MRCP: Executar Diagnóstico Completo (Full Suite)",

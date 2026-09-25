@@ -6,10 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [2.7.1] - 2026-09-24
+
 ### Added
 
-- Documentation overhaul: bilingual README (English/Portuguese), `CONTRIBUTING.md`, this changelog, PR template
-- Fixed `SECURITY.md` (previously the unfilled GitHub default template)
+- **A Tríade de Orquestração Autônoma (MCP Native):**
+  - `TechLeadOrchestrator`: Cérebro orquestrador com pesquisa autônoma na Web via DuckDuckGo/Scraper e decomposição em grafo de tarefas com contratos formais (`AgentTasks`).
+  - `MrcpGatekeeper`: Medula espinhal e QA em tempo real com File System Watcher contínuo, validação AST imediata (detecção de ciclos `ARCH-CYCLIC-001`, deriva arquitetural `ARCH-LAYER-002`, e God Modules), com loop de auto-correção via `.mrcp/GATEKEEPER_CRITIQUE.md`.
+  - `AgentManager` & Agentes Especialistas: `DatabaseAgent`, `BackendAgent` e `FrontendAgent`, com empacotamento de diretivas MCP (`ACTIVE_PROMPT_DIRECTIVE.md`) e zero chamadas LLM internas.
+  - CLI autônomo: comando `npx mrcp-engine auto "<prompt>"` e binário dedicado `mrcp-auto`.
+  - Integração nativa na extensão VS Code (`apps/vscode`): novo comando `mrcp.startAutonomous` e item no menu de Ações Rápidas.
+  - Documentação técnica e de arquitetura completa em `TRIADE_ORQUESTRACAO_AUTONOMA.md` e `docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS.md`.
+
+### Fixed
+
+- Inclusão dos diretórios `packages/` e `api/` no campo `"files"` do `package.json` para garantir que o tarball publicado no NPM contenha todos os módulos de execução necessários para o `npx`.
+- Carregamento dinâmico resiliente do `cheerio` com fallback nativo via expressões regulares em `scraper-tools.ts`.
 
 ## [2.6.0] - 2026
 

@@ -289,8 +289,24 @@ description: "Master Operational Protocol for MRCP Engine (Machine-Readable Cont
 //  Roteamento Principal
 // ─────────────────────────────────────────────
 
+// 0. Modo Autônomo (Tríade Tech Lead & Gatekeeper AST)
+if (args[0] === "auto" || args[0] === "autonomous") {
+  const autoScriptPath = resolve(__dirname, "mrcp-autonomous.ts");
+  const { spawn } = await import("child_process");
+
+  const child = spawn(
+    process.platform === "win32" ? "npx.cmd" : "npx",
+    ["tsx", `"${autoScriptPath}"`, ...args.slice(1)],
+    { stdio: "inherit", cwd: process.cwd(), shell: true },
+  );
+
+  child.on("exit", (code) => {
+    process.exit(code ?? 0);
+  });
+}
+
 // 1. Modo Setup / UI Interativo
-if (args[0] === "setup" || args[0] === "ui") {
+else if (args[0] === "setup" || args[0] === "ui") {
   runIdeSetup();
   console.log("\nIniciando painel interativo de desenvolvimento em 1s...");
   setTimeout(() => {

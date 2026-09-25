@@ -62,6 +62,16 @@ export class MrcpQuickActionsProvider implements vscode.TreeDataProvider<MrcpTre
 
     return [
       new MrcpTreeItem(
+        "🤖 Iniciar Orquestrador Autônomo (Tech Lead)",
+        vscode.TreeItemCollapsibleState.None,
+        {
+          commandId: "mrcp.startAutonomous",
+          iconName: "hubot",
+          tooltip:
+            "Inicializa a Tríade Autônoma (Tech Lead, Gatekeeper AST e Agentes Especialistas).",
+        },
+      ),
+      new MrcpTreeItem(
         "⚡ Executar Diagnóstico Completo (Full Suite)",
         vscode.TreeItemCollapsibleState.None,
         {

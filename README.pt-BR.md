@@ -104,10 +104,41 @@ O MRCP não substitui o raciocínio do seu LLM — ele elimina a parte _cara e p
 
 ---
 
-## 🎯 Dois Modos de Consumo
+## 🎯 Modos de Consumo
 
 1. **⚡ Modo Modular** — chame exatamente a ferramenta que precisa (`mrcp_document_analyzer`, `mrcp_security_compliance_audit`, `mrcp_code_metrics_health_scorer`...) para uma tarefa pontual.
 2. **🚀 Modo Full Suite** — uma única chamada (`mrcp_run_full_repository_suite` / `GET /api/full-analysis`) executa as 13 ferramentas de análise em paralelo, grava resultados intermediários em `mrcp-analysis.json` e devolve um relatório executivo consolidado.
+3. **🤖 Modo Autônomo (Tríade Tech Lead & Gatekeeper)** — o MRCP atua como orquestrador e inspetor de qualidade em tempo real para a IA da sua IDE.
+
+---
+
+## 🤖 Modo Autônomo: A Tríade de Orquestração (Tech Lead & Gatekeeper)
+
+Com um único comando, inicialize o fluxo autônomo sem custos adicionais de LLM (MCP-Native):
+
+```bash
+npx mrcp-engine auto "Construa um microserviço de pagamentos com Clean Architecture"
+```
+
+### Arquitetura da Tríade:
+1. **O Cérebro (`TechLeadOrchestrator`)**:
+   - Analisa a solicitação macro e avalia se há lacunas conceituais.
+   - Pesquisa na Web via ferramentas nativas (`mrcp_web_search` e scraper) para obter padrões atualizados de arquitetura.
+   - Define o plano mestre e decompõe o trabalho em contratos de tarefas (`AgentTask`).
+2. **Os Agentes Especialistas (`AgentManager` / `BaseAgent`)**:
+   - `DatabaseAgent`: Modela schemas, migrations, entidades e queries tipadas.
+   - `BackendAgent`: Implementa rotas HTTP, controllers, middlewares e serviços.
+   - `FrontendAgent`: Constrói componentes UI, hooks e clientes de API.
+   - Gera diretrizes ativas em `.mrcp/ACTIVE_PROMPT_DIRECTIVE.md` instruindo a IA da sua IDE (Antigravity, Cursor, Claude Code) a assumir os papéis sem custos extras de API LLM interna.
+3. **A Medula Espinhal / QA (`MrcpGatekeeper`)**:
+   - Observa o sistema de arquivos em tempo real (File Watcher com debounce).
+   - Quando o código é gravado, intercepta antes de avançar e roda análises AST completas: detecção de desvio arquitetural, ciclos de dependência (Tarjan), cálculo de saúde e regressão de assinaturas públicas.
+   - Se reprovar: Gera crítica técnica em `.mrcp/GATEKEEPER_CRITIQUE.md` e devolve a tarefa para autocorreção imediata.
+   - Se aprovar: Emite autorização em `.mrcp/GATEKEEPER_APPROVAL.md` e desbloqueia as tarefas dependentes.
+
+> 📖 **Documentação Completa da Tríade**:
+> - [Guia da Tríade de Orquestração](TRIADE_ORQUESTRACAO_AUTONOMA.md)
+> - [Especificação Arquitetural e Técnica da Tríade](docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS.md)
 
 ---
 
@@ -160,11 +191,11 @@ O MRCP não substitui o raciocínio do seu LLM — ele elimina a parte _cara e p
 <details>
 <summary><b>4. 🌐 Busca e Extração Web</b> — clique para expandir</summary>
 
-| Ferramenta              | Endpoint                                 | O que faz                                                                                                                                                                                            |
-| ----------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mrcp_web_search`       | `GET /api/web-search?q=<query>`          | Busca rápida na web                                                                                                                                                                                  |
-| `mrcp_web_scrape`       | `GET /api/scrape?url=<url>`              | Extração de texto limpo, sem anúncios/navegação/scripts                                                                                                                                              |
-| `mrcp_web_smart_search` | `GET /api/smart-search?q=<query>&topN=2` | Busca + scraping ranqueado dos top N resultados                                                                                                                                                      |
+| Ferramenta              | Endpoint                                 | O que faz                                                                                                                                                                                             |
+| ----------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mrcp_web_search`       | `GET /api/web-search?q=<query>`          | Busca rápida na web                                                                                                                                                                                   |
+| `mrcp_web_scrape`       | `GET /api/scrape?url=<url>`              | Extração de texto limpo, sem anúncios/navegação/scripts                                                                                                                                               |
+| `mrcp_web_smart_search` | `GET /api/smart-search?q=<query>&topN=2` | Busca + scraping ranqueado dos top N resultados                                                                                                                                                       |
 | `mrcp_clone_page`       | `GET/POST /api/clone?url=<url>`          | **Motor PageCloner Pro:** Engenharia reversa completa de páginas em tokens de design, componentes, árvore de layout, heurística de propósito, necessidades de completação e prompt ultra-fiel para IA |
 
 </details>
@@ -193,30 +224,30 @@ curl "https://mrcp-engine.vercel.app/api/analyze?repo=https://github.com/sua-org
 <details>
 <summary>Tabela completa de endpoints</summary>
 
-| Endpoint                                   | Método | Descrição                                             |
-| ------------------------------------------ | ------ | ----------------------------------------------------- |
-| `/api/analyze?repo=<url>`                  | `GET`  | Grafo AST e métricas de complexidade                  |
-| `/api/skills?repo=<url>`                   | `GET`  | Contratos de refatoração para hotspots                |
-| `/api/api-contract?repo=<url>`             | `GET`  | Extração de rotas, OpenAPI 3.0, SDK TypeScript        |
-| `/api/code-health?repo=<url>`              | `GET`  | Índice de Manutenibilidade e débito técnico           |
-| `/api/env-validator?repo=<url>`            | `GET`  | Validação de `.env`, alertas de vazamento, schema Zod |
-| `/api/monorepo-graph?repo=<url>`           | `GET`  | Grafo de dependências entre pacotes e ordem de build  |
-| `/api/doc-generator?repo=<url>`            | `GET`  | Gerador de JSDoc/TSDoc e referência de API            |
-| `/api/refactor-applier`                    | `POST` | Refatorações AST em lote                              |
-| `/api/type-signature-extractor?repo=<url>` | `GET`  | Extração apenas de assinaturas de tipo                |
-| `/api/diff-summarizer`                     | `POST` | Resumo semântico de git diff                          |
-| `/api/dependency-resolver?package=<nome>`  | `GET`  | Resolução de versão e compatibilidade                 |
-| `/api/dead-code-pruner?repo=<url>`         | `GET`  | Detecção de código morto                              |
-| `/api/sql-orm-contract?repo=<url>`         | `GET`  | Contratos tipados de banco/ORM                        |
-| `/api/impact-analysis`                     | `POST` | Raio de impacto (`body: { repoUrl, modifiedFiles }`)  |
-| `/api/security-audit?repo=<url>`           | `GET`  | Auditoria de segurança e licenças                     |
-| `/api/architecture-drift?repo=<url>`       | `GET`  | Detecção de desvio arquitetural                       |
-| `/api/test-gap-analysis?repo=<url>`        | `GET`  | Detecção de lacunas de teste e stubs                  |
-| `/api/context-pack?repo=<url>&task=<desc>` | `GET`      | Pacote de contexto fatiado para LLMs                                        |
-| `/api/clone?url=<url>`                     | `GET/POST` | **PageCloner Pro:** Tokens de design, componentes, layout e prompt de IA     |
-| `/api/page-prompt?url=<url>`               | `GET`      | Atalho direto com prompt Markdown para reconstrução de interface             |
-| `/api/full-analysis`                       | `GET`      | Suíte diagnóstica completa (13 ferramentas)                                 |
-| `/api/mcp`                                 | `POST`     | Endpoint central MCP (JSON-RPC 2.0)                                         |
+| Endpoint                                   | Método     | Descrição                                                                |
+| ------------------------------------------ | ---------- | ------------------------------------------------------------------------ |
+| `/api/analyze?repo=<url>`                  | `GET`      | Grafo AST e métricas de complexidade                                     |
+| `/api/skills?repo=<url>`                   | `GET`      | Contratos de refatoração para hotspots                                   |
+| `/api/api-contract?repo=<url>`             | `GET`      | Extração de rotas, OpenAPI 3.0, SDK TypeScript                           |
+| `/api/code-health?repo=<url>`              | `GET`      | Índice de Manutenibilidade e débito técnico                              |
+| `/api/env-validator?repo=<url>`            | `GET`      | Validação de `.env`, alertas de vazamento, schema Zod                    |
+| `/api/monorepo-graph?repo=<url>`           | `GET`      | Grafo de dependências entre pacotes e ordem de build                     |
+| `/api/doc-generator?repo=<url>`            | `GET`      | Gerador de JSDoc/TSDoc e referência de API                               |
+| `/api/refactor-applier`                    | `POST`     | Refatorações AST em lote                                                 |
+| `/api/type-signature-extractor?repo=<url>` | `GET`      | Extração apenas de assinaturas de tipo                                   |
+| `/api/diff-summarizer`                     | `POST`     | Resumo semântico de git diff                                             |
+| `/api/dependency-resolver?package=<nome>`  | `GET`      | Resolução de versão e compatibilidade                                    |
+| `/api/dead-code-pruner?repo=<url>`         | `GET`      | Detecção de código morto                                                 |
+| `/api/sql-orm-contract?repo=<url>`         | `GET`      | Contratos tipados de banco/ORM                                           |
+| `/api/impact-analysis`                     | `POST`     | Raio de impacto (`body: { repoUrl, modifiedFiles }`)                     |
+| `/api/security-audit?repo=<url>`           | `GET`      | Auditoria de segurança e licenças                                        |
+| `/api/architecture-drift?repo=<url>`       | `GET`      | Detecção de desvio arquitetural                                          |
+| `/api/test-gap-analysis?repo=<url>`        | `GET`      | Detecção de lacunas de teste e stubs                                     |
+| `/api/context-pack?repo=<url>&task=<desc>` | `GET`      | Pacote de contexto fatiado para LLMs                                     |
+| `/api/clone?url=<url>`                     | `GET/POST` | **PageCloner Pro:** Tokens de design, componentes, layout e prompt de IA |
+| `/api/page-prompt?url=<url>`               | `GET`      | Atalho direto com prompt Markdown para reconstrução de interface         |
+| `/api/full-analysis`                       | `GET`      | Suíte diagnóstica completa (13 ferramentas)                              |
+| `/api/mcp`                                 | `POST`     | Endpoint central MCP (JSON-RPC 2.0)                                      |
 
 </details>
 
@@ -226,7 +257,8 @@ curl "https://mrcp-engine.vercel.app/api/analyze?repo=https://github.com/sua-org
 
 `apps/vscode` traz uma extensão nativa que leva a análise do MRCP direto para dentro do editor:
 
-- **Sidebar** — Ações Rápidas, Métricas de Saúde (A–F / MI 0–100), Auditoria de Segurança & `.env`, Arquitetura & Dependências, Gaps de Teste & Código Morto, Inteligência Documental (DQI)
+- **Sidebar** — Ações Rápidas (incluindo **MRCP: Iniciar Orquestrador Autônomo**), Métricas de Saúde (A–F / MI 0–100), Auditoria de Segurança & `.env`, Arquitetura & Dependências, Gaps de Teste & Código Morto, Inteligência Documental (DQI)
+- **Modo Autônomo Integrado** — Inicie a Tríade de Orquestração com um clique via `Ctrl+Shift+P` -> `MRCP: Iniciar Orquestrador Autônomo`
 - **MRCP Cockpit** — dashboard visual: distribuição de complexidade, KPIs em tempo real, visualizador de grafo AST, tabelas de rotas/segurança com jump-to-code
 - **CodeLens inline** — complexidade ciclomática em tempo real (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e botão **Copiar para IA** com um clique em cada função/classe/método
 - **Integração com o painel Problems** — alertas nativos para segredos expostos e variáveis ausentes no `.env`
