@@ -4,9 +4,7 @@
       "name": "sap_cds",
       "camelcase": "SapCds",
       "scope": "source.cds",
-      "file-types": [
-        "cds"
-      ],
+      "file-types": ["cds"],
       "injection-regex": "^(sap-)?cds$"
     }
   ],

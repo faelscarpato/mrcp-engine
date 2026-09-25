@@ -4,12 +4,7 @@
       "name": "sap_abap",
       "camelcase": "SapAbap",
       "scope": "source.abap",
-      "file-types": [
-        "abap",
-        "clas",
-        "intf",
-        "prog"
-      ],
+      "file-types": ["abap", "clas", "intf", "prog"],
       "injection-regex": "^(sap-)?abap$"
     }
   ],

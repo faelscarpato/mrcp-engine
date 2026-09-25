@@ -1,13 +1,28 @@
 {
   "name": "@mrcp/cli",
-  "version": "2.6.1",
+  "version": "2.7.1",
   "type": "module",
+  "main": "./src/orchestrator/index.js",
   "bin": {
     "mrcp": "./bin/mrcp.js",
-    "mrcp-engine": "./bin/mrcp.js"
+    "mrcp-engine": "./bin/mrcp.js",
+    "mrcp-auto": "./bin/mrcp-autonomous.ts"
   },
+  "exports": {
+    ".": "./src/orchestrator/index.js",
+    "./orchestrator": "./src/orchestrator/index.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "mcp-server.mjs",
+    "mcp-handlers.mjs",
+    "mcp-tools.mjs",
+    "README.md"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@mrcp/core": "workspace:*"
+    "@mrcp/core": "workspace:*",
+    "chokidar": "^5.0.0"
   }
 }

@@ -24,9 +24,27 @@ const CACHE_FILE = "mrcp-analysis.json";
 const args = process.argv.slice(2);
 
 // ─────────────────────────────────────────────
+//  Modo 0: Modo Autônomo (Tríade Tech Lead & Gatekeeper)
+// ─────────────────────────────────────────────
+if (args[0] === "auto" || args[0] === "autonomous") {
+  const autoScriptPath = resolve(__dirname, "mrcp-autonomous.ts");
+  const { spawn } = await import("child_process");
+
+  const child = spawn(
+    process.platform === "win32" ? "npx.cmd" : "npx",
+    ["tsx", `"${autoScriptPath}"`, ...args.slice(1)],
+    { stdio: "inherit", cwd: process.cwd(), shell: true },
+  );
+
+  child.on("exit", (code) => {
+    process.exit(code ?? 0);
+  });
+}
+
+// ─────────────────────────────────────────────
 //  Modo 1: Análise de repositório via URL
 // ─────────────────────────────────────────────
-if (args.length >= 1 && args[0].startsWith("http")) {
+else if (args.length >= 1 && args[0].startsWith("http")) {
   const repoUrl = args[0];
   const noSave = args.includes("--no-save");
 
