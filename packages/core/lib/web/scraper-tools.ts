@@ -1,4 +1,12 @@
-import * as cheerio from "cheerio";
+// --- Dynamic Cheerio Loader with Native Regex Fallback ---
+async function loadCheerio(): Promise<any> {
+  try {
+    const mod = await import("cheerio");
+    return mod.default || mod;
+  } catch {
+    return null;
+  }
+}
 
 // --- Tipagens de Saída ---
 export interface SearchResult {
@@ -106,29 +114,53 @@ export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
     if (!res.ok) throw new Error(`Falha HTTP: ${res.status}`);
 
     const html = await res.text();
-    const $ = cheerio.load(html);
+    const cheerio = await loadCheerio();
     const results: SearchResult[] = [];
 
-    $(".result__body").each((_, el) => {
-      const title = $(el).find(".result__title .result__a").text().trim();
-      const rawUrl = $(el).find(".result__url").attr("href") ?? "";
-      const snippet = $(el).find(".result__snippet").text().trim();
+    if (cheerio) {
+      const $ = cheerio.load(html);
+      $(".result__body").each((_: any, el: any) => {
+        const title = $(el).find(".result__title .result__a").text().trim();
+        const rawUrl = $(el).find(".result__url").attr("href") ?? "";
+        const snippet = $(el).find(".result__snippet").text().trim();
 
-      // Desofusca a URL do DuckDuckGo
-      let url = rawUrl;
-      if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
-        try {
-          const urlObj = new URL(`https:${url}`);
-          url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
-        } catch {
-          /* ignora erro de parse */
+        // Desofusca a URL do DuckDuckGo
+        let url = rawUrl;
+        if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
+          try {
+            const urlObj = new URL(`https:${url}`);
+            url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
+          } catch {
+            /* ignora erro de parse */
+          }
+        }
+
+        if (title && url) {
+          results.push({ title, url, snippet });
+        }
+      });
+    } else {
+      // Fallback regex resiliente caso cheerio não esteja instalado
+      const titleRegex =
+        /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+      let match: RegExpExecArray | null;
+      while ((match = titleRegex.exec(html)) !== null) {
+        const rawUrl = match[1];
+        const title = match[2].replace(/<[^>]+>/g, "").trim();
+        let url = rawUrl;
+        if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
+          try {
+            const urlObj = new URL(`https:${url}`);
+            url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
+          } catch {
+            /* ignore decode error */
+          }
+        }
+        if (title && url) {
+          results.push({ title, url, snippet: title });
         }
       }
-
-      if (title && url) {
-        results.push({ title, url, snippet });
-      }
-    });
+    }
 
     return results;
   } catch (error) {
@@ -144,23 +176,48 @@ export async function scrapeUrl(url: string): Promise<ScrapedPage> {
     if (!res.ok) throw new Error(`Falha HTTP: ${res.status}`);
 
     const html = await res.text();
-    const $ = cheerio.load(html);
+    const cheerio = await loadCheerio();
 
-    // Remove a poluição da DOM para economizar tokens
-    $(
-      "script, style, nav, footer, header, aside, iframe, noscript, svg, form, button",
-    ).remove();
-
-    const title = $("title").text().trim() || url;
+    let title = url;
     const headings: string[] = [];
+    let cleanText = "";
 
-    $("h1, h2, h3").each((_, el) => {
-      const hText = $(el).text().trim();
-      if (hText) headings.push(hText);
-    });
+    if (cheerio) {
+      const $ = cheerio.load(html);
 
-    const rawText = $("body").text();
-    const cleanText = rawText.replace(/\s+/g, " ").trim();
+      // Remove a poluição da DOM para economizar tokens
+      $(
+        "script, style, nav, footer, header, aside, iframe, noscript, svg, form, button",
+      ).remove();
+
+      title = $("title").text().trim() || url;
+
+      $("h1, h2, h3").each((_: any, el: any) => {
+        const hText = $(el).text().trim();
+        if (hText) headings.push(hText);
+      });
+
+      const rawText = $("body").text();
+      cleanText = rawText.replace(/\s+/g, " ").trim();
+    } else {
+      // Fallback regex sem dependência externa
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      if (titleMatch) title = titleMatch[1].replace(/<[^>]+>/g, "").trim();
+
+      const hRegex = /<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/gi;
+      let hMatch: RegExpExecArray | null;
+      while ((hMatch = hRegex.exec(html)) !== null) {
+        const h = hMatch[1].replace(/<[^>]+>/g, "").trim();
+        if (h) headings.push(h);
+      }
+
+      cleanText = html
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
 
     return {
       title,
