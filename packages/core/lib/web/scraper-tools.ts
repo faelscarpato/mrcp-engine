@@ -268,7 +268,6 @@ export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
   } catch (error) {
     // Não devolvemos [] silencioso: lista vazia indistinguível de "nada encontrado"
     // é o que fez o /Search parecer quebrado. Propagamos para o chamador reportar.
-    console.error("Erro na busca web:", error);
     throw error;
   }
 }
@@ -367,7 +366,6 @@ export async function scrapeUrl(url: string): Promise<ScrapedPage> {
   try {
     return await scrapeUrlOrThrow(url);
   } catch (error) {
-    console.error(`Erro ao raspar ${url}:`, error);
     return {
       title: "Erro",
       headings: [],
