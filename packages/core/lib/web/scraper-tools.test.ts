@@ -42,13 +42,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-
-
 describe("scraper-tools — classificação de erro de busca", () => {
   it("1. anti-bot 202 vira SEARCH_ANTI_BOT com o status HTTP real", async () => {
     mockFetch(() => res(202, "<html>desafio</html>"));
 
-    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(WebToolError);
+    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(searchDuckDuckGo("qualquer")).rejects.toMatchObject({
       code: "SEARCH_ANTI_BOT",
       httpStatus: 202,
@@ -58,7 +58,9 @@ describe("scraper-tools — classificação de erro de busca", () => {
   it("2. anti-bot 429 vira SEARCH_ANTI_BOT", async () => {
     mockFetch(() => res(429, "<html>rate limited</html>"));
 
-    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(WebToolError);
+    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(searchDuckDuckGo("qualquer")).rejects.toMatchObject({
       code: "SEARCH_ANTI_BOT",
       httpStatus: 429,
@@ -70,7 +72,9 @@ describe("scraper-tools — classificação de erro de busca", () => {
       res(200, "<html><body>unusual traffic — are you a robot?</body></html>"),
     );
 
-    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(WebToolError);
+    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(searchDuckDuckGo("qualquer")).rejects.toMatchObject({
       code: "SEARCH_ANTI_BOT",
       httpStatus: 200,
@@ -80,7 +84,9 @@ describe("scraper-tools — classificação de erro de busca", () => {
   it("4. HTTP 500 do provedor e SEARCH_UPSTREAM_ERROR, nao bloqueio", async () => {
     mockFetch(() => res(500, "<html>erro interno</html>"));
 
-    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(WebToolError);
+    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(searchDuckDuckGo("qualquer")).rejects.toMatchObject({
       code: "SEARCH_UPSTREAM_ERROR",
       httpStatus: 500,
@@ -92,7 +98,9 @@ describe("scraper-tools — classificação de erro de busca", () => {
       throw new TypeError("fetch failed");
     });
 
-    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(WebToolError);
+    await expect(searchDuckDuckGo("qualquer")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(searchDuckDuckGo("qualquer")).rejects.toMatchObject({
       code: "SEARCH_UPSTREAM_ERROR",
       httpStatus: null,
@@ -114,7 +122,9 @@ describe("scraper-tools — classificação de erro de raspagem", () => {
   it("7. 403 no alvo e SCRAPE_ANTI_BOT, propagado por scrapeUrlOrThrow", async () => {
     mockFetch(() => res(403, "<html>forbidden</html>"));
 
-    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toThrowError(WebToolError);
+    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toMatchObject({
       code: "SCRAPE_ANTI_BOT",
       httpStatus: 403,
@@ -124,7 +134,9 @@ describe("scraper-tools — classificação de erro de raspagem", () => {
   it("8. 500 no alvo e SCRAPE_UPSTREAM_ERROR", async () => {
     mockFetch(() => res(500, "boom"));
 
-    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toThrowError(WebToolError);
+    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toThrowError(
+      WebToolError,
+    );
     await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toMatchObject({
       code: "SCRAPE_UPSTREAM_ERROR",
       httpStatus: 500,
