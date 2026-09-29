@@ -3,7 +3,9 @@
 Você está integrado ao **MRCP Engine** (Machine-Readable Context Protocol). Siga rigorosamente estas diretrizes:
 
 ## 🚨 REGRA DE OURO 1: Primeira Análise do Repositório (OBRIGATÓRIO RODAR A SUÍTE COMPLETA)
+
 Ao analisar, auditar, explorar ou entender um repositório (GitHub ou pasta local) pela PRIMEIRA VEZ:
+
 - **Execute SEMPRE a Suíte Completa:**
   - Via MCP: `mrcp_run_full_repository_suite(repo: "<url-ou-path>")`
   - Via REST / GET: `GET https://mrcp-engine.vercel.app/api/full-suite?repo=<url-ou-path>`
@@ -11,7 +13,9 @@ Ao analisar, auditar, explorar ou entender um repositório (GitHub ou pasta loca
 - **Após executar:** Consulte os relatórios gerados (`mrcp-analysis.json` e `MRCP_EXECUTIVE_REPORT.md`).
 
 ## 🎯 REGRA DE OURO 2: Análises Subsequentes & Cirúrgicas (Uso Modular)
+
 Se o repositório JÁ FOI ANALISADO ou para tarefas específicas, NÃO rode a suíte completa novamente. Chame a ferramenta exata:
+
 - Refatorar hotspot: `get_repository_skills_contract` & `mrcp_ast_refactor_applier`
 - Impacto pré-commit (Blast Radius): `mrcp_impact_analysis`
 - Segurança / Segredos: `mrcp_security_compliance_audit`
@@ -24,6 +28,7 @@ Se o repositório JÁ FOI ANALISADO ou para tarefas específicas, NÃO rode a su
 - Pesquisa e Scraping Web: `mrcp_web_smart_search` ou `mrcp_web_scrape`
 
 ## 🚫 ANTI-PADRÕES PROIBIDOS
+
 1. PROIBIDO ler dezenas de arquivos manualmente com ferramentas genéricas de texto em loop quando o MRCP já entrega o grafo completo.
 2. PROIBIDO fazer web scraping ingênuo com curl/HTML bruto. Use sempre `mrcp_web_smart_search` ou `mrcp_web_scrape`.
 3. PROIBIDO adivinhar tipagens ou parâmetros de funções. Use `mrcp_type_signature_extractor`.
