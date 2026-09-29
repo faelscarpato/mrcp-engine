@@ -269,12 +269,12 @@ export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
 // --- Ferramenta 2: Scraper Limpo ---
 /**
  * Raspagem que PROPAGA erro tipado. Use quando o chamador precisa distinguir
- * bloqueio de upstream de sucesso — `scrapeUrl` engole a falha e devolve uma
+ * bloqueio de upstream de sucesso. O pipeline engole a falha e devolve uma
  * página sentinela, o que é correto para o pipeline (um resultado ruim não
- * deve derrubar a busca inteira) e errado para a rota HTTP (que precisa
- * responder 4xx/5xx em vez de 200 com "Erro").
+ * deve derrubar a busca inteira). Mas a rota HTTP precisa que este erro
+ * propague para responder 4xx/5xx em vez de 200 com "Erro".
  */
-export async function scrapeUrlOrThrow(url: string): Promise<ScrapedPage> {
+export async function scrapeUrl(url: string): Promise<ScrapedPage> {
   let res: Response;
   try {
     res = await fetch(url, { headers: FETCH_HEADERS, cache: "no-store" });
@@ -356,19 +356,6 @@ export async function scrapeUrlOrThrow(url: string): Promise<ScrapedPage> {
   };
 }
 
-export async function scrapeUrl(url: string): Promise<ScrapedPage> {
-  try {
-    return await scrapeUrlOrThrow(url);
-  } catch (error) {
-    return {
-      title: "Erro",
-      headings: [],
-      wordCount: 0,
-      text: "Falha na extração.",
-    };
-  }
-}
-
 // --- Ferramenta 3: Rankeador ---
 function rankResults(query: string, results: SearchResult[]): RankedResult[] {
   const keywords = extractKeywords(query);
@@ -438,8 +425,20 @@ export async function smartSearchPipeline(
   const bestResults = ranked.filter((r) => r.score >= minScore).slice(0, topN);
 
   const scrapedPromises = bestResults.map(async (res) => {
-    const page = await scrapeUrl(res.url);
-    return { url: res.url, page };
+    try {
+      const page = await scrapeUrl(res.url);
+      return { url: res.url, page };
+    } catch (e) {
+      return {
+        url: res.url,
+        page: {
+          title: "Erro",
+          headings: [],
+          wordCount: 0,
+          text: "Falha na extração.",
+        },
+      };
+    }
   });
 
   const scraped = await Promise.all(scrapedPromises);

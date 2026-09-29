@@ -2,7 +2,6 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import {
   searchDuckDuckGo,
   scrapeUrl,
-  scrapeUrlOrThrow,
   WebToolError,
   WEB_ERROR_CATEGORY,
 } from "./scraper-tools.js";
@@ -119,13 +118,13 @@ describe("scraper-tools — classificação de erro de busca", () => {
 });
 
 describe("scraper-tools — classificação de erro de raspagem", () => {
-  it("7. 403 no alvo e SCRAPE_ANTI_BOT, propagado por scrapeUrlOrThrow", async () => {
+  it("7. 403 no alvo e SCRAPE_ANTI_BOT, propagado por scrapeUrl", async () => {
     mockFetch(() => res(403, "<html>forbidden</html>"));
 
-    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toThrowError(
+    await expect(scrapeUrl("https://alvo.dev")).rejects.toThrowError(
       WebToolError,
     );
-    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toMatchObject({
+    await expect(scrapeUrl("https://alvo.dev")).rejects.toMatchObject({
       code: "SCRAPE_ANTI_BOT",
       httpStatus: 403,
     });
@@ -134,10 +133,10 @@ describe("scraper-tools — classificação de erro de raspagem", () => {
   it("8. 500 no alvo e SCRAPE_UPSTREAM_ERROR", async () => {
     mockFetch(() => res(500, "boom"));
 
-    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toThrowError(
+    await expect(scrapeUrl("https://alvo.dev")).rejects.toThrowError(
       WebToolError,
     );
-    await expect(scrapeUrlOrThrow("https://alvo.dev")).rejects.toMatchObject({
+    await expect(scrapeUrl("https://alvo.dev")).rejects.toMatchObject({
       code: "SCRAPE_UPSTREAM_ERROR",
       httpStatus: 500,
     });
@@ -151,20 +150,22 @@ describe("scraper-tools — classificação de erro de raspagem", () => {
       ),
     );
 
-    const page = await scrapeUrlOrThrow("https://alvo.dev");
+    const page = await scrapeUrl("https://alvo.dev");
 
     expect(page.title).toBe("Blog");
     expect(page.text).toContain("blocked");
   });
 
-  it("10. scrapeUrl preserva o contrato sentinela (pipeline nao quebra)", async () => {
+  it("10. scrapeUrl lança erro em caso de falha (não usa anti-pattern catch)", async () => {
     mockFetch(() => res(500, "boom"));
 
-    const page = await scrapeUrl("https://alvo.dev");
-
-    expect(page.title).toBe("Erro");
-    expect(page.wordCount).toBe(0);
-    expect(page.text).toBe("Falha na extração.");
+    await expect(scrapeUrl("https://alvo.dev")).rejects.toThrowError(
+      WebToolError,
+    );
+    await expect(scrapeUrl("https://alvo.dev")).rejects.toMatchObject({
+      code: "SCRAPE_UPSTREAM_ERROR",
+      httpStatus: 500,
+    });
   });
 
   it("11. a categoria generica antiga continua disponivel", () => {
