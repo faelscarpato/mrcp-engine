@@ -214,62 +214,56 @@ async function fetchDuckDuckGoHtml(
 }
 
 export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
-  try {
-    const { html } = await fetchDuckDuckGoHtml(query);
-    const cheerio = await loadCheerio();
-    const results: SearchResult[] = [];
+  const { html } = await fetchDuckDuckGoHtml(query);
+  const cheerio = await loadCheerio();
+  const results: SearchResult[] = [];
 
-    if (cheerio) {
-      const $ = cheerio.load(html);
-      $(".result__body").each((_: any, el: any) => {
-        const title = $(el).find(".result__title .result__a").text().trim();
-        const rawUrl = $(el).find(".result__url").attr("href") ?? "";
-        const snippet = $(el).find(".result__snippet").text().trim();
+  if (cheerio) {
+    const $ = cheerio.load(html);
+    $(".result__body").each((_: any, el: any) => {
+      const title = $(el).find(".result__title .result__a").text().trim();
+      const rawUrl = $(el).find(".result__url").attr("href") ?? "";
+      const snippet = $(el).find(".result__snippet").text().trim();
 
-        // Desofusca a URL do DuckDuckGo
-        let url = rawUrl;
-        if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
-          try {
-            const urlObj = new URL(`https:${url}`);
-            url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
-          } catch {
-            /* ignora erro de parse */
-          }
-        }
-
-        if (title && url) {
-          results.push({ title, url, snippet });
-        }
-      });
-    } else {
-      // Fallback regex resiliente caso cheerio não esteja instalado
-      const titleRegex =
-        /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-      let match: RegExpExecArray | null;
-      while ((match = titleRegex.exec(html)) !== null) {
-        const rawUrl = match[1];
-        const title = match[2].replace(/<[^>]+>/g, "").trim();
-        let url = rawUrl;
-        if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
-          try {
-            const urlObj = new URL(`https:${url}`);
-            url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
-          } catch {
-            /* ignore decode error */
-          }
-        }
-        if (title && url) {
-          results.push({ title, url, snippet: title });
+      // Desofusca a URL do DuckDuckGo
+      let url = rawUrl;
+      if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
+        try {
+          const urlObj = new URL(`https:${url}`);
+          url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
+        } catch {
+          /* ignora erro de parse */
         }
       }
-    }
 
-    return results;
-  } catch (error) {
-    // Não devolvemos [] silencioso: lista vazia indistinguível de "nada encontrado"
-    // é o que fez o /Search parecer quebrado. Propagamos para o chamador reportar.
-    throw error;
+      if (title && url) {
+        results.push({ title, url, snippet });
+      }
+    });
+  } else {
+    // Fallback regex resiliente caso cheerio não esteja instalado
+    const titleRegex =
+      /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+    let match: RegExpExecArray | null;
+    while ((match = titleRegex.exec(html)) !== null) {
+      const rawUrl = match[1];
+      const title = match[2].replace(/<[^>]+>/g, "").trim();
+      let url = rawUrl;
+      if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
+        try {
+          const urlObj = new URL(`https:${url}`);
+          url = decodeURIComponent(urlObj.searchParams.get("uddg") || rawUrl);
+        } catch {
+          /* ignore decode error */
+        }
+      }
+      if (title && url) {
+        results.push({ title, url, snippet: title });
+      }
+    }
   }
+
+  return results;
 }
 
 // --- Ferramenta 2: Scraper Limpo ---
