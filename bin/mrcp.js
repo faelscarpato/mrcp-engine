@@ -12,7 +12,7 @@
 
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs";
 import { join, resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { startInteractiveDashboard } from "./interactive-ui.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +21,37 @@ const __dirname = dirname(__filename);
 const MRCP_API_BASE =
   process.env.MRCP_API_URL || "https://mrcp-engine.vercel.app";
 const CACHE_FILE = "mrcp-analysis.json";
+
+/**
+ * A API hospedada nao enxerga o disco do cliente. Enviar um path local para
+ * a Vercel nao analisa o projeto do usuario -- analisa (ou pior: sintetiza)
+ * metricas do container. Alvo local e resolvido aqui, com o core compilado.
+ */
+let corePromise = null;
+function loadCore() {
+  if (!corePromise) {
+    corePromise = import("../packages/core/dist/analysis/pipeline.js").catch(
+      (e) => {
+        corePromise = null;
+        throw new Error(
+          `Core local indisponivel (${e.message}). Rode: pnpm --filter @mrcp/core build`,
+        );
+      },
+    );
+  }
+  return corePromise;
+}
+
+/** Heuristica de roteamento: path local nunca comeca com "http". */
+function isLocalPathArg(arg) {
+  if (!arg || arg.startsWith("-")) return false;
+  if (existsSync(arg)) return true;
+  return (
+    /^[a-zA-Z]:[\\/]/.test(arg) ||
+    /^(\.{1,2}[\\/]|[\\/])/.test(arg) ||
+    arg.startsWith("~")
+  );
+}
 
 const args = process.argv.slice(2);
 
@@ -318,6 +349,7 @@ else if (args[0] === "setup" || args[0] === "ui") {
 else if (
   args.length >= 1 &&
   (args[0].startsWith("http") ||
+    isLocalPathArg(args[0]) ||
     args[0] === "full-suite" ||
     args[0] === "security" ||
     args[0] === "health" ||
@@ -327,7 +359,8 @@ else if (
   let targetEndpoint = "full-suite";
   let repoUrl = "";
 
-  if (args[0].startsWith("http")) {
+  if (args[0].startsWith("http") || isLocalPathArg(args[0])) {
+    // `mrcp-engine <url>` ou `mrcp-engine <path>`: alvo direto, suíte completa.
     repoUrl = args[0];
   } else {
     targetEndpoint =
@@ -342,12 +375,91 @@ else if (
   }
 
   if (!repoUrl) {
-    console.error("❌ Erro: URL do repositório é obrigatória.");
-    console.error("   Exemplo: npx mrcp-engine https://github.com/user/repo");
+    console.error(
+      "❌ Erro: alvo (path local ou URL do repositório) é obrigatório.",
+    );
+    console.error("   Exemplo: npx mrcp-engine .");
+    console.error("             npx mrcp-engine https://github.com/user/repo");
     process.exit(1);
   }
 
   const noSave = args.includes("--no-save");
+
+  // ── Alvo local: roda o core aqui, sem tocar a rede ─────────────────────
+  // Sem esta checagem, `mrcp-engine .` enviava o path para a Vercel, que
+  // devolvia MI/arquivos inventados pelo gerador deterministico.
+  let isLocalTarget = false;
+  try {
+    const { parseTargetUrl } = await loadCore();
+    isLocalTarget = parseTargetUrl(repoUrl)?.targetType === "local";
+  } catch (e) {
+    if (String(e.message).includes("Core local")) {
+      console.error(`\n❌ ${e.message}`);
+      process.exit(1);
+    }
+  }
+
+  if (isLocalTarget) {
+    if (targetEndpoint !== "full-suite") {
+      console.error(
+        `\n❌ /api/${targetEndpoint} não está disponível para alvo local.`,
+      );
+      console.error(
+        `   Alvos locais rodam apenas a suíte completa local: npx mrcp-engine .`,
+      );
+      process.exit(1);
+    }
+
+    // `--json` escreve SÓ dados em stdout; progresso vai para stderr.
+    const asJson = args.includes("--json");
+    const info = asJson ? console.error : console.log;
+
+    info(`\n🔍 [MRCP-Engine] Analisando (local): ${repoUrl}`);
+    info(`   Endpoint: suíte completa via core local`);
+    info(`   Nenhuma requisição remota será feita.\n`);
+
+    try {
+      const { runFullRepositoryDiagnostic } =
+        await import("../packages/core/dist/analysis/full-suite.js");
+      const data = await runFullRepositoryDiagnostic({ repoUrl });
+      // FullSuiteResult: { repoUrl, timestamp, totalDurationMs,
+      //                   pipelineStatus, executiveSummary, reports }
+
+      if (asJson) {
+        process.stdout.write(`${JSON.stringify(data)}\n`);
+        process.exit(0);
+      }
+
+      const sum = data?.executiveSummary ?? {};
+      const grafo = data?.reports?.graph ?? data?.reports?.analyze ?? null;
+      const nos = grafo?.nodes?.length;
+      const arestas = grafo?.edges?.length;
+
+      console.log(`\n✅ Suíte completa em ${data?.totalDurationMs ?? "?"}ms`);
+      console.log(
+        `   Arquivos: ${sum.totalFilesAnalyzed ?? 0} | Linhas: ${sum.totalLinesOfCode ?? 0}`,
+      );
+      if (nos != null) {
+        console.log(`   Nós: ${nos} | Arestas: ${arestas ?? 0}`);
+      }
+      if (sum.maintainabilityIndex != null) {
+        console.log(
+          `   Maintainability Index: ${sum.maintainabilityIndex} (${sum.letterGrade ?? "?"} / ${sum.maintainabilityRating ?? "?"})`,
+        );
+        console.log(`   Dívida técnica: ${sum.technicalDebtScore ?? "?"}`);
+      }
+      console.log(`   Relatórios: mrcp-analysis.json e reports/`);
+      if (noSave) {
+        console.log(
+          `   (--no-save não se aplica ao modo local: a suíte grava os relatórios)`,
+        );
+      }
+      process.exit(0);
+    } catch (err) {
+      console.error(`\n❌ Erro na análise local: ${err.message}`);
+      process.exit(1);
+    }
+  }
 
   console.log(`\n🔍 [MRCP-Engine] Analisando: ${repoUrl}`);
   console.log(`   Endpoint: /api/${targetEndpoint}`);
@@ -423,7 +535,11 @@ else {
   }
   // Se for chamado como processo background/stdio por uma IDE (Claude Desktop, Cursor, Antigravity)
   else {
-    const mcpServerPath = resolve(__dirname, "mcp-server.mjs");
+    // No Windows o loader ESM exige file:// para caminho absoluto;
+    // passar "E:\..." direto quebra com ERR_UNSUPPORTED_ESM_URL_SCHEME.
+    const mcpServerPath = pathToFileURL(
+      resolve(__dirname, "mcp-server.mjs"),
+    ).href;
     import(mcpServerPath).catch((err) => {
       console.error("❌ Falha ao iniciar MCP local:", err);
       process.exit(1);

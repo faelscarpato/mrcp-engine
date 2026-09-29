@@ -663,10 +663,22 @@ export async function executeTool(toolName: string, args: any): Promise<any> {
   if (toolName === "mrcp_web_search") {
     const { searchDuckDuckGo } =
       await import("../packages/core/lib/web/scraper-tools.js");
-    const result = await searchDuckDuckGo(args.query);
-    return {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-    };
+    try {
+      const result = await searchDuckDuckGo(args.query);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (err: any) {
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Busca web indisponível: ${err?.message ?? "falha desconhecida"}`,
+          },
+        ],
+      };
+    }
   }
 
   if (toolName === "mrcp_web_scrape") {

@@ -18,9 +18,12 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { MCP_TOOLS } from "./mcp-tools.mjs";
 import { MCP_HANDLERS } from "./mcp-handlers.mjs";
+import { getEngineVersion } from "../packages/core/dist/analysis/engine-version.js";
 
+// Versão announcements do protocolo MCP vêm do package.json: um literal fixo
+// aqui fazia o cliente MCP ver 2.5.0 enquanto o pacote já é 2.7.3.
 const server = new Server(
-  { name: "mrcp-engine", version: "2.5.0" },
+  { name: "mrcp-engine", version: getEngineVersion() },
   { capabilities: { tools: {} } },
 );
 

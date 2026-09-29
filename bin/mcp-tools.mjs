@@ -9,7 +9,13 @@ export const MCP_TOOLS = [
         repo: {
           type: "string",
           description:
-            "Full URL of the GitHub repository (e.g., https://github.com/user/project)",
+            "Full URL of the GitHub repository (e.g., https://github.com/user/project) or a local path.",
+        },
+        raw: {
+          type: "boolean",
+          description:
+            "When true, returns the compact JSON analysis instead of the AI-formatted summary. Use for programmatic consumers.",
+          default: false,
         },
       },
       required: ["repo"],

@@ -4,6 +4,36 @@ import path from "path";
 const MRCP_API_BASE = "https://mrcp-engine.vercel.app";
 const CACHE_FILE = "mrcp-analysis.json";
 
+// === Analise local ============================================================
+// A API hospedada nao enxerga o disco do cliente. Para alvo local (path), usar
+// o core compilado localmente em vez de enviar o path para a Vercel -- antes
+// isso acabava no gerador deterministico, devolvendo MI/arquivos inventados.
+let corePromise = null;
+function loadCore() {
+  if (!corePromise) {
+    corePromise = import("../packages/core/dist/analysis/pipeline.js").catch(
+      (e) => {
+        corePromise = null;
+        throw new Error(
+          `Core local indisponivel (${e.message}). Rode: pnpm --filter @mrcp/core build`,
+        );
+      },
+    );
+  }
+  return corePromise;
+}
+
+async function runLocalAnalysis(repoUrl) {
+  if (!repoUrl) return null;
+  const { parseTargetUrl, runAnalysis } = await loadCore();
+  if (parseTargetUrl(repoUrl)?.targetType !== "local") return null;
+  return await runAnalysis({
+    repoUrl,
+    githubToken: process.env.GITHUB_TOKEN,
+    maxFiles: 2000,
+  });
+}
+
 function getCachedResult(repoUrl, type) {
   const cacheFile = path.join(process.cwd(), CACHE_FILE);
   if (fs.existsSync(cacheFile)) {
@@ -73,15 +103,19 @@ function formatResponseForAi(endpoint, data) {
       return diag.executiveDashboardMarkdown;
     }
     const summary = diag.executiveSummary || {};
+    // `null`/ausente = etapa não mediu. `|| 85`, `|| "A"` e `|| 15` fabricavam
+    // um diagnóstico Optimista a partir de nada.
+    const nd = "indisponível (não medido)";
+    const num = (v) => (v === null || v === undefined ? nd : v);
     return [
       `# 🧠 MRCP Engine - Executive Repository Diagnostic`,
-      `* **Maintainability Index:** ${summary.maintainabilityIndex || 85}/100 (Grade ${summary.letterGrade || "A"})`,
-      `* **Technical Debt:** ${summary.technicalDebtScore || 15}%`,
-      `* **Security Audit:** ${summary.securityAuditPassed ? "✅ PASSED (0 Critical Vulnerabilities)" : "⚠️ VULNERABILITIES DETECTED"}`,
-      `* **God Modules:** ${summary.godModulesCount || 0}`,
-      `* **Dead Symbols:** ${summary.deadSymbolsCount || 0}`,
-      `* **API Routes:** ${summary.totalApiRoutes || 0}`,
-      `* **Documents Analyzed:** ${summary.totalDocumentsAnalyzed || 0}`,
+      `* **Maintainability Index:** ${summary.maintainabilityIndex === null || summary.maintainabilityIndex === undefined ? nd : `${summary.maintainabilityIndex}/100`} (Grade ${summary.letterGrade ?? nd})`,
+      `* **Technical Debt:** ${summary.technicalDebtScore === null || summary.technicalDebtScore === undefined ? nd : `${summary.technicalDebtScore}%`}`,
+      `* **Security Audit:** ${summary.securityAuditPassed === null || summary.securityAuditPassed === undefined ? `⚪ INCONCLUSIVE (${nd})` : summary.securityAuditPassed ? "✅ PASSED (0 Critical Vulnerabilities)" : "⚠️ VULNERABILITIES DETECTED"}`,
+      `* **God Modules:** ${num(summary.godModulesCount)}`,
+      `* **Dead Symbols:** ${num(summary.deadSymbolsCount)}`,
+      `* **API Routes:** ${num(summary.totalApiRoutes)}`,
+      `* **Documents Analyzed:** ${num(summary.totalDocumentsAnalyzed)}`,
       ``,
       `> [!NOTE]`,
       `> Full 360° graph and all sub-reports are cached locally in \`mrcp-analysis.json\`.`,
@@ -92,10 +126,12 @@ function formatResponseForAi(endpoint, data) {
   if (endpoint.includes("code-health") || data.code_health) {
     const ch = data.code_health || data;
     const summary = ch.summary || {};
+    const nd = "indisponível (não medido)";
+    const num = (v) => (v === null || v === undefined ? nd : v);
     const lines = [
-      `### 📊 Code Health & Maintainability: ${ch.maintainabilityIndex || 85}/100 (Grade ${ch.letterGrade || "A"} - ${ch.maintainabilityRating || "Good"})`,
-      `* **Technical Debt:** ${ch.technicalDebtScore || 15}% | **Total Files:** ${summary.totalFiles || 0} (~${(summary.totalLinesOfCode || 0).toLocaleString()} LOC)`,
-      `* **God Modules Detected:** ${summary.godModulesCount || 0}`,
+      `### 📊 Code Health & Maintainability: ${ch.maintainabilityIndex === null || ch.maintainabilityIndex === undefined ? nd : `${ch.maintainabilityIndex}/100`} (Grade ${ch.letterGrade ?? nd} - ${ch.maintainabilityRating ?? nd})`,
+      `* **Technical Debt:** ${ch.technicalDebtScore === null || ch.technicalDebtScore === undefined ? nd : `${ch.technicalDebtScore}%`} | **Total Files:** ${num(summary.totalFiles)} (~${summary.totalLinesOfCode === null || summary.totalLinesOfCode === undefined ? nd : summary.totalLinesOfCode.toLocaleString()} LOC)`,
+      `* **God Modules Detected:** ${num(summary.godModulesCount)}`,
       ``,
     ];
     if (ch.topRefactoringPriorities && ch.topRefactoringPriorities.length > 0) {
@@ -113,9 +149,11 @@ function formatResponseForAi(endpoint, data) {
   if (endpoint.includes("security-audit") || data.security_audit) {
     const sec = data.security_audit || data;
     const vulns = sec.vulnerabilities || [];
+    const nd = "indisponível (não medido)";
+    const passed = sec.auditPassed;
     const lines = [
-      `### 🛡️ Security Audit: ${sec.auditPassed ? "✅ PASSED" : "⚠️ VULNERABILITIES FOUND"}`,
-      `* **Total Alerts:** ${sec.totalVulnerabilities || vulns.length}`,
+      `### 🛡️ Security Audit: ${passed === null || passed === undefined ? `⚪ INCONCLUSIVE (${nd})` : passed ? "✅ PASSED" : "⚠️ VULNERABILITIES FOUND"}`,
+      `* **Total Alerts:** ${sec.totalVulnerabilities === null || sec.totalVulnerabilities === undefined ? nd : sec.totalVulnerabilities}`,
       ``,
     ];
     if (vulns.length > 0) {
@@ -126,6 +164,11 @@ function formatResponseForAi(endpoint, data) {
           `| **${v.severity}** | \`${v.file}:${v.line || 1}\` | ${v.description} | \`${v.remediationSnippet || "Inspect code"}\` |`,
         );
       }
+    } else if (passed === null || passed === undefined) {
+      // Ausência de alertas não é aprovação quando nada foi inspecionado.
+      lines.push(
+        `* ⚪ Audit inconclusive: no source content was read and inspected. Absence of alerts does not mean absence of vulnerabilities.`,
+      );
     } else {
       lines.push(`* ✅ No security vulnerabilities or secrets exposed.`);
     }
@@ -183,10 +226,12 @@ function formatResponseForAi(endpoint, data) {
   if (endpoint.includes("/api/analyze") || data.analysis?.nodes) {
     const nodes = data.analysis?.nodes || data.nodes || [];
     const edges = data.analysis?.edges || data.edges || [];
+    const sourceUsed = data.analysis?.sourceUsed || data.sourceUsed;
     return [
       `### 🌳 Repository Architecture & AST Analysis`,
       `* **Total Files / Symbols:** ${nodes.length}`,
       `* **Dependencies & Call Edges:** ${edges.length}`,
+      ...(sourceUsed ? [`* **Fonte da analise:** \`${sourceUsed}\``] : []),
       `* **Top Entry Points:** ${nodes
         .slice(0, 5)
         .map((n) => `\`${n.path || n.label}\``)
@@ -258,12 +303,43 @@ async function handlePost(endpoint, args) {
 }
 
 export const MCP_HANDLERS = {
-  analyze_repository: (args, repoUrl) =>
-    handleGet(
+  analyze_repository: async (args, repoUrl) => {
+    try {
+      const local = await runLocalAnalysis(repoUrl);
+      if (local) {
+        return {
+          content: [
+            {
+              type: "text",
+              // `raw` evita o resumo em markdown para consumidores programaticos.
+              // Compacto de proposito: o transporte stdio do MCP tem buffer de 10 MB.
+              text: args?.raw
+                ? JSON.stringify(local)
+                : formatResponseForAi("/api/analyze", local),
+            },
+          ],
+        };
+      }
+    } catch (localError) {
+      // Alvo local que falhou localmente nao pode virar chamada remota: a API
+      // responderia 400 e, antes do guard, chegaria a sintetizar dados.
+      if (String(localError.message).includes("Core local")) throw localError;
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Erro na analise local: ${localError.message}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+    return handleGet(
       `/api/analyze?repo=${encodeURIComponent(repoUrl)}`,
       repoUrl,
       "analysis",
-    ),
+    );
+  },
   get_repository_skills_contract: (args, repoUrl) =>
     handleGet(
       `/api/skills?repo=${encodeURIComponent(repoUrl)}`,

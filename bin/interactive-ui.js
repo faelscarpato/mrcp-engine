@@ -1,10 +1,12 @@
 import readline from "readline";
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
+import { getEngineVersion } from "../packages/core/dist/analysis/engine-version.js";
 
 const MRCP_API_BASE =
   process.env.MRCP_API_URL || "https://mrcp-engine.vercel.app";
 const CACHE_FILE = "mrcp-analysis.json";
+const ENGINE_VERSION = getEngineVersion();
 
 const AVAILABLE_TOOLS = [
   {
@@ -114,7 +116,7 @@ function renderHeader() {
     `${c.cyan}${c.bold}╔════════════════════════════════════════════════════════════════════════════╗${c.reset}`,
   );
   console.log(
-    `${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v2.6.2             ║${c.reset}`,
+    `${c.cyan}${c.bold}║       🧠 MRCP ENGINE — TERMINAL DEVELOPER CONTROL PANEL v${ENGINE_VERSION.padEnd(6)}             ║${c.reset}`,
   );
   console.log(
     `${c.cyan}${c.bold}║       Machine-Readable Context Protocol • Engenharia de AST Sem Alucinação ║${c.reset}`,

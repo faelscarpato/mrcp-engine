@@ -277,15 +277,25 @@ export async function analyzeWorkspaceLocally(
     // Workspace pode não ser um repositório git completo; mantém "local-dev"
   }
 
+  // Versão lida do package.json para a provenance nunca divergir do pacote publicado.
+  let pkgVersion = "0.0.0";
+  try {
+    const pkgPath = path.resolve(__dirname, "..", "..", "package.json");
+    pkgVersion =
+      JSON.parse(fs.readFileSync(pkgPath, "utf8")).version ?? pkgVersion;
+  } catch {
+    // Sem package.json acessível (empacotamento inesperado): mantém fallback sem quebrar a análise.
+  }
+
   const provenance: MrcpProvenanceMetadata = {
     generatedAt: new Date().toISOString(),
-    analyzerVersion: "2.6.0",
+    analyzerVersion: pkgVersion,
     repositoryRevision: gitRevision,
     source: "local-workspace",
     workspaceFingerprint: fingerprint,
     includedExtensions: Array.from(CODE_EXTENSIONS),
     excludedDirectories: Array.from(IGNORED_DIRS),
-    calculationVersion: "2.6.0-sei",
+    calculationVersion: `${pkgVersion}-sei`,
     cache: {
       used: false,
       valid: true,

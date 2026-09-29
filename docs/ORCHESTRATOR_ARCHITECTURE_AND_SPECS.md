@@ -3,7 +3,7 @@
 **Versão da Implementação:** `2.7.1`  
 **Módulo:** `@mrcp/cli/orchestrator` & `mrcp-engine auto`  
 **Padrão:** MCP Native (Zero LLM Interno / Condução de IA da IDE)  
-**Status:** Produção / Validado com Vitest & ESLint  
+**Status:** Produção / Validado com Vitest & ESLint
 
 ---
 
@@ -20,6 +20,7 @@ A versão `2.7.1` do **MRCP Engine** introduz uma camada superior de **Engenhari
 ## 2. Paradigma "MCP Native" (Zero LLM Interno)
 
 ### 2.1. Por que não usar chamadas de LLM internas no MRCP?
+
 - **Custo e Autenticação:** Exigir `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` ou `GEMINI_API_KEY` dentro da biblioteca do CLI cria atrito de adoção, custos duplicados e expõe segredos.
 - **Aproveitamento da IDE:** O desenvolvedor moderno já utiliza ambientes inteligentes (Antigravity CLI/IDE, Cursor, Claude Desktop, Windsurf) que possuem modelos de ponta ativos.
 - **Divisão de Responsabilidades:** O MRCP Engine fornece **diretivas estruturais, governança matemática e inspeção de código**. A LLM da IDE fornece a **geração criativa de sintaxe**. O Gatekeeper garante que a criatividade não quebre a arquitetura.
@@ -44,10 +45,14 @@ packages/cli/src/orchestrator/
 ```
 
 ### 3.1. `types.ts`
+
 Define os contratos fundamentais:
+
 ```typescript
-export type AgentRole = "TECH_LEAD" | "FRONTEND" | "BACKEND" | "DATABASE" | "QA_GATEKEEPER";
-export type TaskStatus = "PENDING" | "IN_PROGRESS" | "VALIDATING" | "APPROVED" | "REJECTED" | "FAILED";
+export type AgentRole =
+  "TECH_LEAD" | "FRONTEND" | "BACKEND" | "DATABASE" | "QA_GATEKEEPER";
+export type TaskStatus =
+  "PENDING" | "IN_PROGRESS" | "VALIDATING" | "APPROVED" | "REJECTED" | "FAILED";
 
 export interface AgentTask {
   id: string;
@@ -69,7 +74,9 @@ export interface AgentTask {
 ```
 
 ### 3.2. `TechLeadOrchestrator.ts`
+
 Implementa o fluxo de planejamento autônomo:
+
 - `conductResearch()`: Extrai palavras-chave do domínio e consulta a Web via DuckDuckGo HTML scraping e parser de tags `<h1>..<h3>`.
 - `planArchitecture()`: Gera o grafo sequencial de tarefas:
   1. `TASK-DB-001` (Database)
@@ -78,7 +85,9 @@ Implementa o fluxo de planejamento autônomo:
 - Grava os arquivos master em `.mrcp/ARCHITECTURE_PLAN.json` e `.mrcp/ARCHITECTURE_PLAN.md`.
 
 ### 3.3. `MrcpGatekeeper.ts`
+
 O validador em tempo real do sistema:
+
 - **Watcher do File System:** Usa `chokidar` (ou `fs.watch` recursivo nativo no Windows/macOS) com debounce de 800ms.
 - **Validações AST executadas em paralelo:**
   1. `detectArchitectureDrift`:
@@ -125,15 +134,17 @@ A pasta `.mrcp/` criada na raiz do projeto gerado funciona como a memória compa
 ## 6. Integração com a Extensão do VS Code (`apps/vscode`)
 
 A extensão do VS Code foi atualizada na versão `2.7.1`:
-- **Comando:** `mrcp.startAutonomous` (*"MRCP: Iniciar Orquestrador Autônomo (Tech Lead)"*)
+
+- **Comando:** `mrcp.startAutonomous` (_"MRCP: Iniciar Orquestrador Autônomo (Tech Lead)"_)
 - **Ação Rápida:** Item adicionado ao topo do menu de ações rápidas no painel lateral.
-- **Comportamento:** Ao clicar ou executar o comando, o VS Code abre um input box para receber o prompt macro e inicia o terminal dedicado *"MRCP Autonomous"* rodando `npx mrcp-engine auto "<prompt>"`.
+- **Comportamento:** Ao clicar ou executar o comando, o VS Code abre um input box para receber o prompt macro e inicia o terminal dedicado _"MRCP Autonomous"_ rodando `npx mrcp-engine auto "<prompt>"`.
 
 ---
 
 ## 7. Comandos de Operação
 
 ### Execução via NPX (Sem Instalação Prévia)
+
 ```bash
 # Execução direta com prompt
 npx mrcp-engine auto "Crie um SaaS de clínicas médicas com prontuário e agendamento"
@@ -146,11 +157,13 @@ npx mrcp-auto "Sistema de controle de estoque com Next.js e Prisma"
 ```
 
 ### Execução de Testes do Módulo
+
 ```bash
 pnpm vitest run packages/cli/src/orchestrator/orchestrator.test.ts
 ```
 
 ### Checagem de Linter e Tipos
+
 ```bash
 pnpm run lint
 pnpm exec tsc --noEmit

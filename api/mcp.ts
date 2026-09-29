@@ -3,6 +3,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types";
 import { saveEndpointOutput } from "../packages/core/lib/cache.js";
+import { getEngineVersion } from "../packages/core/lib/analysis/engine-version.js";
 import { trackEngineUsage } from "../src/services/analytics.js";
 
 /**
@@ -38,7 +39,7 @@ export default async function handler(req: any, res: any) {
   if (req.method === "GET") {
     return res.status(200).json({
       name: "mrcp-engine",
-      version: "2.5.0",
+      version: getEngineVersion(),
       description:
         "Machine-Readable Context Protocol Engine — Structural intelligence for AI agents",
       protocol: "MCP/Streamable-HTTP",
@@ -115,7 +116,7 @@ export default async function handler(req: any, res: any) {
             capabilities: { tools: {} },
             serverInfo: {
               name: "mrcp-engine",
-              version: "2.5.0",
+              version: getEngineVersion(),
             },
             instructions:
               "OPERATIONAL DIRECTIVE FOR AI: When analyzing any repository for the first time, you MUST call 'mrcp_run_full_repository_suite' to get a complete 360-degree diagnostic (AST graph, security, health, tests, env, dead code, OpenAPI contracts, SQL models, and document intelligence). For follow-up tasks, call specific modular tools (e.g. mrcp_security_compliance_audit, mrcp_document_analyzer, mrcp_impact_analysis, mrcp_web_smart_search). Do not dump raw files sequentially or use legacy web scraping.",

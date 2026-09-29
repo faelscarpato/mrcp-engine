@@ -1,7 +1,49 @@
 import { saveEndpointOutput } from "../packages/core/lib/cache.js";
 import { sendFormattedResponse } from "../packages/core/lib/report-manager.js";
+import {
+  WebToolError,
+  WEB_ERROR_CATEGORY,
+} from "../packages/core/lib/web/scraper-tools.js";
 import fs from "fs";
 import path from "path";
+
+/**
+ * Traduz um erro das ferramentas de rede (busca/raspagem) em resposta HTTP.
+ *
+ * Anti-bot e falha de upstream recebem contratos diferentes porque exigem
+ * ações diferentes do cliente:
+ *  - anti-bot  -> 429 + `retryable: true`  (esperar/backoff e repetir);
+ *  - upstream  -> 502 + `retryable: false` (investigar: provedor fora do ar,
+ *                timeout ou erro de rede — repetir não resolve).
+ *
+ * `upstream_status` carrega o status HTTP real quando existe, e `category`
+ * preserva o rótulo genérico antigo para clientes que só conheciam
+ * "SEARCH_BLOCKED" (grep confirmou que nada no repo dependia dele, mas ele é
+ * de graça para consumidores externos).
+ */
+function webToolErrorResponse(res: any, err: unknown) {
+  if (err instanceof WebToolError) {
+    const antiBot =
+      err.code === "SEARCH_ANTI_BOT" || err.code === "SCRAPE_ANTI_BOT";
+    return res.status(antiBot ? 429 : 502).json({
+      status: "error",
+      error_code: err.code,
+      category: WEB_ERROR_CATEGORY,
+      upstream_status: err.httpStatus,
+      retryable: antiBot,
+      message: err.message,
+    });
+  }
+
+  // Falha fora do contrato (bug, exceção de parser): 500 honesto, sem inventar
+  // que foi bloqueio do provedor.
+  console.error("Erro inesperado em rota de rede:", err);
+  return res.status(500).json({
+    status: "error",
+    error_code: "INTERNAL_ERROR",
+    message: err instanceof Error ? err.message : "Erro interno do servidor.",
+  });
+}
 
 export const routeHandlers: Record<
   string,
@@ -15,7 +57,11 @@ export const routeHandlers: Record<
     let analysisData: any = null;
     if (fs.existsSync(rootJsonPath)) {
       try {
-        analysisData = JSON.parse(fs.readFileSync(rootJsonPath, "utf-8"));
+        const cached = JSON.parse(fs.readFileSync(rootJsonPath, "utf-8"));
+        // O cache só vale se for do MESMO alvo. Reaproveitar o
+        // mrcp-analysis.json de outro repositório devolveria métricas que não
+        // têm nada a ver com o pedido — números não rastreáveis ao projeto.
+        if (cached?.repoUrl === repoUrl) analysisData = cached;
       } catch {
         // JSON existente pode estar corrompido; reanalisa na sequência
       }
@@ -344,10 +390,16 @@ export const routeHandlers: Record<
       return res
         .status(400)
         .json({ status: "error", error_code: "MISSING_QUERY" });
-    const { searchDuckDuckGo } =
-      await import("../packages/core/lib/web/scraper-tools.js");
-    const result = await searchDuckDuckGo(query);
-    return res.status(200).json({ status: "success", search_results: result });
+    try {
+      const { searchDuckDuckGo } =
+        await import("../packages/core/lib/web/scraper-tools.js");
+      const result = await searchDuckDuckGo(query);
+      return res
+        .status(200)
+        .json({ status: "success", search_results: result });
+    } catch (err: any) {
+      return webToolErrorResponse(res, err);
+    }
   },
 
   // 15. /api/scrape
@@ -357,10 +409,19 @@ export const routeHandlers: Record<
       return res
         .status(400)
         .json({ status: "error", error_code: "MISSING_URL" });
-    const { scrapeUrl } =
-      await import("../packages/core/lib/web/scraper-tools.js");
-    const result = await scrapeUrl(targetUrl);
-    return res.status(200).json({ status: "success", scraped_content: result });
+    try {
+      // scrapeUrl (não scrapeUrlOrThrow) engole a falha e devolve uma página
+      // sentinela com title "Erro": aceitável no pipeline, mas aqui seria um
+      // HTTP 200 mentindo sobre a falha.
+      const { scrapeUrlOrThrow } =
+        await import("../packages/core/lib/web/scraper-tools.js");
+      const result = await scrapeUrlOrThrow(targetUrl);
+      return res
+        .status(200)
+        .json({ status: "success", scraped_content: result });
+    } catch (err: any) {
+      return webToolErrorResponse(res, err);
+    }
   },
 
   // 16. /api/smart-search
@@ -370,15 +431,19 @@ export const routeHandlers: Record<
       return res
         .status(400)
         .json({ status: "error", error_code: "MISSING_QUERY" });
-    const { smartSearchPipeline } =
-      await import("../packages/core/lib/web/scraper-tools.js");
-    const result = await smartSearchPipeline(
-      query,
-      Number(req.query.topN || 2),
-    );
-    return res
-      .status(200)
-      .json({ status: "success", smart_search_results: result });
+    try {
+      const { smartSearchPipeline } =
+        await import("../packages/core/lib/web/scraper-tools.js");
+      const result = await smartSearchPipeline(
+        query,
+        Number(req.query.topN || 2),
+      );
+      return res
+        .status(200)
+        .json({ status: "success", smart_search_results: result });
+    } catch (err: any) {
+      return webToolErrorResponse(res, err);
+    }
   },
 
   // 17. /api/search
