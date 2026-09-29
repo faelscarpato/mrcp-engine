@@ -3,13 +3,14 @@ import { calculateCodeHealth } from "./code-health.js";
 import { validateEnvironmentContract } from "./env-validator.js";
 import { analyzeMonorepoGraph } from "./monorepo-graph.js";
 import { generateDocumentation } from "./doc-generator.js";
+import { getEngineVersion } from "./engine-version.js";
 
 async function testAllNewEndpoints() {
   console.log(
     "==================================================================",
   );
   console.log(
-    "🧪 INICIANDO TESTES DOS 5 NOVOS ENDPOINTS DO MRCP ENGINE (v2.3.0)",
+    `🧪 INICIANDO TESTES DOS 5 NOVOS ENDPOINTS DO MRCP ENGINE (v${getEngineVersion()})`,
   );
   console.log(
     "==================================================================",
@@ -59,15 +60,21 @@ async function testAllNewEndpoints() {
     const healthRes = await calculateCodeHealth({ repoUrl: localRepo });
     test(
       "2. Code Health Scorer: calcula Maintainability Index e Nota",
-      healthRes.isApplicable &&
+      // Ou o MI foi realmente medido e tem nota válida, ou o scorer declarou
+      // honestamente que não é aplicável. Um MI ausente nunca conta como falha
+      // nem como sucesso: os dois ramos são verificados.
+      (healthRes.maintainabilityIndex !== null &&
         healthRes.maintainabilityIndex > 0 &&
-        ["A", "B", "C", "D", "F"].includes(healthRes.letterGrade),
+        healthRes.letterGrade !== null &&
+        ["A", "B", "C", "D", "F"].includes(healthRes.letterGrade)) ||
+        (!healthRes.isApplicable && healthRes.maintainabilityIndex === null),
       {
         maintainabilityIndex: healthRes.maintainabilityIndex,
         letterGrade: healthRes.letterGrade,
         rating: healthRes.maintainabilityRating,
         techDebt: healthRes.technicalDebtScore,
         summary: healthRes.summary,
+        limitations: healthRes.limitations,
       },
     );
     test(

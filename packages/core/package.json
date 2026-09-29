@@ -1,10 +1,49 @@
 {
   "name": "@mrcp/core",
-  "version": "2.7.1",
+  "version": "2.7.3",
   "type": "module",
-  "main": "src/analysis/pipeline.js",
+  "main": "./dist/analysis/pipeline.js",
+  "types": "./dist/analysis/pipeline.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/analysis/pipeline.d.ts",
+      "import": "./dist/analysis/pipeline.js"
+    },
+    "./analysis/pipeline": {
+      "types": "./dist/analysis/pipeline.d.ts",
+      "import": "./dist/analysis/pipeline.js"
+    },
+    "./analysis/code-health": {
+      "types": "./dist/analysis/code-health.d.ts",
+      "import": "./dist/analysis/code-health.js"
+    },
+    "./analysis/architecture-drift": {
+      "types": "./dist/analysis/architecture-drift.d.ts",
+      "import": "./dist/analysis/architecture-drift.js"
+    },
+    "./web/scraper-tools": {
+      "types": "./dist/web/scraper-tools.d.ts",
+      "import": "./dist/web/scraper-tools.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "tsconfig.build.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "node -e \"import('node:fs').then(fs=>fs.rmSync('dist',{recursive:true,force:true}))\"",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
   "dependencies": {
+    "@octokit/auth-app": "^8.3.1",
+    "@octokit/rest": "^22.0.1",
     "cheerio": "^1.2.0",
+    "web-tree-sitter": "^0.26.11"
+  },
+  "optionalDependencies": {
+    "puppeteer": "^25.5.0",
     "tree-sitter-c": "^0.24.1",
     "tree-sitter-cobol": "^0.0.1",
     "tree-sitter-cpp": "^0.23.4",
@@ -15,7 +54,6 @@
     "tree-sitter-python": "^0.25.0",
     "tree-sitter-ruby": "^0.23.1",
     "tree-sitter-rust": "^0.24.0",
-    "tree-sitter-typescript": "^0.23.2",
-    "web-tree-sitter": "^0.26.11"
+    "tree-sitter-typescript": "^0.23.2"
   }
 }

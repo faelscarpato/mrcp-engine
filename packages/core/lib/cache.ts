@@ -22,7 +22,7 @@ export async function getCachedAnalysis(
   if (memoryCache.has(key)) {
     const entry = memoryCache.get(key)!;
     if (Date.now() - entry.timestamp < CACHE_TTL_MS) {
-      console.log(`[Cache] Memory hit para ${repoUrl}`);
+      console.error(`[Cache] Memory hit para ${repoUrl}`);
       return entry.data;
     } else {
       memoryCache.delete(key);
@@ -38,7 +38,7 @@ export async function getCachedAnalysis(
         const stats = fs.statSync(cacheFile);
         if (Date.now() - stats.mtimeMs < CACHE_TTL_MS) {
           const content = fs.readFileSync(cacheFile, "utf-8");
-          console.log(`[Cache] FS hit para ${repoUrl}`);
+          console.error(`[Cache] FS hit para ${repoUrl}`);
           return JSON.parse(content);
         }
       }

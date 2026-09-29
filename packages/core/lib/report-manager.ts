@@ -101,9 +101,9 @@ export function saveAllReportsLocally(
       );
     }
 
-    console.log(`[MRCP Report Engine] ✅ Relatórios salvos com sucesso:`);
-    console.log(`   - JSON: ${rootJsonPath}`);
-    console.log(`   - Markdown: ${markdownReportPath}`);
+    console.error(`[MRCP Report Engine] ✅ Relatórios salvos com sucesso:`);
+    console.error(`   - JSON: ${rootJsonPath}`);
+    console.error(`   - Markdown: ${markdownReportPath}`);
 
     return { jsonReportPath, markdownReportPath, executiveReportPath };
   } catch (err: any) {

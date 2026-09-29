@@ -9,7 +9,8 @@ export interface RefactoringHotspot {
   file: string;
   cyclomaticComplexity: number;
   linesOfCode: number;
-  couplingDegree: number;
+  /** `null` quando o grafo não traz fan-in; usar 0 ou 1 seria inventar dado. */
+  couplingDegree: number | null;
   cognitiveLoad: "LOW" | "MODERATE" | "HIGH" | "EXTREME";
   estimatedEffortHours: number;
   primaryIssue: string;
@@ -18,28 +19,32 @@ export interface RefactoringHotspot {
 
 export interface CodeHealthResult {
   repoUrl: string;
-  maintainabilityIndex: number; // 0 - 100
+  // `null` = etapa sem dado real (nenhum arquivo analisável). Nunca usar 0/100
+  // como substituto: 100 significaria "repositório perfeito", o que é falso.
+  maintainabilityIndex: number | null; // 0 - 100
   maintainabilityRating:
-    "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL";
-  technicalDebtScore: number; // 0 - 100 (lower is better)
-  letterGrade: "A" | "B" | "C" | "D" | "F";
+    "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" | null;
+  technicalDebtScore: number | null; // 0 - 100 (lower is better)
+  letterGrade: "A" | "B" | "C" | "D" | "F" | null;
   summary: {
-    totalFiles: number;
-    totalLinesOfCode: number;
-    totalFunctions: number;
-    averageComplexityPerFile: number;
-    testToCodeRatio: number;
-    godModulesCount: number;
+    totalFiles: number | null;
+    totalLinesOfCode: number | null;
+    totalFunctions: number | null;
+    averageComplexityPerFile: number | null;
+    testToCodeRatio: number | null;
+    godModulesCount: number | null;
   };
   cognitiveLoadDistribution: {
-    low: number; // %
-    moderate: number; // %
-    high: number; // %
-    extreme: number; // %
+    low: number | null; // %
+    moderate: number | null; // %
+    high: number | null; // %
+    extreme: number | null; // %
   };
   topRefactoringPriorities: RefactoringHotspot[];
   isApplicable: boolean;
   message?: string;
+  /** Passos do cálculo que não puderam ser concluídos. */
+  limitations?: string[];
 }
 
 export async function calculateCodeHealth(
@@ -59,31 +64,49 @@ export async function calculateCodeHealth(
   const nodes: any[] = graphData?.analysis?.nodes || graphData?.nodes || [];
   const edges: any[] = graphData?.analysis?.edges || graphData?.edges || [];
 
-  if (nodes.length === 0) {
+  const fileNodesAll = nodes.filter((n) => n.kind === "file");
+
+  // Sem arquivo analisável não existe Maintainability Index: devolver 100 seria
+  // afirmar que o repositório está perfeito quando na verdade nada foi medido.
+  if (nodes.length === 0 || fileNodesAll.length === 0) {
+    const emptySummary = {
+      totalFiles: fileNodesAll.length,
+      totalLinesOfCode: null,
+      totalFunctions: null,
+      averageComplexityPerFile: null,
+      testToCodeRatio: null,
+      godModulesCount: null,
+    };
     return {
       repoUrl,
-      maintainabilityIndex: 100,
-      maintainabilityRating: "EXCELLENT",
-      technicalDebtScore: 0,
-      letterGrade: "A",
-      summary: {
-        totalFiles: 0,
-        totalLinesOfCode: 0,
-        totalFunctions: 0,
-        averageComplexityPerFile: 0,
-        testToCodeRatio: 0,
-        godModulesCount: 0,
+      maintainabilityIndex: null,
+      maintainabilityRating: null,
+      technicalDebtScore: null,
+      letterGrade: null,
+      summary: emptySummary,
+      cognitiveLoadDistribution: {
+        low: null,
+        moderate: null,
+        high: null,
+        extreme: null,
       },
-      cognitiveLoadDistribution: { low: 100, moderate: 0, high: 0, extreme: 0 },
       topRefactoringPriorities: [],
       isApplicable: false,
-      message:
-        "Nenhum nó de código foi encontrado para avaliar a saúde do repositório.",
+      message: `Nenhum arquivo de código foi encontrado para avaliar a saúde do repositório (${nodes.length} nós no grafo, ${fileNodesAll.length} nós de arquivo). O Maintainability Index não pode ser calculado — métrica ausente, não zero.`,
+      limitations: [
+        "Maintainability Index, nota e carga cognitiva não calculados: nenhum arquivo de código foi analisado.",
+        "Totais de linhas, funções e God Modules permanecem ausentes (null) por falta de fonte.",
+      ],
     };
   }
 
-  const fileNodes = nodes.filter((n) => n.kind === "file");
-  const testNodes = fileNodes.filter((n) => {
+  // collectedBeforeFallback: arquivos cujos LOC/complexidade realmente vieram do
+  // grafo. Só eles entram no MI — inventar 50 LOC ou complexidade 5 para um nó
+  // sem métrica inflaria artificialmente o índice.
+  const collectedBeforeFallback: { loc: number; complexity: number }[] = [];
+  const nodesWithoutMetrics: string[] = [];
+
+  const testNodes = fileNodesAll.filter((n) => {
     const p = (n.path || n.label || "").toLowerCase();
     return (
       p.includes(".test.") ||
@@ -103,16 +126,44 @@ export async function calculateCodeHealth(
 
   const hotspots: RefactoringHotspot[] = [];
 
-  for (const f of fileNodes) {
-    const loc = f.metrics?.loc || f.loc || 50;
-    const complexity =
-      f.metrics?.cyclomaticComplexity ||
-      f.metrics?.complexity ||
-      (f.complexity ? f.complexity : 5);
-    const coupling = f.metrics?.fanIn || f.fanIn || 1;
+  for (const f of fileNodesAll) {
+    const rawLoc = f.metrics?.loc ?? f.loc;
+    const rawComplexity =
+      f.metrics?.cyclomaticComplexity ?? f.metrics?.complexity ?? f.complexity;
+    const rawCoupling = f.metrics?.fanIn ?? f.fanIn;
+
+    // Sem métrica no grafo o valor é 0 (medida real de "nada coletado"), não 50
+    // LOC e não complexidade 5. O arquivo continua sendo contado em
+    // totalFiles, mas fica fora do cálculo do MI e é reportado em limitations.
+    const hasLoc = typeof rawLoc === "number";
+    const hasComplexity = typeof rawComplexity === "number";
+    const isSynthetic = f.synthetic === true;
+    // Nó sintético carrega loc/complexity plausíveis por construção, mas eles
+    // não descrevem o repositório: tratamos como não medidos em todos os
+    // agregados (total LOC, média, distribuição cognitiva, MI).
+    const loc = hasLoc && !isSynthetic ? rawLoc : 0;
+    const complexity = hasComplexity && !isSynthetic ? rawComplexity : 0;
+    // Acoplamento ausente é `null`, não 1: um fan-in inventado inventaria também
+    // o diagnóstico de "alto acoplamento" e as horas estimadas de refatoração.
+    const coupling = typeof rawCoupling === "number" ? rawCoupling : null;
 
     totalLoc += loc;
     totalComplexity += complexity;
+
+    // isGodModule vem do grafo e independe de LOC/complexidade: sempre vale.
+    if (f.isGodModule) {
+      godModulesCount++;
+    }
+
+    // Sem as duas medidas o arquivo não pode ser classificado nem entrar no MI.
+    // Nó marcado como sintético também não: o loc/complexity dele veio de um
+    // PRNG semeado pela URL (fallback determinístico), não da leitura do código.
+    if (!hasLoc || !hasComplexity || isSynthetic) {
+      nodesWithoutMetrics.push(f.path || f.label || f.id || "desconhecido");
+      continue;
+    }
+
+    collectedBeforeFallback.push({ loc, complexity });
 
     let cognitiveLoad: "LOW" | "MODERATE" | "HIGH" | "EXTREME" = "LOW";
     if (complexity > 50 || loc > 800) {
@@ -128,7 +179,7 @@ export async function calculateCodeHealth(
       lowCount++;
     }
 
-    if (f.isGodModule || (complexity > 40 && loc > 500)) {
+    if (complexity > 40 && loc > 500) {
       godModulesCount++;
     }
 
@@ -142,7 +193,7 @@ export async function calculateCodeHealth(
         issue = "Arquivo monolítico com excesso de responsabilidades";
         action =
           "Dividir em sub-módulos coesos seguindo o Princípio da Responsabilidade Única (SRP)";
-      } else if (coupling > 15) {
+      } else if (coupling !== null && coupling > 15) {
         issue = "Alto acoplamento e dependências excessivas";
         action =
           "Injetar dependências via interfaces e introduzir camadas de abstração";
@@ -169,18 +220,24 @@ export async function calculateCodeHealth(
   );
   const topRefactoringPriorities = hotspots.slice(0, 5);
 
-  const fileCount = Math.max(1, fileNodes.length);
-  const avgComplexity = Math.round((totalComplexity / fileCount) * 10) / 10;
+  const fileCount = Math.max(1, fileNodesAll.length);
+  // A média de complexidade só faz sentido sobre os arquivos efetivamente
+  // medidos; dividir pelos arquivos sem métrica rebaixaria a média com zeros
+  // que ninguém mediu.
+  const measuredCount = collectedBeforeFallback.length;
+  const avgComplexity =
+    measuredCount > 0
+      ? Math.round((totalComplexity / measuredCount) * 10) / 10
+      : null;
   const testRatio = Math.round((testNodes.length / fileCount) * 100) / 100;
 
-  // Maintainability Index (MI) computation following standard SEI per-file formulation
+  // Maintainability Index (MI) computation following standard SEI per-file formulation.
+  // Só arquivos com métrica real do grafo entram na média: usar o total de
+  // arquivos com LOC/complexidade inventados (50/5) inflaria o índice.
   let totalFileMI = 0;
-  for (const f of fileNodes) {
-    const fileLoc = f.metrics?.loc || f.loc || 50;
-    const fileFnComp =
-      f.metrics?.cyclomaticComplexity ||
-      f.metrics?.complexity ||
-      (f.complexity ? f.complexity : 5);
+  for (const m of collectedBeforeFallback) {
+    const fileLoc = m.loc;
+    const fileFnComp = m.complexity;
     const fileVol = Math.max(1, fileLoc * 4.5);
     const rawFileMI =
       171 -
@@ -193,38 +250,67 @@ export async function calculateCodeHealth(
     );
     totalFileMI += fileNormalizedMI;
   }
+
+  // Sem nenhum arquivo com métrica coletada não existe MI. 100 seria a nota
+  // máxima e affirmaria qualidade perfeita sem uma única medição.
   const normalizedMI =
-    fileNodes.length > 0 ? Math.round(totalFileMI / fileNodes.length) : 100;
+    collectedBeforeFallback.length > 0
+      ? Math.round(totalFileMI / collectedBeforeFallback.length)
+      : null;
 
-  let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" =
-    "EXCELLENT";
-  let letterGrade: "A" | "B" | "C" | "D" | "F" = "A";
-  const techDebt = Math.max(
-    0,
-    Math.min(100, 100 - normalizedMI + godModulesCount * 5),
-  );
+  let rating: "EXCELLENT" | "GOOD" | "MODERATE" | "POOR" | "CRITICAL" | null =
+    null;
+  let letterGrade: "A" | "B" | "C" | "D" | "F" | null = null;
+  const techDebt =
+    normalizedMI === null
+      ? null
+      : Math.max(0, Math.min(100, 100 - normalizedMI + godModulesCount * 5));
 
-  if (normalizedMI >= 80) {
-    rating = "EXCELLENT";
-    letterGrade = "A";
-  } else if (normalizedMI >= 65) {
-    rating = "GOOD";
-    letterGrade = "B";
-  } else if (normalizedMI >= 50) {
-    rating = "MODERATE";
-    letterGrade = "C";
-  } else if (normalizedMI >= 35) {
-    rating = "POOR";
-    letterGrade = "D";
-  } else {
-    rating = "CRITICAL";
-    letterGrade = "F";
+  if (normalizedMI !== null) {
+    if (normalizedMI >= 80) {
+      rating = "EXCELLENT";
+      letterGrade = "A";
+    } else if (normalizedMI >= 65) {
+      rating = "GOOD";
+      letterGrade = "B";
+    } else if (normalizedMI >= 50) {
+      rating = "MODERATE";
+      letterGrade = "C";
+    } else if (normalizedMI >= 35) {
+      rating = "POOR";
+      letterGrade = "D";
+    } else {
+      rating = "CRITICAL";
+      letterGrade = "F";
+    }
   }
 
-  const lowPct = Math.round((lowCount / fileCount) * 100);
-  const modPct = Math.round((modCount / fileCount) * 100);
-  const highPct = Math.round((highCount / fileCount) * 100);
-  const extPct = Math.round((extremeCount / fileCount) * 100);
+  // As percentuais de carga cognitiva cobrem só os arquivos classificados; os
+  // sem métrica não são "baixa carga", são desconhecidos.
+  const classifiedCount = lowCount + modCount + highCount + extremeCount;
+  const cognitiveBase = Math.max(1, classifiedCount);
+  const lowPct =
+    classifiedCount > 0 ? Math.round((lowCount / cognitiveBase) * 100) : null;
+  const modPct =
+    classifiedCount > 0 ? Math.round((modCount / cognitiveBase) * 100) : null;
+  const highPct =
+    classifiedCount > 0 ? Math.round((highCount / cognitiveBase) * 100) : null;
+  const extPct =
+    classifiedCount > 0
+      ? Math.round((extremeCount / cognitiveBase) * 100)
+      : null;
+
+  const limitations: string[] = [];
+  if (normalizedMI === null) {
+    limitations.push(
+      `Maintainability Index, nota, rating e dívida técnica não calculados: ${fileNodesAll.length} arquivo(s) no grafo, mas nenhum com LOC ou complexidade coletados.`,
+    );
+  } else if (nodesWithoutMetrics.length > 0) {
+    const sample = nodesWithoutMetrics.slice(0, 5).join(", ");
+    limitations.push(
+      `${nodesWithoutMetrics.length} de ${fileNodesAll.length} arquivo(s) vieram sem LOC/complexidade e ficaram fora do cálculo do MI (amostra: ${sample}).`,
+    );
+  }
 
   return {
     repoUrl,
@@ -233,8 +319,11 @@ export async function calculateCodeHealth(
     technicalDebtScore: techDebt,
     letterGrade,
     summary: {
-      totalFiles: fileNodes.length,
-      totalLinesOfCode: totalLoc,
+      totalFiles: fileNodesAll.length,
+      // Zero aqui significaria "medimos e o repositório tem 0 linhas". Quando
+      // nenhum nó contribuiu com métrica real (grafo vazio de métricas ou
+      // integralmente sintético), a resposta honesta é null.
+      totalLinesOfCode: measuredCount > 0 ? totalLoc : null,
       totalFunctions: nodes.filter(
         (n) => n.kind === "function" || n.kind === "method",
       ).length,
@@ -249,7 +338,14 @@ export async function calculateCodeHealth(
       extreme: extPct,
     },
     topRefactoringPriorities,
+    // Há arquivos no grafo, então a etapa é aplicável; o que falta são as
+    // métricas. A ausência fica em `limitations` e nos campos `null`, não em
+    // um isApplicable falso que esconderia que o grafo existe.
     isApplicable: true,
-    message: `Índice de Manutenibilidade: ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`,
+    message:
+      normalizedMI === null
+        ? `Saúde de código sem dados medidos: ${fileNodesAll.length} arquivo(s) no grafo, nenhum com LOC ou complexidade coletados. Maintainability Index, nota e dívida técnica permanecem ausentes (null).`
+        : `Índice de Manutenibilidade: ${normalizedMI}/100 (Nota ${letterGrade} - ${rating}). Identificados ${godModulesCount} God Modules e ${topRefactoringPriorities.length} arquivos prioritários para refatoração.`,
+    limitations,
   };
 }

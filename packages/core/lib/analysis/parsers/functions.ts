@@ -1,7 +1,7 @@
 // Function extraction using regex patterns and Tree-sitter (when available)
 // This provides function detection for multiple languages
 
-import type { GraphNode, GraphEdge } from "@/lib/graph-types";
+import type { GraphNode, GraphEdge } from "../../graph-types.js";
 import {
   extractFunctionsWithTreeSitter,
   extractCallsWithTreeSitter,
@@ -16,6 +16,8 @@ export interface ExtractedFunction {
   parameters?: string[];
   isMethod?: boolean;
   className?: string; // For class methods
+  complexity?: number; // Ciclomática calculada no parser
+  lines?: number; // Tamanho real da função em linhas
 }
 
 import { FUNCTION_PATTERNS } from "./function-patterns.js";

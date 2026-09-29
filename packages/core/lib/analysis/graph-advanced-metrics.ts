@@ -2,7 +2,7 @@ import type {
   GraphEdge,
   GraphNode,
   AdvancedModuleMetrics,
-} from "@/lib/graph-types";
+} from "../graph-types.js";
 
 export interface CycleResult {
   nodes: string[];

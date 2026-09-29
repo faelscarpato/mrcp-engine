@@ -5,7 +5,6 @@ import type {
   ProgressEvent,
 } from "../types.js";
 import { buildGraph, type FileEntry } from "../graph-builder.js";
-import puppeteer from "puppeteer";
 
 export const websiteSource: AnalysisSource = {
   id: "website",
@@ -25,6 +24,9 @@ export const websiteSource: AnalysisSource = {
     try {
       let html = "";
       try {
+        // Carregamento sob demanda: puppeteer/Chromium (~300MB) nao pode ser
+        // uma dependencia estatica de quem so analisa repositorio local.
+        const { default: puppeteer } = await import("puppeteer");
         const browser = await puppeteer.launch({
           headless: true,
           args: ["--no-sandbox", "--disable-setuid-sandbox"],

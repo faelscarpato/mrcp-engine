@@ -2,6 +2,7 @@ import type {
   ApiParameter,
   ApiRouteDefinition,
 } from "./api-contract-generator.js";
+import { getEngineVersion } from "./engine-version.js";
 
 export function sanitizeMethodName(method: string, path: string): string {
   const cleanPath = path
@@ -93,7 +94,7 @@ export function buildTypeScriptSdkSnippet(
   const sdkLines: string[] = [
     `// ==========================================================`,
     `// 🚀 Auto-Generated Typed API Client SDK for ${repoUrl}`,
-    `// Generated deterministically by MRCP Engine v2.3.0`,
+    `// Generated deterministically by MRCP Engine v${getEngineVersion()}`,
     `// ==========================================================`,
     ``,
     `export class ApiClient {`,

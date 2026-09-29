@@ -3,6 +3,7 @@ import {
   fetchRepoFile,
   fetchRepoBuffer,
 } from "./repo-fetcher.js";
+import { getEngineVersion } from "./engine-version.js";
 import {
   DocumentCategory,
   DocumentFormat,
@@ -335,16 +336,21 @@ export async function analyzeDocumentRepository(
     (i) => i.severity === "WARNING",
   ).length;
 
+  // Document Quality Index só existe se houve documento analisado. Sem
+  // documento, 100 seria uma nota máxima inventada e "A+" uma aprovação sem
+  // leitura — o índice fica ausente e a razão é explícita.
   const avgQuality =
     parsedDocs.length > 0
       ? Math.round(
           parsedDocs.reduce((acc, d) => acc + d.qualityScore, 0) /
             parsedDocs.length,
         )
-      : 100;
+      : null;
 
-  let letterGrade: "A+" | "A" | "B" | "C" | "D" | "F" = "A";
-  if (avgQuality >= 95) letterGrade = "A+";
+  let letterGrade: "A+" | "A" | "B" | "C" | "D" | "F" | null = null;
+  if (avgQuality === null) {
+    letterGrade = null;
+  } else if (avgQuality >= 95) letterGrade = "A+";
   else if (avgQuality >= 85) letterGrade = "A";
   else if (avgQuality >= 75) letterGrade = "B";
   else if (avgQuality >= 65) letterGrade = "C";
@@ -381,16 +387,25 @@ export async function analyzeDocumentRepository(
     }
   }
 
-  const systemDirective = [
-    `[MRCP DOCUMENT INTELLIGENCE DIRECTIVE]`,
-    `Este repositório contém ${parsedDocs.length} documentos e bases de conhecimento (~${totalWords.toLocaleString()} palavras, ${totalTables} tabelas).`,
-    `Para responder perguntas do usuário sem alucinar, utilize os caminhos de documentos mapeados no masterKnowledgeIndex.`,
-  ].join(" ");
+  const noDocuments = parsedDocs.length === 0;
+
+  const systemDirective = noDocuments
+    ? [
+        `[MRCP DOCUMENT INTELLIGENCE DIRECTIVE]`,
+        `Nenhum documento foi localizado e parseado em ${repoUrl} (${cappedFiles.length} arquivo(s) candidato(s) pela extensão, 0 lido(s)).`,
+        `Não há índice de qualidade documental (DQI) para este repositório: o índice e a nota permanecem ausentes (null), não 0 e não 100.`,
+        `Consulte as entradas de llmQueryDirectives.recommendedLookupPaths somente se houver documentos mapeados.`,
+      ].join(" ")
+    : [
+        `[MRCP DOCUMENT INTELLIGENCE DIRECTIVE]`,
+        `Este repositório contém ${parsedDocs.length} documentos e bases de conhecimento (~${totalWords.toLocaleString()} palavras, ${totalTables} tabelas).`,
+        `Para responder perguntas do usuário sem alucinar, utilize os caminhos de documentos mapeados no masterKnowledgeIndex.`,
+      ].join(" ");
 
   return {
     analyzedUrl: repoUrl,
     timestamp: new Date().toISOString(),
-    engineVersion: "2.6.0",
+    engineVersion: getEngineVersion(),
     isDocumentRepository: parsedDocs.length > 0,
     totalDocumentsAnalyzed: parsedDocs.length,
     totalWords,
@@ -403,7 +418,9 @@ export async function analyzeDocumentRepository(
       totalIssues: allIssues.length,
       criticalIssues,
       warnings: warningIssues,
-      summary: `Document Quality Index ${avgQuality}/100 (Nota ${letterGrade}) com ${criticalIssues} alertas críticos e ${warningIssues} avisos.`,
+      summary: noDocuments
+        ? `Document Quality Index não calculável: nenhum documento foi analisado (${cappedFiles.length} candidato(s) por extensão, 0 parseado(s)). Escore e nota permanecem ausentes (null).`
+        : `Document Quality Index ${avgQuality}/100 (Nota ${letterGrade}) com ${criticalIssues} alertas críticos e ${warningIssues} avisos.`,
     },
     knowledgeGraph: {
       nodes: graphNodes,

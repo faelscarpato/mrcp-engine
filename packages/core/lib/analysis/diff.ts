@@ -1,4 +1,4 @@
-import type { Analysis, GraphNode, GraphEdge } from "@/lib/graph-types";
+import type { Analysis, GraphNode, GraphEdge } from "../graph-types.js";
 
 /**
  * Computes the difference between two analyses

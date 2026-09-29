@@ -3,6 +3,7 @@ import { analyzeWorkspaceLocally } from "../../../../apps/vscode/src/engine/loca
 import { extractTypedAstSymbols } from "../../../../apps/vscode/src/engine/ast-extractors.js";
 import { packWorkspaceContextForAi } from "../../../../apps/vscode/src/engine/context-packer.js";
 import * as path from "path";
+import * as fs from "fs";
 
 describe("MRCP Context Pack Fidelity & Precision Suite", () => {
   // Test 1: Extração de uma função simples com tipos reais
@@ -208,7 +209,12 @@ export function complexLogic(items: number[], threshold: number): number {
     expect(result1.provenance.workspaceFingerprint).toBe(
       result2.provenance.workspaceFingerprint,
     );
-    expect(result1.provenance.analyzerVersion).toBe("2.6.0");
+    // A provenance deve refletir a versão realmente publicada, não um literal
+    // fixo — assim o teste não quebra a cada bump de versão do pacote.
+    const pkgVersion = JSON.parse(
+      fs.readFileSync(path.resolve("apps/vscode/package.json"), "utf8"),
+    ).version;
+    expect(result1.provenance.analyzerVersion).toBe(pkgVersion);
     expect(result1.provenance.cache.used).toBe(false);
   });
 

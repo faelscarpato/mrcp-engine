@@ -82,7 +82,8 @@ const BROWSER_HEADERS = {
 async function getCheerioInstance() {
   try {
     const mod = await import("cheerio");
-    return mod.default || mod;
+    // cheerio v1 nao tem export default; o namespace ESM ja e a instancia.
+    return (mod as { default?: typeof mod }).default ?? mod;
   } catch {
     return null;
   }
@@ -697,7 +698,7 @@ export function generateAIPrompt(
     .join("\n");
 
   const allNeeds = needs.all || [];
-  const typeNeeds = Object.entries(needs.byType || {})
+  const typeNeeds = Object.entries<string[]>(needs.byType || {})
     .map(
       ([type, items]) =>
         `  [${type}]\n${items.map((i) => `    - ${i}`).join("\n")}`,

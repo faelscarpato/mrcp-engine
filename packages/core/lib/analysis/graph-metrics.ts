@@ -3,7 +3,7 @@ import type {
   GraphNode,
   AnalysisMetrics,
   NodeKind,
-} from "@/lib/graph-types";
+} from "../graph-types.js";
 
 export function computeMetrics(
   nodes: GraphNode[],

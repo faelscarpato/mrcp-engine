@@ -11,8 +11,10 @@ export interface TestGapAnalysisOptions {
 export interface UntestedFunctionGap {
   functionName: string;
   filePath: string;
-  complexity: number;
-  linesOfCode: number;
+  // `null` quando o grafo não traziu a métrica: inventar 1/10 sugeriria risco
+  // e volume de código que não foram medidos.
+  complexity: number | null;
+  linesOfCode: number | null;
   testFileSuggested: string;
   generatedStubCode?: string;
 }
@@ -21,9 +23,11 @@ export interface TestGapAnalysisResult {
   repoUrl: string;
   isApplicable: boolean;
   message?: string;
-  totalFunctionsAnalyzed: number;
-  untestedHighRiskFunctionsCount: number;
-  coverageHealthPercentage: number;
+  totalFunctionsAnalyzed: number | null;
+  untestedHighRiskFunctionsCount: number | null;
+  // `null` = cobertura não mensurável (nada analisado). 100 afirmaria
+  // "cobertura total" sem nenhuma função ter sido verificada.
+  coverageHealthPercentage: number | null;
   gaps: UntestedFunctionGap[];
   warnings: string[];
 }
@@ -81,6 +85,7 @@ export async function findTestCoverageGaps(
   );
 
   const gaps: UntestedFunctionGap[] = [];
+  const filesWithoutMetrics: string[] = [];
   let totalFuncs = 0;
 
   for (const fileNode of files) {
@@ -94,11 +99,18 @@ export async function findTestCoverageGaps(
       continue;
     }
 
-    const complexity = fileNode.complexity || 1;
-    const loc = fileNode.loc || 10;
+    // Métricas reais quando existem no grafo; ausentes viram null em vez dos
+    // placeholders 1/10, que descreviam um risco que ninguém mediu.
+    const rawComplexity = fileNode.complexity;
+    const rawLoc = fileNode.loc;
+    const complexity = typeof rawComplexity === "number" ? rawComplexity : null;
+    const loc = typeof rawLoc === "number" ? rawLoc : null;
+    if (complexity === null || loc === null) {
+      filesWithoutMetrics.push(filePath || fileNode.label || "desconhecido");
+    }
 
     // Se targetHotspotsOnly estiver ativo, filtra complexidade baixa
-    if (targetHotspotsOnly && complexity < 30) {
+    if (targetHotspotsOnly && (complexity ?? 0) < 30) {
       continue;
     }
 
@@ -145,17 +157,29 @@ describe('${moduleName} unit tests', () => {
   }
 
   if (totalFuncs === 0) {
+    // 100% de saúde de cobertura aqui seria uma afirmação falsa: nada foi
+    // analisado. A métrica fica ausente e a razão é explícita.
+    warnings.push(
+      "Nenhuma função ou módulo de código foi analisado: saúde de cobertura não mensurável (percentual ausente, não 0% nem 100%).",
+    );
     return {
       repoUrl,
       isApplicable: false,
       message:
-        "Não se aplica a esse repositório: Nenhuma função ou módulo de código foi identificado para verificação de testes.",
-      totalFunctionsAnalyzed: 0,
-      untestedHighRiskFunctionsCount: 0,
-      coverageHealthPercentage: 100,
+        "Não se aplica a esse repositório: Nenhuma função ou módulo de código foi identificado para verificação de testes. A saúde de cobertura não pode ser calculada — percentual ausente (null), não 0% nem 100%.",
+      totalFunctionsAnalyzed: null,
+      untestedHighRiskFunctionsCount: null,
+      coverageHealthPercentage: null,
       gaps: [],
       warnings,
     };
+  }
+
+  if (filesWithoutMetrics.length > 0) {
+    const sample = filesWithoutMetrics.slice(0, 5).join(", ");
+    warnings.push(
+      `${filesWithoutMetrics.length} arquivo(s) sem complexidade/LOC no grafo: complexidade e linhas ficaram ausentes (null) em vez de assume 1/10 (amostra: ${sample}).`,
+    );
   }
 
   const gapCount = gaps.length;

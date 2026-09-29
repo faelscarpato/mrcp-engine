@@ -23,9 +23,20 @@ export interface SecurityVulnerability {
   remediationSnippet?: string;
 }
 
+export interface ContentInspectionStats {
+  /** Nós de código-fonte que entraram na inspeção de conteúdo. */
+  candidateFiles: number;
+  /** Arquivos cujo conteúdo foi de fato lido e varrido por regex. */
+  inspectedFiles: number;
+  /** Candidatos que não tiveram conteúdo lido (fetch vazio/erro). */
+  failedFiles: number;
+}
+
 export interface SecurityAuditResult {
   repoUrl: string;
-  auditPassed: boolean;
+  // `null` = auditoria não concluída (nenhum conteúdo foi inspecionado).
+  // `true` só pode ser emitido depois de varrer ao menos um arquivo real.
+  auditPassed: boolean | null;
   totalVulnerabilities: number;
   vulnerabilities: SecurityVulnerability[];
   summary: {
@@ -36,6 +47,9 @@ export interface SecurityAuditResult {
   };
   isApplicable: boolean;
   message?: string;
+  contentInspection: ContentInspectionStats;
+  /** Etapas da auditoria que não puderam ser concluídas. */
+  limitations?: string[];
 }
 
 const SEVERITY_WEIGHTS = {
@@ -148,7 +162,31 @@ export async function runSecurityAudit(
 
   const nodes: any[] = graphData?.analysis?.nodes || graphData?.nodes || [];
   const vulnerabilities: SecurityVulnerability[] = [];
+  const unreadableFiles: string[] = [];
   let vulnCounter = 1;
+  let candidateFiles = 0;
+  let inspectedFiles = 0;
+
+  if (nodes.length === 0) {
+    return {
+      repoUrl,
+      auditPassed: null,
+      totalVulnerabilities: 0,
+      vulnerabilities: [],
+      summary: { critical: 0, high: 0, medium: 0, low: 0 },
+      isApplicable: false,
+      message:
+        "Auditoria de segurança não se aplica: o grafo de análise não contém nenhum nó. Nenhum arquivo foi inspecionado, portanto nenhum veredito (aprovado/reprovado) é emitido.",
+      contentInspection: {
+        candidateFiles: 0,
+        inspectedFiles: 0,
+        failedFiles: 0,
+      },
+      limitations: [
+        "Nenhum nó disponível no grafo: auditoria de conteúdo, dependências e arquivos sensíveis não foi executada.",
+      ],
+    };
+  }
 
   for (const node of nodes) {
     const filePath = node.path || node.label || "";
@@ -234,8 +272,10 @@ export async function runSecurityAudit(
         continue;
       }
 
+      candidateFiles++;
       const file = await fetchRepoFile(repoUrl, filePath);
       if (file && file.content) {
+        inspectedFiles++;
         const content = file.content;
         const lines = content.split("\n");
 
@@ -296,6 +336,8 @@ export async function runSecurityAudit(
             remediationSnippet: `Utilize prepared statements com parâmetros parametrizados (ex: db.query('SELECT ... WHERE id = $1', [id])).`,
           });
         }
+      } else {
+        unreadableFiles.push(filePath);
       }
     }
   }
@@ -313,7 +355,33 @@ export async function runSecurityAudit(
     low: filteredVulns.filter((v) => v.severity === "LOW").length,
   };
 
-  const auditPassed = summary.critical === 0 && summary.high === 0;
+  const contentInspection: ContentInspectionStats = {
+    candidateFiles,
+    inspectedFiles,
+    failedFiles: unreadableFiles.length,
+  };
+
+  const limitations: string[] = [];
+  if (unreadableFiles.length > 0) {
+    const sample = unreadableFiles.slice(0, 5).join(", ");
+    limitations.push(
+      `${unreadableFiles.length} de ${candidateFiles} arquivo(s) de código-fonte não tiveram conteúdo lido e ficaram sem varredura de segredos/eval/SQL (amostra: ${sample}).`,
+    );
+  }
+
+  // "Nenhum achado" só é uma afirmação válida depois de inspecionar conteúdo.
+  // Sem nenhum arquivo lido, emitir auditPassed: true seria declarar o
+  // repositório seguro sem nunca ter olhado para o código.
+  const auditCompleted = inspectedFiles > 0;
+  if (!auditCompleted) {
+    limitations.push(
+      `Nenhum dos ${candidateFiles} arquivo(s) de código-fonte teve conteúdo lido: a auditoria de conteúdo (segredos embutidos, eval/Function dinâmico, SQL interpolado) não foi executada.`,
+    );
+  }
+
+  const auditPassed = auditCompleted
+    ? summary.critical === 0 && summary.high === 0
+    : null;
 
   return {
     repoUrl,
@@ -321,9 +389,13 @@ export async function runSecurityAudit(
     totalVulnerabilities: filteredVulns.length,
     vulnerabilities: filteredVulns,
     summary,
-    isApplicable: true,
-    message: auditPassed
-      ? `Auditoria estática de segurança APROVADA. 0 vulnerabilidades críticas ou altas encontradas.`
-      : `Auditoria de segurança encontrou ${filteredVulns.length} alerta(s) de segurança (${summary.critical} Críticos, ${summary.high} Altos).`,
+    isApplicable: auditCompleted,
+    message: !auditCompleted
+      ? `Auditoria de segurança inconclusiva: ${inspectedFiles}/${candidateFiles} arquivo(s) de código-fonte inspecionados. ${filteredVulns.length} alerta(s) nos metadados do grafo, mas sem varredura de conteúdo nenhum veredito é emitido.`
+      : auditPassed
+        ? `Auditoria estática de segurança APROVADA. 0 vulnerabilidades críticas ou altas encontradas em ${inspectedFiles} arquivo(s) inspecionado(s).`
+        : `Auditoria de segurança encontrou ${filteredVulns.length} alerta(s) de segurança (${summary.critical} Críticos, ${summary.high} Altos) em ${inspectedFiles} arquivo(s) inspecionado(s).`,
+    contentInspection,
+    limitations,
   };
 }

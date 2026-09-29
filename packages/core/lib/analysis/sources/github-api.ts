@@ -56,8 +56,11 @@ async function resolveBranch(
 
 export const githubApiSource: AnalysisSource = {
   id: "github-api",
-  async canRun() {
-    return true;
+  // Só faz sentido para alvo remoto. Antes retornava `true` incondicional e
+  // gastava uma chamada à API do GitHub (owner="local", repo=<basename>) em
+  // toda análise de path local.
+  async canRun(ctx: AnalysisContext) {
+    return ctx.targetType === "github";
   },
   async run(
     ctx: AnalysisContext,
@@ -127,6 +130,7 @@ export const githubApiSource: AnalysisSource = {
     }
 
     let done = 0;
+    let readFiles = 0;
     const CONCURRENCY = 25;
     let cursor = 0;
 
@@ -151,6 +155,7 @@ export const githubApiSource: AnalysisSource = {
           if (raw.ok) {
             const content = await raw.text();
             files.push({ path: item.path, content, size: item.size });
+            readFiles++;
           } else {
             files.push({ path: item.path, size: item.size });
             warnings.push(`Could not read ${item.path} (${raw.status}).`);
@@ -178,6 +183,19 @@ export const githubApiSource: AnalysisSource = {
       );
     }
 
+    if (readFiles === 0) {
+      // Nenhum byte de código foi obtido. Sem fonte não se pode chamar o
+      // resultado de "full" (ou qualquer coisa que sugira cobertura real):
+      // o grafo é um esqueleto de caminhos, não o repositório.
+      limitations.push(
+        `Nenhum dos ${capped.length} arquivo(s) foi lido do GitHub (raw.githubusercontent.com indisponível ou bloqueado). O grafo contém apenas nomes de arquivo, sem conteúdo — métricas calculadas sobre ele não descrevem o repositório.`,
+      );
+    } else if (readFiles < capped.length) {
+      limitations.push(
+        `Conteúdo lido para ${readFiles} de ${capped.length} arquivo(s): ${capped.length - readFiles} entraram no grafo apenas como caminho, sem código.`,
+      );
+    }
+
     onProgress({
       pct: 88,
       label: "Building dependency graph",
@@ -188,10 +206,16 @@ export const githubApiSource: AnalysisSource = {
     if (warnings.length > 5)
       partial.warnings.push(`+${warnings.length - 5} more file read errors.`);
     partial.limitations = [...(partial.limitations ?? []), ...limitations];
+    // "full" só é honesto quando todo o conjunto candidato foi lido. Grace,
+    // cap, abort ou qualquer arquivo sem conteúdo rebaixam para "partial".
     partial.quality =
-      truncated || sourceItems.length > maxFiles || abortedEarly
-        ? "partial"
-        : "full";
+      readFiles > 0 &&
+      readFiles === capped.length &&
+      !truncated &&
+      sourceItems.length <= maxFiles &&
+      !abortedEarly
+        ? "full"
+        : "partial";
 
     onProgress({ pct: 96, label: "Computing metrics", sourceId: "github-api" });
     return partial;

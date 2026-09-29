@@ -4,6 +4,7 @@ import {
   formatTestCoverage,
   formatImpactAnalysis,
 } from "./formatters/metrics-formatters.js";
+import { getEngineVersion } from "../analysis/engine-version.js";
 import {
   formatApiContract,
   formatEnvContract,
@@ -52,7 +53,7 @@ export function formatEndpointToMarkdown(
     ``,
     `**Alvo:** \`${repoUrl || "Local / Sessão Atual"}\`  `,
     `**Gerado em:** ${timestamp}  `,
-    `**Motor:** MRCP Engine v2.6.0 (AST Determinístico Sem Alucinação)  `,
+    `**Motor:** MRCP Engine v${getEngineVersion()} (AST Determinístico Sem Alucinação)  `,
     ``,
     formatTokenRoiBanner(data),
     `---`,

@@ -1,4 +1,5 @@
 import { findRepoFiles, fetchRepoFile } from "./repo-fetcher.js";
+import { getEngineVersion } from "./engine-version.js";
 
 export interface EnvVariableUsage {
   name: string;
@@ -177,7 +178,7 @@ export async function validateEnvironmentContract(
   // Generate .env.example
   const dotEnvLines: string[] = [
     `# ==========================================================`,
-    `# 🔐 Generated .env.example by MRCP Engine v2.3.0`,
+    `# 🔐 Generated .env.example by MRCP Engine v${getEngineVersion()}`,
     `# Target Repo: ${repoUrl}`,
     `# ==========================================================`,
     ``,

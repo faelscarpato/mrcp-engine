@@ -5,7 +5,7 @@ import type {
   NodeKind,
   AdvancedModuleMetrics,
   Cycle,
-} from "@/lib/graph-types";
+} from "../graph-types.js";
 import type { PartialAnalysis } from "./types.js";
 import {
   detectLanguage,

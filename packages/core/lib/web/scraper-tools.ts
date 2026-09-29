@@ -2,9 +2,50 @@
 async function loadCheerio(): Promise<any> {
   try {
     const mod = await import("cheerio");
-    return mod.default || mod;
+    return (mod as { default?: unknown }).default ?? mod;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Códigos de erro estáveis das ferramentas de busca/scraping.
+ *
+ * Anti-bot e falha de upstream NÃO são a mesma coisa para o cliente: o
+ * primeiro é temporário (esperar/backoff e repetir), o segundo exige
+ * investigação (o provedor está fora do ar ou a rede falhou). Antes os dois
+ * colapsavam em um único "SEARCH_BLOCKED", indistinguível na prática.
+ */
+export type WebToolErrorCode =
+  | "SEARCH_ANTI_BOT"
+  | "SEARCH_UPSTREAM_ERROR"
+  | "SCRAPE_ANTI_BOT"
+  | "SCRAPE_UPSTREAM_ERROR";
+
+/** Categoria genérica preservada para clientes que só conhecem este rótulo. */
+export const WEB_ERROR_CATEGORY = "SEARCH_BLOCKED";
+
+/**
+ * Erro tipado das ferramentas de rede. `httpStatus` carrega o status real do
+ * provedor quando existe (null em timeout/erro de rede), para o cliente poder
+ * decidir sem analisar a mensagem.
+ */
+export class WebToolError extends Error {
+  readonly code: WebToolErrorCode;
+  readonly httpStatus: number | null;
+  override readonly cause: unknown;
+
+  constructor(
+    code: WebToolErrorCode,
+    message: string,
+    httpStatus: number | null = null,
+    cause?: unknown,
+  ) {
+    super(message);
+    this.name = "WebToolError";
+    this.code = code;
+    this.httpStatus = httpStatus;
+    this.cause = cause;
   }
 }
 
@@ -101,19 +142,80 @@ const FETCH_HEADERS = {
 };
 
 // --- Ferramenta 1: Busca Simples (DuckDuckGo) ---
+/**
+ * O DuckDuckGo responde 202/429 com uma página de desafio anti-bot em vez de
+ * erro HTTP. Sem esta detecção, o parser encontra zero resultados e a busca
+ * "funciona" devolvendo [] silenciosamente. Nunca devolvemos resultados
+ * inventados: sinalizamos o bloqueio para o chamador decidir.
+ */
+function isAntiBotPage(status: number, html: string): boolean {
+  if (status === 202 || status === 429) return true;
+  return /anomaly|unusual traffic|are you a robot|captcha|challenge-form|blocked/i.test(
+    html,
+  );
+}
+
+/**
+ * Detecção de bloqueio para alvos ARBITRÁRIOS (não para o endpoint do DDG).
+ * Não reaproveita `isAntiBotPage` de propósito: o padrão `/blocked/i` lá é
+ * seguro porque a resposta é sempre a página de desafio do DuckDuckGo, enquanto
+ * num site qualquer a palavra "blocked" aparece no conteúdo legítimo e
+ * classificaria uma raspagem bem-sucedida como bloqueio.
+ */
+const CHALLENGE_MARKERS =
+  /anomaly|unusual traffic|are you a robot|captcha|challenge-form|just a moment/i;
+
+function isScrapeBlocked(status: number, html: string): boolean {
+  if (status === 202 || status === 403 || status === 429) return true;
+  return CHALLENGE_MARKERS.test(html);
+}
+
+async function fetchDuckDuckGoHtml(
+  query: string,
+): Promise<{ status: number; html: string }> {
+  const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: FETCH_HEADERS,
+      cache: "no-store",
+    });
+  } catch (err) {
+    // Timeout/DNS/rede: nunca chegou a existir resposta do provedor, logo não
+    // é bloqueio — é falha de upstream e precisa de investigação.
+    throw new WebToolError(
+      "SEARCH_UPSTREAM_ERROR",
+      `Falha de rede ao contatar o DuckDuckGo: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+      null,
+      err,
+    );
+  }
+  const html = await res.text();
+
+  // Sem retentativa: o DDG limita por IP e insistir em rajada só prolonga o
+  // bloqueio. O chamador decide o backoff.
+  if (isAntiBotPage(res.status, html)) {
+    throw new WebToolError(
+      "SEARCH_ANTI_BOT",
+      `DuckDuckGo bloqueou a busca (anti-bot, HTTP ${res.status}). Tente novamente em instantes.`,
+      res.status,
+    );
+  }
+  if (!res.ok) {
+    throw new WebToolError(
+      "SEARCH_UPSTREAM_ERROR",
+      `Falha HTTP do DuckDuckGo: ${res.status}`,
+      res.status,
+    );
+  }
+  return { status: res.status, html };
+}
+
 export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
   try {
-    const res = await fetch(
-      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
-      {
-        headers: FETCH_HEADERS,
-        cache: "no-store",
-      },
-    );
-
-    if (!res.ok) throw new Error(`Falha HTTP: ${res.status}`);
-
-    const html = await res.text();
+    const { html } = await fetchDuckDuckGoHtml(query);
     const cheerio = await loadCheerio();
     const results: SearchResult[] = [];
 
@@ -164,67 +266,106 @@ export async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
 
     return results;
   } catch (error) {
+    // Não devolvemos [] silencioso: lista vazia indistinguível de "nada encontrado"
+    // é o que fez o /Search parecer quebrado. Propagamos para o chamador reportar.
     console.error("Erro na busca web:", error);
-    return [];
+    throw error;
   }
 }
 
 // --- Ferramenta 2: Scraper Limpo ---
-export async function scrapeUrl(url: string): Promise<ScrapedPage> {
+/**
+ * Raspagem que PROPAGA erro tipado. Use quando o chamador precisa distinguir
+ * bloqueio de upstream de sucesso — `scrapeUrl` engole a falha e devolve uma
+ * página sentinela, o que é correto para o pipeline (um resultado ruim não
+ * deve derrubar a busca inteira) e errado para a rota HTTP (que precisa
+ * responder 4xx/5xx em vez de 200 com "Erro").
+ */
+export async function scrapeUrlOrThrow(url: string): Promise<ScrapedPage> {
+  let res: Response;
   try {
-    const res = await fetch(url, { headers: FETCH_HEADERS, cache: "no-store" });
-    if (!res.ok) throw new Error(`Falha HTTP: ${res.status}`);
+    res = await fetch(url, { headers: FETCH_HEADERS, cache: "no-store" });
+  } catch (err) {
+    throw new WebToolError(
+      "SCRAPE_UPSTREAM_ERROR",
+      `Falha de rede ao acessar ${url}: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+      null,
+      err,
+    );
+  }
 
-    const html = await res.text();
-    const cheerio = await loadCheerio();
+  const html = await res.text();
+  if (isScrapeBlocked(res.status, html)) {
+    throw new WebToolError(
+      "SCRAPE_ANTI_BOT",
+      `Alvo bloqueou a raspagem (anti-bot, HTTP ${res.status}): ${url}`,
+      res.status,
+    );
+  }
+  if (!res.ok) {
+    throw new WebToolError(
+      "SCRAPE_UPSTREAM_ERROR",
+      `Falha HTTP ao acessar ${url}: ${res.status}`,
+      res.status,
+    );
+  }
 
-    let title = url;
-    const headings: string[] = [];
-    let cleanText = "";
+  const cheerio = await loadCheerio();
 
-    if (cheerio) {
-      const $ = cheerio.load(html);
+  let title = url;
+  const headings: string[] = [];
+  let cleanText = "";
 
-      // Remove a poluição da DOM para economizar tokens
-      $(
-        "script, style, nav, footer, header, aside, iframe, noscript, svg, form, button",
-      ).remove();
+  if (cheerio) {
+    const $ = cheerio.load(html);
 
-      title = $("title").text().trim() || url;
+    // Remove a poluição da DOM para economizar tokens
+    $(
+      "script, style, nav, footer, header, aside, iframe, noscript, svg, form, button",
+    ).remove();
 
-      $("h1, h2, h3").each((_: any, el: any) => {
-        const hText = $(el).text().trim();
-        if (hText) headings.push(hText);
-      });
+    title = $("title").text().trim() || url;
 
-      const rawText = $("body").text();
-      cleanText = rawText.replace(/\s+/g, " ").trim();
-    } else {
-      // Fallback regex sem dependência externa
-      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-      if (titleMatch) title = titleMatch[1].replace(/<[^>]+>/g, "").trim();
+    $("h1, h2, h3").each((_: any, el: any) => {
+      const hText = $(el).text().trim();
+      if (hText) headings.push(hText);
+    });
 
-      const hRegex = /<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/gi;
-      let hMatch: RegExpExecArray | null;
-      while ((hMatch = hRegex.exec(html)) !== null) {
-        const h = hMatch[1].replace(/<[^>]+>/g, "").trim();
-        if (h) headings.push(h);
-      }
+    const rawText = $("body").text();
+    cleanText = rawText.replace(/\s+/g, " ").trim();
+  } else {
+    // Fallback regex sem dependência externa
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    if (titleMatch) title = titleMatch[1].replace(/<[^>]+>/g, "").trim();
 
-      cleanText = html
-        .replace(/<script[\s\S]*?<\/script>/gi, " ")
-        .replace(/<style[\s\S]*?<\/style>/gi, " ")
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    const hRegex = /<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/gi;
+    let hMatch: RegExpExecArray | null;
+    while ((hMatch = hRegex.exec(html)) !== null) {
+      const h = hMatch[1].replace(/<[^>]+>/g, "").trim();
+      if (h) headings.push(h);
     }
 
-    return {
-      title,
-      headings: headings.slice(0, 10), // Limitado aos 10 principais
-      wordCount: cleanText.split(" ").length,
-      text: cleanText.substring(0, 12000), // Hard-limit de 12k caracteres
-    };
+    cleanText = html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  return {
+    title,
+    headings: headings.slice(0, 10), // Limitado aos 10 principais
+    wordCount: cleanText.split(" ").length,
+    text: cleanText.substring(0, 12000), // Hard-limit de 12k caracteres
+  };
+}
+
+export async function scrapeUrl(url: string): Promise<ScrapedPage> {
+  try {
+    return await scrapeUrlOrThrow(url);
   } catch (error) {
     console.error(`Erro ao raspar ${url}:`, error);
     return {

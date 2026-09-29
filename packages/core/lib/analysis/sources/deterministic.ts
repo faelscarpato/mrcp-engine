@@ -4,7 +4,7 @@ import type {
   ProgressEvent,
   AnalysisContext,
 } from "../types.js";
-import type { GraphEdge, GraphNode, NodeKind } from "@/lib/graph-types";
+import type { GraphEdge, GraphNode, NodeKind } from "../../graph-types.js";
 
 const MODULE_NAMES = ["core", "api", "auth", "ui", "utils", "graph", "hooks"];
 const FILE_NAMES = [
@@ -38,7 +38,12 @@ function rng(seed: number) {
 
 export const deterministicSource: AnalysisSource = {
   id: "deterministic",
-  canRun: () => true,
+  // Só age como último recurso para repositório remoto que não conseguimos
+  // baixar (rate limit, sem token, etc). NUNCA para alvo local: os arquivos do
+  // usuário estão na máquina, sintetizar seria inventar métrica — e foi
+  // exatamente o que fez a API hospedada devolver MI/arquivos falsos para
+  // paths que não existem no servidor.
+  canRun: (ctx: AnalysisContext) => ctx.targetType === "github",
   async run(
     ctx: AnalysisContext,
     onProgress: (p: ProgressEvent) => void,
@@ -66,6 +71,7 @@ export const deterministicSource: AnalysisSource = {
         label: name,
         kind: "module",
         group: name,
+        synthetic: true,
       };
       modules.push(n);
       nodes.push(n);
@@ -86,6 +92,9 @@ export const deterministicSource: AnalysisSource = {
           group: m.group,
           loc: 30 + Math.floor(rand() * 300),
           complexity: 1 + Math.floor(rand() * 15),
+          // Autodenuncia a origem: sem isto, um consumidor de métricas trataria
+          // estes números sorteados como medição real do arquivo.
+          synthetic: true,
         };
         files.push(f);
         nodes.push(f);
@@ -98,6 +107,7 @@ export const deterministicSource: AnalysisSource = {
         label: name,
         kind: "external",
         group: "external",
+        synthetic: true,
       };
       nodes.push(n);
       const consumers = 1 + Math.floor(rand() * 3);

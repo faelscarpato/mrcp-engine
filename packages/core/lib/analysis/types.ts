@@ -6,8 +6,10 @@ import type {
   GraphNode,
   AdvancedModuleMetrics,
   Cycle,
-} from "@/lib/graph-types";
+} from "../graph-types.js";
 import type { MonorepoConfig } from "./parsers/language.js";
+
+export type { MonorepoConfig };
 
 export interface AnalysisContext {
   owner: string;

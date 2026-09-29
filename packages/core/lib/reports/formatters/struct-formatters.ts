@@ -137,7 +137,7 @@ export function formatDocumentAnalysis(header: string, da: any): string {
     `* **Total de Documentos Analisados:** ${da.totalDocumentsAnalyzed ?? da.documents?.length ?? 0}`,
     `* **Total de Palavras:** ${(da.totalWords ?? 0).toLocaleString()} (~${Math.ceil((da.totalWords || 0) / 200)} min de leitura total)`,
     `* **Tabelas / Datasets Extraídos:** ${da.totalTables ?? 0}`,
-    `* **Document Quality Index (DQI):** **${da.documentQualityIndex?.overallScore ?? 100}/100** (Nota **${da.documentQualityIndex?.letterGrade ?? "A"}**)`,
+    `* **Document Quality Index (DQI):** ${da.documentQualityIndex?.overallScore == null ? "**indisponível (nenhum documento analisado)**" : `**${da.documentQualityIndex.overallScore}/100** (Nota **${da.documentQualityIndex.letterGrade ?? "N/A"}**)`}`,
     ``,
     `### 📊 Distribuição por Formato & Categoria`,
     ``,

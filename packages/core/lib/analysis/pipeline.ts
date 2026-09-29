@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { Analysis, AnalysisSourceId } from "@/lib/graph-types";
+import type { Analysis, AnalysisSourceId } from "../graph-types.js";
 import type {
   AnalysisContext,
   AnalysisResult,
@@ -94,8 +94,11 @@ export function parseTargetUrl(url: string): {
 
   if (
     trimmed === "." ||
+    trimmed === ".." ||
     trimmed.startsWith("./") ||
     trimmed.startsWith("../") ||
+    trimmed.startsWith(".\\") ||
+    trimmed.startsWith("..\\") ||
     trimmed.match(/^[a-zA-Z]:\\/) ||
     trimmed.match(/^[a-zA-Z]:\//) ||
     trimmed.startsWith("/")
@@ -260,7 +263,8 @@ export async function runAnalysis(opts: RunOptions): Promise<AnalysisResult> {
         createdAt: Date.now(),
         status: "partial",
         quality: "partial",
-        sourceUsed: "github-api",
+        sourceUsed:
+          attempted.length > 0 ? attempted[attempted.length - 1].id : "none",
         attempted,
         limitations: [
           `Pipeline timed out after ${PIPELINE_TIMEOUT_MS / 1000}s. Partial results returned.`,

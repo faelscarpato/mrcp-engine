@@ -148,8 +148,10 @@ export interface DocumentRepositoryAnalysis {
   formatsDistribution: Record<DocumentFormat, number>;
   categoriesDistribution: Record<DocumentCategory, number>;
   documentQualityIndex: {
-    overallScore: number; // 0-100
-    letterGrade: "A+" | "A" | "B" | "C" | "D" | "F";
+    // `null` quando nenhum documento foi analisado: 100 significaria
+    // "qualidade máxima" sem nenhuma fonte ter sido lida.
+    overallScore: number | null; // 0-100
+    letterGrade: "A+" | "A" | "B" | "C" | "D" | "F" | null;
     totalIssues: number;
     criticalIssues: number;
     warnings: number;

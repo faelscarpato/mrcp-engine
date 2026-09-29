@@ -2,7 +2,12 @@ export type NodeKind = "module" | "file" | "function" | "external" | "config";
 
 export type AnalysisQuality = "full" | "partial" | "degraded";
 export type AnalysisSourceId =
-  "github-api" | "github-raw" | "deterministic" | "local-dir" | "website";
+  | "github-api"
+  | "github-raw"
+  | "deterministic"
+  | "local-dir"
+  | "website"
+  | "none";
 
 /** Monorepo tool detected during analysis, or "none" for single-package repos. */
 export type MonorepoTool =
@@ -26,6 +31,10 @@ export interface GraphNode {
   group?: string;
   language?: string;
   entrypoint?: boolean;
+  // Nó gerado por heurística (fallback determinístico), não por leitura do
+  // arquivo. Qualquer consumidor de métricas tem que ignorá-lo: o loc/complexity
+  // aqui vêm de um PRNG semeado pela URL, não do repositório.
+  synthetic?: boolean;
   // Additional metadata for functions
   functionData?: {
     parameters?: string[];

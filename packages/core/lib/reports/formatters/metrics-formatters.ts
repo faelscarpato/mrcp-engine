@@ -1,10 +1,21 @@
+// `null` nestas métricas significa "não medido" (etapa falhou ou sem dados).
+// O relatório textual precisa dizer isso, senão o `null` vira afirmação falsa.
+const NA = "indisponível (não medido)";
+
 export function formatSecurityAudit(header: string, sec: any): string {
+  const auditPassed = sec.auditPassed;
+  const statusLine =
+    auditPassed === true
+      ? "🟢 **APROVADA (0 Vulnerabilidades Críticas/Altas)**"
+      : auditPassed === false
+        ? "🔴 **VULNERABILIDADES DETECTADAS**"
+        : "⚪ **INCONCLUSIVA (nenhum conteúdo inspecionado)**";
   const lines = [
     header,
     `## 🛡️ Auditoria Estática de Segurança & Conformidade`,
     ``,
-    `* **Status da Auditoria:** ${sec.auditPassed ? "🟢 **APROVADA (0 Vulnerabilidades Críticas/Altas)**" : "🔴 **VULNERABILIDADES DETECTADAS**"}`,
-    `* **Total de Alertas:** ${sec.totalVulnerabilities ?? (sec.vulnerabilities?.length || 0)}`,
+    `* **Status da Auditoria:** ${statusLine}`,
+    `* **Total de Alertas:** ${sec.totalVulnerabilities ?? NA}`,
     `* **Resumo:** Críticos: ${sec.summary?.critical ?? 0} | Altos: ${sec.summary?.high ?? 0} | Médios: ${sec.summary?.medium ?? 0} | Baixos: ${sec.summary?.low ?? 0}`,
     ``,
     `### 📋 Detalhamento dos Alertas`,
@@ -21,6 +32,10 @@ export function formatSecurityAudit(header: string, sec: any): string {
         `| \`${v.id || "SEC"}\` | **${v.severity}** | \`${v.category}\` | \`${v.file}:${v.line || 1}\` | ${v.description} | \`${v.remediationSnippet || "Verificar código"}\` |`,
       );
     }
+  } else if (auditPassed === null) {
+    lines.push(
+      `* ⚪ Auditoria não concluída: nenhum arquivo teve conteúdo lido e inspecionado. A ausência de alertas **não** significa ausência de vulnerabilidades.`,
+    );
   } else {
     lines.push(
       `* ✅ Nenhuma vulnerabilidade ou segredo exposto detectado no repositório.`,
@@ -30,16 +45,17 @@ export function formatSecurityAudit(header: string, sec: any): string {
 }
 
 export function formatCodeHealth(header: string, ch: any): string {
+  const debt = ch.technicalDebtScore;
   const lines = [
     header,
     `## 📊 Métricas de Saúde de Código & Débito Técnico`,
     ``,
     `| Métrica | Valor | Avaliação |`,
     `| :--- | :--- | :--- |`,
-    `| **Maintainability Index (MI)** | **${ch.maintainabilityIndex}/100** | Nota **${ch.letterGrade || "N/A"}** (${ch.maintainabilityRating || "N/A"}) |`,
-    `| **Débito Técnico Estimado** | **${ch.technicalDebtScore}%** | ${ch.technicalDebtScore < 30 ? "🟢 Baixo" : "🔴 Alto"} |`,
-    `| **Total de Arquivos** | **${ch.summary?.totalFiles ?? 0}** | ~${(ch.summary?.totalLinesOfCode ?? 0).toLocaleString()} LOC |`,
-    `| **God Modules Detectados** | **${ch.summary?.godModulesCount ?? 0}** | Arquivos com alta complexidade |`,
+    `| **Maintainability Index (MI)** | **${ch.maintainabilityIndex === null || ch.maintainabilityIndex === undefined ? NA : `${ch.maintainabilityIndex}/100`}** | ${ch.letterGrade === null || ch.letterGrade === undefined ? `Nota ${NA}` : `Nota **${ch.letterGrade}** (${ch.maintainabilityRating ?? NA})`} |`,
+    `| **Débito Técnico Estimado** | **${debt === null || debt === undefined ? NA : `${debt}%`}** | ${debt === null || debt === undefined ? NA : debt < 30 ? "🟢 Baixo" : "🔴 Alto"} |`,
+    `| **Total de Arquivos** | **${ch.summary?.totalFiles ?? NA}** | ${ch.summary?.totalLinesOfCode == null ? NA : `~${ch.summary.totalLinesOfCode.toLocaleString()} LOC`} |`,
+    `| **God Modules Detectados** | **${ch.summary?.godModulesCount ?? NA}** | Arquivos com alta complexidade |`,
     ``,
     `### 🎯 Prioridades de Refatoração Recomendadas`,
     ``,
