@@ -14,7 +14,7 @@ import {
   searchDuckDuckGo,
   scrapeUrl,
   SearchResult,
-} from "../../../core/lib/web/scraper-tools.js";
+} from "../../../core/dist/web/scraper-tools.js";
 import {
   AgentRole,
   AgentTask,

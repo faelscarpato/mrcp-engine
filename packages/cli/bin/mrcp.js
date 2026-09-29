@@ -12,7 +12,7 @@
 import { createRequire } from "module";
 import { writeFileSync, readFileSync, existsSync } from "fs";
 import { join, resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { createInterface } from "readline";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -219,6 +219,10 @@ else if (args[0] === "setup") {
 // ─────────────────────────────────────────────
 else {
   // Importa e roda o servidor MCP
-  const mcpServerPath = resolve(__dirname, "../mcp-server.mjs");
+  // No Windows o loader ESM exige file:// para caminho absoluto;
+  // passar "E:\..." direto quebra com ERR_UNSUPPORTED_ESM_URL_SCHEME.
+  const mcpServerPath = pathToFileURL(
+    resolve(__dirname, "../mcp-server.mjs"),
+  ).href;
   await import(mcpServerPath);
 }

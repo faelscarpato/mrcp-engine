@@ -1,25 +1,38 @@
 {
   "name": "@mrcp/cli",
-  "version": "2.7.1",
+  "version": "2.7.3",
   "type": "module",
-  "main": "./src/orchestrator/index.js",
+  "main": "./dist/orchestrator/index.js",
+  "types": "./dist/orchestrator/index.d.ts",
   "bin": {
     "mrcp": "./bin/mrcp.js",
     "mrcp-engine": "./bin/mrcp.js",
     "mrcp-auto": "./bin/mrcp-autonomous.ts"
   },
   "exports": {
-    ".": "./src/orchestrator/index.js",
-    "./orchestrator": "./src/orchestrator/index.js"
+    ".": {
+      "types": "./dist/orchestrator/index.d.ts",
+      "import": "./dist/orchestrator/index.js"
+    },
+    "./orchestrator": {
+      "types": "./dist/orchestrator/index.d.ts",
+      "import": "./dist/orchestrator/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "bin/",
-    "src/",
+    "dist/",
     "mcp-server.mjs",
     "mcp-handlers.mjs",
     "mcp-tools.mjs",
     "README.md"
   ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"import('node:fs').then(fs=>fs.rmSync('dist',{recursive:true,force:true}))\"",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@mrcp/core": "workspace:*",
