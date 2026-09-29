@@ -11,14 +11,12 @@ const CACHE_FILE = "mrcp-analysis.json";
 let corePromise = null;
 function loadCore() {
   if (!corePromise) {
-    corePromise = import("../packages/core/dist/analysis/pipeline.js").catch(
-      (e) => {
-        corePromise = null;
-        throw new Error(
-          `Core local indisponivel (${e.message}). Rode: pnpm --filter @mrcp/core build`,
-        );
-      },
-    );
+    corePromise = import("@mrcp/core/analysis/pipeline").catch((e) => {
+      corePromise = null;
+      throw new Error(
+        `Core local indisponivel (${e.message}). Rode: pnpm --filter @mrcp/core build`,
+      );
+    });
   }
   return corePromise;
 }

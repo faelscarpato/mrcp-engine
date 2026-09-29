@@ -14,8 +14,8 @@
 
 import fs from "fs";
 import path from "path";
-import { detectArchitectureDrift } from "../../../core/dist/analysis/architecture-drift.js";
-import { calculateCodeHealth } from "../../../core/dist/analysis/code-health.js";
+import { detectArchitectureDrift } from "@mrcp/core/analysis/architecture-drift";
+import { calculateCodeHealth } from "@mrcp/core/analysis/code-health";
 import {
   AgentTask,
   GatekeeperValidationResult,
