@@ -410,12 +410,12 @@ export const routeHandlers: Record<
         .status(400)
         .json({ status: "error", error_code: "MISSING_URL" });
     try {
-      // scrapeUrl (não scrapeUrlOrThrow) engole a falha e devolve uma página
-      // sentinela com title "Erro": aceitável no pipeline, mas aqui seria um
-      // HTTP 200 mentindo sobre a falha.
-      const { scrapeUrlOrThrow } =
+      // scrapeUrl propaga a falha. O pipeline de busca engole a falha para não
+      // derrubar a busca inteira, mas aqui precisamos que a falha propague para
+      // não retornar HTTP 200 mentindo sobre a falha.
+      const { scrapeUrl } =
         await import("../packages/core/lib/web/scraper-tools.js");
-      const result = await scrapeUrlOrThrow(targetUrl);
+      const result = await scrapeUrl(targetUrl);
       return res
         .status(200)
         .json({ status: "success", scraped_content: result });

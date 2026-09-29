@@ -684,10 +684,17 @@ export async function executeTool(toolName: string, args: any): Promise<any> {
   if (toolName === "mrcp_web_scrape") {
     const { scrapeUrl } =
       await import("../packages/core/lib/web/scraper-tools.js");
-    const result = await scrapeUrl(args.url);
-    return {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-    };
+    try {
+      const result = await scrapeUrl(args.url);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (err: any) {
+      return {
+        isError: true,
+        content: [{ type: "text", text: `Erro na raspagem: ${err?.message}` }],
+      };
+    }
   }
 
   if (toolName === "mrcp_web_smart_search") {
