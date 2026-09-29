@@ -8,10 +8,12 @@ import tseslint from "typescript-eslint";
 export default tseslint.config(
   {
     ignores: [
-      "dist",
+      // "dist" sozinho só casa com ./dist na raiz. Todo package do monorepo
+      // compila para <pkg>/dist, então é preciso o padrão global.
+      "**/dist",
       ".output",
       ".vinxi",
-      "node_modules",
+      "**/node_modules",
       "apps/vscode/out",
       "packages/tree-sitter-oracle-plsql",
       "packages/tree-sitter-sap-abap",

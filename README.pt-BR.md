@@ -121,6 +121,7 @@ npx mrcp-engine auto "Construa um microserviço de pagamentos com Clean Architec
 ```
 
 ### Arquitetura da Tríade:
+
 1. **O Cérebro (`TechLeadOrchestrator`)**:
    - Analisa a solicitação macro e avalia se há lacunas conceituais.
    - Pesquisa na Web via ferramentas nativas (`mrcp_web_search` e scraper) para obter padrões atualizados de arquitetura.
@@ -137,6 +138,7 @@ npx mrcp-engine auto "Construa um microserviço de pagamentos com Clean Architec
    - Se aprovar: Emite autorização em `.mrcp/GATEKEEPER_APPROVAL.md` e desbloqueia as tarefas dependentes.
 
 > 📖 **Documentação Completa da Tríade**:
+>
 > - [Guia da Tríade de Orquestração](TRIADE_ORQUESTRACAO_AUTONOMA.md)
 > - [Especificação Arquitetural e Técnica da Tríade](docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS.md)
 

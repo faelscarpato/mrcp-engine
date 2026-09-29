@@ -151,6 +151,7 @@ npx mrcp-engine auto "Build a multi-tenant payment gateway with Clean Architectu
 - **The QA Spine (`MrcpGatekeeper`)**: Watches the file system in real-time. Evaluates all modifications using the MRCP AST Engine (`detectArchitectureDrift`, `calculateCodeHealth`, Tarjan cycle detection, type signature regressions). Rejects flawed mutations with instant critique (`GATEKEEPER_CRITIQUE.md`) or confirms valid iterations (`GATEKEEPER_APPROVAL.md`).
 
 > 📖 **Full Orchestration Triad Documentation**:
+>
 > - [Orchestration Triad Overview](TRIADE_ORQUESTRACAO_AUTONOMA.md)
 > - [Technical & Architectural Specification](docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS.md)
 
