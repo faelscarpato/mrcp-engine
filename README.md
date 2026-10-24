@@ -152,7 +152,6 @@ npx mrcp-engine auto "Build a multi-tenant payment gateway with Clean Architectu
 
 > 📖 **Full Orchestration Triad Documentation**:
 >
-> - [Orchestration Triad Overview](TRIADE_ORQUESTRACAO_AUTONOMA.md)
 > - [Technical & Architectural Specification](docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS.md)
 
 ---
