@@ -4,6 +4,7 @@
   "description": "Deterministic repository intelligence, ultra-lean LLM context packing (95% token savings), AST security audit, cyclomatic health scoring, and architecture graph visualization.",
   "version": "2.7.5",
   "publisher": "mrcp-engine",
+  "icon": "resources/mrcp-icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",

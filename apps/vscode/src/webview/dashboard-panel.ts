@@ -56,6 +56,10 @@ export class MrcpDashboardPanel {
     this._extensionUri = extensionUri;
     this._latestResult = result;
 
+    this._panel.iconPath = vscode.Uri.file(
+      path.join(extensionUri.fsPath, "resources", "mrcp-icon.png"),
+    );
+
     this.update(result);
 
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
