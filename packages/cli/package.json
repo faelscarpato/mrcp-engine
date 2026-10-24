@@ -1,6 +1,6 @@
 {
   "name": "@mrcp/cli",
-  "version": "2.7.3",
+  "version": "2.7.5",
   "type": "module",
   "main": "./dist/orchestrator/index.js",
   "types": "./dist/orchestrator/index.d.ts",
