@@ -1,6 +1,6 @@
 {
   "name": "@mrcp/core",
-  "version": "2.7.5",
+  "version": "2.7.6",
   "type": "module",
   "main": "./dist/analysis/pipeline.js",
   "types": "./dist/analysis/pipeline.d.ts",

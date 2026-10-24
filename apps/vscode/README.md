@@ -1,7 +1,16 @@
-# 🧩 MRCP Engine — Extensão para VS Code, Cursor & Windsurf v2.6.2
+# 🧩 MRCP Engine — Extensão para VS Code, Cursor & Windsurf v2.7.6
 
 > **Deterministic AI Context & Code Health Cockpit**  
-> Redução de até 95% no consumo de tokens para LLMs, auditoria de segurança estática, índice de manutenibilidade e visualização de grafos AST diretamente no seu editor de código com suporte completo a **TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, SAP CDS, SAP ABAP e Oracle PL/SQL**.
+> Redução de até 95% no consumo de tokens para LLMs, auditoria de segurança estática, índice de manutenibilidade e visualização de grafos AST diretamente no seu editor de código com suporte completo a **40 linguagens nativas via Tree-sitter WebAssembly**: TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, Swift, Kotlin, ActionScript, AppleScript, AutoHotkey, AutoIt, Bicep, Jenkins Pipeline, CFML, Verse, Q/KDB+, Modelica, InterSystems ObjectScript, Natural, Pascal, OpenSCAD, Pawn, Salesforce Apex, SAS, Siemens SCL, Structured Text, MQL5, RPGLE, PineScript, JCL, PowerQuery, DAX, T-SQL, VBA, VHDL e Web3 (Vyper & Move).
+
+---
+
+## ✨ Identidade Visual & Ícones Oficiais
+
+A extensão conta com identidade visual dedicada e segregada por contexto de uso:
+
+- **🖼️ Marketplace & Gerenciador de Extensões (`mrcp-icon.png`):** Ícone em alta resolução (PNG) exibido na vitrine do Visual Studio Marketplace e no painel de download/gerenciamento de extensões do VS Code e Cursor.
+- **⚡ Barra Lateral Fixa (`mrcp-icon.svg`):** Ícone vetorial SVG otimizado exibido na **Activity Bar** lateral esquerda, garantindo nitidez e perfeita integração aos temas Claro, Escuro e High Contrast.
 
 ---
 
@@ -33,7 +42,7 @@ Uma aba visual moderna, totalmente integrada ao tema claro/escuro do seu editor:
 
 ### 3. 🔍 Superpoderes no Editor (CodeLens & Diagnostics)
 
-- **CodeLens Dinâmico:** Exibe métricas de complexidade ciclomática (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e atalhos rápidos (`📋 Copiar para IA`) sobre funções, classes e métodos em **TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, SAP CDS, SAP ABAP e Oracle PL/SQL**.
+- **CodeLens Dinâmico:** Exibe métricas de complexidade ciclomática (`⚡ MRCP: Complexidade 3 (Baixa 🟢)`) e atalhos rápidos (`📋 Copiar para IA`) sobre funções, classes e métodos em todas as 40 linguagens suportadas no workspace.
 - **Painel de Problemas ("Problems"):** Publica alertas de segurança e variáveis de ambiente ausentes no painel nativo do VS Code com realce no código.
 - **Status Bar Item:** Mostra o score consolidado no rodapé do editor (`$(shield) MRCP: A (94/100)`).
 
@@ -86,15 +95,15 @@ pnpm --filter mrcp-vscode compile
 # 2. Gerar o arquivo .vsix (utilizando vsce)
 cd apps/vscode
 npm run package
-# Gera: mrcp-vscode-2.6.0.vsix
+# Gera: mrcp-vscode-2.7.6.vsix
 ```
 
 Para instalar o arquivo `.vsix` gerado no VS Code ou Cursor:
 
 ```bash
-code --install-extension mrcp-vscode-2.6.0.vsix
+code --install-extension mrcp-vscode-2.7.6.vsix
 # ou no Cursor:
-cursor --install-extension mrcp-vscode-2.6.0.vsix
+cursor --install-extension mrcp-vscode-2.7.6.vsix
 ```
 
 ---

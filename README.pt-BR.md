@@ -302,10 +302,11 @@ curl "https://mrcp-engine.vercel.app/api/code-health?repo=https://github.com/fac
 ## 🗺 Roadmap
 
 - [x] Suíte diagnóstica completa com 13 ferramentas em execução paralela
-- [x] Extensão nativa para VS Code / Cursor / Windsurf
+- [x] Extensão nativa para VS Code / Cursor / Windsurf (v2.7.6 com ícones dedicados PNG e SVG)
 - [x] Inteligência documental para repositórios não-código
+- [x] Expansão massiva para 40 gramáticas Tree-sitter WebAssembly nativas (Enterprise, Mobile, Cloud, Automação e Web3)
 - [ ] **v3**: recuperação de conteúdo de arquivo sob demanda — solicitar um arquivo específico usando os metadados que o MRCP já retornou, e receber o conteúdo de volta em JSON estruturado (incluindo conteúdo visual quando aplicável)
-- [ ] Expansão das gramáticas de linguagem além das 14+ atuais
+- [ ] **v3**: Otimização nativa de prompt caching (prefixos estáticos de sistema e sufixos AST dinâmicos)
 
 Tem uma sugestão? [Abra uma issue de feature](../../issues/new?template=feature_request.md).
 

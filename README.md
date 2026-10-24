@@ -106,7 +106,7 @@ MRCP Engine operates as a single deterministic core delivered through three dist
 
 ```mermaid
 flowchart TD
-    Repo["Source Code & Corporate Documents\n(TypeScript, Python, Java, C#, Go, Rust, C++, SAP ABAP, PL/SQL, PDF, DOCX, XLSX)"] --> Engine["🧠 MRCP Core Engine\n(Tree-sitter WASM · 13 Parallel Suites · Local Edge CPU)"]
+    Repo["Source Code & Corporate Documents\n(40 Supported Languages: TypeScript, Python, Java, C#, Swift, Kotlin, Go, Rust, C++, SAP ABAP/CDS, PL/SQL, etc. + PDF, DOCX, XLSX)"] --> Engine["🧠 MRCP Core Engine\n(40 Tree-sitter WASM Grammars · 13 Parallel Suites · Local Edge CPU)"]
 
     Engine --> L1["1. REST API Core\n(Vercel / Node Instance)\n21 Stateless HTTP Endpoints for CI/CD & Automation"]
     Engine --> L2["2. MCP Protocol Server\n(stdio / streamable-http)\nJSON-RPC 2.0 Interface for Autonomous Agents"]
@@ -327,7 +327,7 @@ Runs 13 parallel AST suites in ~2 seconds over the local workspace on startup wi
 
 #### 2. ⚡ Inline Function-Level CodeLens
 
-Active across TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, SAP CDS, SAP ABAP, and Oracle PL/SQL:
+Active across 40 supported languages, including TypeScript, JavaScript, Python, Go, Rust, Java, C/C++, PHP, Ruby, C#, Swift, Kotlin, SAP CDS, SAP ABAP, Oracle PL/SQL, Pascal, VBA, Apex, and more:
 
 - **Visual Complexity Indicators:** Displays real-time function complexity badges directly above signatures (e.g., `⚡ MRCP: Complexidade 1 (Baixa 🟢)` vs `⚡ MRCP: Complexidade 20+ (Alta 🔴)`).
 - **📋 Copiar para IA (1-Click Action):** Extracts solely the target function signature, parameter types, and immediate AST dependencies into a sanitized micro-contract, preventing the AI from ingesting or modifying unrelated codebase sections.
@@ -400,9 +400,9 @@ curl "https://mrcp-engine.vercel.app/api/code-health?repo=https://github.com/fac
 ## 🗺 Roadmap
 
 - [x] 13-tool diagnostic suite with parallel execution
-- [x] Native VS Code / Cursor / Windsurf extension published to Visual Studio Marketplace
+- [x] Native VS Code / Cursor / Windsurf extension published to Visual Studio Marketplace (v2.7.6 with dedicated PNG and SVG assets)
 - [x] Document intelligence and schema extraction for non-code repositories
-- [x] Extended enterprise grammars (SAP ABAP, SAP CDS, Oracle PL/SQL, C#, Java)
+- [x] Extended enterprise and universal grammars (40 Tree-sitter WebAssembly grammars integrated: Swift, C#, Kotlin, Apex, Pascal, VBA, SCL, Web3, etc.)
 - [ ] **v3**: Hybrid In-IDE Chat with smart model routing (BYOK + free tier proxies)
 - [ ] **v3**: Native prompt caching optimization (static system prefixes & dynamic AST suffixes)
 - [ ] On-demand structured file retrieval using AST index metadata
