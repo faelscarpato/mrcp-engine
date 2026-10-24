@@ -114,7 +114,14 @@ const FUNCTION_NODE_TYPES: Record<string, string[]> = {
   php: ["function_definition", "method_declaration"],
   ruby: ["method", "def", "defs", "defp"],
   cobol: ["paragraph", "section"],
-  pascal: ["function_declaration", "procedure_declaration"],
+  pascal: [
+    "function_declaration",
+    "procedure_declaration",
+    "subprogram_header",
+    "type_declaration",
+    "unit_declaration",
+    "program_declaration",
+  ],
   cds: ["view_entity_definition", "view_definition"],
   sap_cds: ["view_entity_definition", "view_definition"],
   abap: ["method_implementation", "method_definition_item", "report_statement"],
@@ -167,6 +174,147 @@ const FUNCTION_NODE_TYPES: Record<string, string[]> = {
     "method_definition",
   ],
   abl: ["procedure_definition", "function_definition", "method_definition"],
+  // Novas linguagens integradas
+  c_sharp: [
+    "method_declaration",
+    "constructor_declaration",
+    "class_declaration",
+    "record_declaration",
+    "struct_declaration",
+    "interface_declaration",
+    "property_declaration",
+  ],
+  cs: [
+    "method_declaration",
+    "constructor_declaration",
+    "class_declaration",
+    "record_declaration",
+    "struct_declaration",
+    "interface_declaration",
+    "property_declaration",
+  ],
+  swift: [
+    "function_declaration",
+    "initializer_declaration",
+    "class_declaration",
+    "struct_declaration",
+    "actor_declaration",
+    "protocol_declaration",
+    "enum_declaration",
+    "extension_declaration",
+  ],
+  kotlin: [
+    "function_declaration",
+    "class_declaration",
+    "object_declaration",
+    "companion_object",
+    "property_declaration",
+  ],
+  actionscript: [
+    "method_definition",
+    "class_definition",
+    "interface_definition",
+    "mxml_element",
+    "package_definition",
+  ],
+  applescript: ["handler_definition", "script_object_definition"],
+  ahk: [
+    "function_definition",
+    "hotkey_definition",
+    "hotstring_definition",
+    "class_definition",
+    "method_definition",
+    "property_definition",
+  ],
+  autoit: ["function_definition"],
+  bicep: [
+    "resource_declaration",
+    "module_declaration",
+    "parameter_declaration",
+    "variable_declaration",
+    "output_declaration",
+    "type_declaration",
+  ],
+  pipeline: [
+    "jenkins_stage_block",
+    "jenkins_axis_block",
+    "jenkins_parameter_declaration",
+    "jenkins_env_assignment",
+  ],
+  cfml: [
+    "script_function",
+    "tag_function",
+    "script_component",
+    "tag_component",
+    "cfquery_tag",
+  ],
+  verse: [
+    "function_definition",
+    "class_definition",
+    "interface_definition",
+    "module_definition",
+  ],
+  q: ["assignment_statement", "lambda", "table_literal"],
+  modelica: ["class_definition", "component_declaration"],
+  objectscript: [
+    "class_definition",
+    "method_definition",
+    "trigger_definition",
+    "query_definition",
+    "label_definition",
+  ],
+  natural: ["subroutine_definition", "function_definition", "view_definition"],
+  openscad: ["module_definition", "function_definition"],
+  pawn: ["function_definition", "native_declaration", "forward_declaration"],
+  apex: [
+    "method_declaration",
+    "constructor_declaration",
+    "interface_method",
+    "trigger_declaration",
+    "class_declaration",
+    "interface_declaration",
+  ],
+  sas: ["macro_definition", "data_step", "proc_step", "proc_sql_step"],
+  scl: [
+    "function_block_definition",
+    "function_definition",
+    "organization_block_definition",
+    "data_block_definition",
+    "type_definition",
+  ],
+  vba: [
+    "sub_definition",
+    "function_definition",
+    "property_definition",
+    "declare_statement",
+    "type_definition",
+    "enum_definition",
+  ],
+  vhdl: [
+    "entity_declaration",
+    "architecture_body",
+    "process_statement",
+    "subprogram_body",
+    "package_declaration",
+  ],
+  web3: [
+    "vyper_function_definition",
+    "move_function_definition",
+    "move_module_definition",
+    "move_struct_definition",
+    "vyper_struct_definition",
+    "vyper_event_definition",
+  ],
+  vyper: [
+    "vyper_function_definition",
+    "vyper_struct_definition",
+    "vyper_event_definition",
+  ],
+  move: [
+    "move_function_definition",
+    "move_module_definition",
+    "move_struct_definition",
+  ],
 };
 
 function getField(
@@ -183,8 +331,32 @@ function extractFunctionName(
   node: TreeSitterNode,
   parent?: TreeSitterNode,
 ): string {
-  const nameField = getField(node, "name");
-  if (nameField) return nameField.text;
+  const directFields = [
+    "name",
+    "label",
+    "view_name",
+    "output_datasets",
+    "trigger",
+    "routine",
+    "subroutine",
+    "subprogram",
+    "program",
+    "step_name",
+    "instantiated_unit",
+  ];
+  for (const f of directFields) {
+    const val = getField(node, f);
+    if (val && val.text) return val.text;
+  }
+
+  const headerField = getField(node, "header");
+  if (headerField) {
+    const headerName = getField(headerField, "name");
+    if (headerName && headerName.text) return headerName.text;
+    for (const c of headerField.namedChildren ?? []) {
+      if (c.type === "identifier" || c.type === "name") return c.text;
+    }
+  }
 
   if (node.type === "arrow_function" || node.type === "function_expression") {
     if (parent && parent.type === "variable_declarator") {
@@ -197,6 +369,8 @@ function extractFunctionName(
     if (
       child.type === "identifier" ||
       child.type === "name" ||
+      child.type === "word" ||
+      child.type === "symbol" ||
       child.type === "property_identifier" ||
       child.type === "function_declarator" ||
       child.type === "type_identifier"
@@ -225,7 +399,19 @@ function calculateComplexity(node: TreeSitterNode): number {
       type === "catch_clause" ||
       type === "conditional_expression" ||
       type === "logical_and" ||
-      type === "logical_or"
+      type === "logical_or" ||
+      type === "elsif_clause" ||
+      type === "elif_clause" ||
+      type === "when_clause" ||
+      type === "when_branch" ||
+      type === "switch_case" ||
+      type === "match_arm" ||
+      type === "guard_statement" ||
+      type === "repeat_statement" ||
+      type === "loop_statement" ||
+      type === "dow_statement" ||
+      type === "dou_statement" ||
+      type === "catch_statement"
     ) {
       complexity++;
     }

@@ -41,6 +41,47 @@ const IMPORT_NODE_TYPES: Record<string, string[]> = {
   mql5: ["preprocessor_include"],
   openedge_abl: ["run_statement"],
   abl: ["run_statement"],
+  // Novas linguagens integradas
+  c_sharp: ["using_directive", "global_using_directive"],
+  cs: ["using_directive", "global_using_directive"],
+  swift: ["import_declaration"],
+  kotlin: ["import_header"],
+  actionscript: ["import_statement"],
+  applescript: ["tell_statement"],
+  ahk: ["directive"],
+  autoit: ["include_directive", "preprocessor_directive"],
+  bicep: ["module_declaration"],
+  pipeline: [
+    "gha_uses_step",
+    "jenkins_docker_agent",
+    "jenkins_kubernetes_agent",
+  ],
+  cfml: ["script_component", "tag_component"],
+  verse: ["using_directive"],
+  q: ["system_command"],
+  modelica: ["extends_clause"],
+  objectscript: ["include_directive"],
+  natural: [
+    "include_statement",
+    "global_data_section",
+    "parameter_data_section",
+    "local_data_section",
+  ],
+  openscad: ["include_statement", "use_statement"],
+  pawn: ["include_directive"],
+  apex: ["annotation", "class_declaration"],
+  sas: [
+    "libname_statement",
+    "filename_statement",
+    "set_statement",
+    "merge_statement",
+  ],
+  scl: ["data_block_definition", "symbolic_reference"],
+  vba: ["declare_statement", "set_assignment_statement"],
+  vhdl: ["library_clause", "use_clause"],
+  web3: ["move_use_declaration", "vyper_import_statement"],
+  vyper: ["vyper_import_statement"],
+  move: ["move_use_declaration"],
 };
 
 function getField(
@@ -270,6 +311,43 @@ export async function extractImportsWithTreeSitter(
         for (const s of strs) push(s);
         if (node.type === "using_statement" || node.type === "ERROR") {
           return;
+        }
+      }
+
+      // Generic handler for extended languages
+      if (nodeTypes.includes(node.type)) {
+        const directField =
+          getField(node, "path") ??
+          getField(node, "name") ??
+          getField(node, "source") ??
+          getField(node, "module") ??
+          getField(node, "unit") ??
+          getField(node, "file") ??
+          getField(node, "action") ??
+          getField(node, "lib_name");
+        if (directField) {
+          const cleanText = directField.text
+            .replace(/^["'`<]|[>"'`]$/g, "")
+            .trim();
+          if (cleanText) {
+            push(cleanText);
+            return;
+          }
+        }
+        const strs = collectStrings(node, 2);
+        if (strs.length > 0) {
+          push(strs[strs.length - 1]);
+          return;
+        }
+        for (const child of node.namedChildren ?? []) {
+          if (
+            child.type === "identifier" ||
+            child.type === "scoped_identifier" ||
+            child.type === "dotted_name"
+          ) {
+            push(child.text.trim());
+            return;
+          }
         }
       }
 

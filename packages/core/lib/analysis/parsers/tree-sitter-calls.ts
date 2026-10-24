@@ -47,6 +47,56 @@ const CALL_NODE_TYPES: Record<string, string[]> = {
   mql5: ["call_expression"],
   openedge_abl: ["run_statement", "method_call"],
   abl: ["run_statement", "method_call"],
+  // Novas linguagens integradas
+  c_sharp: ["call_expression", "object_creation_expression"],
+  cs: ["call_expression", "object_creation_expression"],
+  swift: ["call_expression"],
+  kotlin: ["call_expression"],
+  actionscript: ["call_expression", "new_expression"],
+  applescript: ["call_expression", "tell_statement"],
+  ahk: ["call_expression"],
+  autoit: ["call_expression"],
+  bicep: ["call_expression"],
+  pipeline: [
+    "jenkins_step_call",
+    "jenkins_sh_step",
+    "jenkins_bat_step",
+    "gha_function_call",
+  ],
+  cfml: ["call_expression"],
+  verse: ["call_or_index_expression"],
+  q: [
+    "call_or_index_expression",
+    "qsql_select",
+    "qsql_exec",
+    "qsql_update",
+    "qsql_delete",
+  ],
+  modelica: ["call_expression", "connect_equation"],
+  objectscript: [
+    "class_method_call",
+    "instance_method_call",
+    "routine_call",
+    "extrinsic_function",
+    "macro_call",
+  ],
+  natural: ["callnat_statement", "perform_statement", "fetch_statement"],
+  pascal: ["call_statement", "call_expression"],
+  openscad: ["module_instantiation", "call_expression"],
+  pawn: ["call_expression"],
+  apex: [
+    "method_invocation",
+    "soql_expression",
+    "sosl_expression",
+    "dml_statement",
+  ],
+  sas: ["macro_call", "call_statement", "proc_step"],
+  scl: ["call_statement", "function_call_expression"],
+  vba: ["call_expression", "call_statement"],
+  vhdl: ["component_instantiation", "call_expression"],
+  web3: ["call_expression"],
+  vyper: ["call_expression"],
+  move: ["call_expression"],
 };
 
 function getField(
@@ -62,12 +112,59 @@ function getField(
 function extractCalleeName(
   node: TreeSitterNode,
 ): { name: string; isMethod: boolean } | null {
+  // Direct callee / target field detection
+  const targetField =
+    getField(node, "callee") ??
+    getField(node, "function") ??
+    getField(node, "routine") ??
+    getField(node, "method") ??
+    getField(node, "subprogram") ??
+    getField(node, "subroutine") ??
+    getField(node, "program") ??
+    getField(node, "step_name") ??
+    getField(node, "instantiated_unit") ??
+    getField(node, "name");
+
+  if (targetField) {
+    if (
+      targetField.type === "identifier" ||
+      targetField.type === "type_identifier" ||
+      targetField.type === "symbol" ||
+      targetField.type === "word"
+    ) {
+      return { name: targetField.text, isMethod: false };
+    }
+    if (
+      targetField.type === "member_expression" ||
+      targetField.type === "member_access_expression" ||
+      targetField.type === "attribute"
+    ) {
+      const prop =
+        getField(targetField, "property") ??
+        getField(targetField, "attribute") ??
+        getField(targetField, "name") ??
+        (targetField.namedChildren && targetField.namedChildren.length > 1
+          ? targetField.namedChildren[1]
+          : null);
+      if (
+        prop &&
+        (prop.type === "property_identifier" || prop.type === "identifier")
+      ) {
+        return { name: prop.text, isMethod: true };
+      }
+      return { name: targetField.text, isMethod: true };
+    }
+    return { name: targetField.text, isMethod: false };
+  }
+
   if (
     node.type === "call_expression" ||
     node.type === "new_expression" ||
-    node.type === "call"
+    node.type === "call" ||
+    node.type === "call_or_index_expression"
   ) {
     const fn =
+      getField(node, "callee") ??
       getField(node, "function") ??
       (node.namedChildren && node.namedChildren.length > 0
         ? node.namedChildren[0]
@@ -76,10 +173,15 @@ function extractCalleeName(
       if (fn.type === "identifier" || fn.type === "type_identifier") {
         return { name: fn.text, isMethod: false };
       }
-      if (fn.type === "member_expression" || fn.type === "attribute") {
+      if (
+        fn.type === "member_expression" ||
+        fn.type === "member_access_expression" ||
+        fn.type === "attribute"
+      ) {
         const prop =
           getField(fn, "property") ??
           getField(fn, "attribute") ??
+          getField(fn, "name") ??
           (fn.namedChildren && fn.namedChildren.length > 1
             ? fn.namedChildren[1]
             : null);
@@ -90,6 +192,7 @@ function extractCalleeName(
           return { name: prop.text, isMethod: true };
         }
       }
+      return { name: fn.text, isMethod: false };
     }
   }
 
@@ -107,6 +210,13 @@ function extractCalleeName(
     const macro = getField(node, "macro");
     if (macro && macro.type === "identifier") {
       return { name: macro.text + "!", isMethod: false };
+    }
+  }
+
+  // Fallback to first identifier child
+  for (const child of node.namedChildren ?? []) {
+    if (child.type === "identifier" || child.type === "type_identifier") {
+      return { name: child.text, isMethod: false };
     }
   }
 

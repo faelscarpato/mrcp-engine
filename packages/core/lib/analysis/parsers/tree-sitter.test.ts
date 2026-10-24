@@ -167,4 +167,78 @@ END emp_mgmt;
       ),
     ).toBe(true);
   });
+
+  it("should extract C# methods, calls and using directives", async () => {
+    const csCode = `
+      using System;
+      using System.Collections.Generic;
+
+      public class Calculator {
+        public int Add(int a, int b) {
+          if (a > 0) {
+            Console.WriteLine(a);
+          }
+          return a + b;
+        }
+      }
+    `;
+
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "Calculator.cs",
+      csCode,
+      "c_sharp",
+    );
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+
+    const callResult = await extractCallsWithTreeSitter(
+      "Calculator.cs",
+      csCode,
+      "c_sharp",
+    );
+    expect(callResult.length).toBeGreaterThanOrEqual(1);
+
+    const importResult = await extractImportsWithTreeSitter(
+      "Calculator.cs",
+      csCode,
+      "c_sharp",
+    );
+    expect(importResult.imports.some((i) => i.raw.includes("System"))).toBe(
+      true,
+    );
+  });
+
+  it("should extract Swift functions and calls", async () => {
+    const swiftCode = `
+      import Foundation
+
+      func greet(person: String) -> String {
+        let greeting = "Hello, " + person + "!"
+        print(greeting)
+        return greeting
+      }
+    `;
+
+    const fnResult = await extractFunctionsWithTreeSitter(
+      "main.swift",
+      swiftCode,
+      "swift",
+    );
+    expect(fnResult.functions.length).toBeGreaterThanOrEqual(1);
+
+    const callResult = await extractCallsWithTreeSitter(
+      "main.swift",
+      swiftCode,
+      "swift",
+    );
+    expect(callResult.some((c) => c.calleeName === "print")).toBe(true);
+
+    const importResult = await extractImportsWithTreeSitter(
+      "main.swift",
+      swiftCode,
+      "swift",
+    );
+    expect(importResult.imports.some((i) => i.raw.includes("Foundation"))).toBe(
+      true,
+    );
+  });
 });

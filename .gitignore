@@ -19,6 +19,7 @@ apps/vscode/.vscode-test/
 # Generated diagnostics and reports
 reports/
 mrcp-analysis.json
+.mrcp/
 
 # OS and logs
 .DS_Store

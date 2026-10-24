@@ -56,6 +56,33 @@ export const LANGUAGE_WASM_MAP: Record<string, string> = {
   mql5: "/tree-sitter/tree-sitter-mql5.wasm",
   openedge_abl: "/tree-sitter/tree-sitter-openedge_abl.wasm",
   abl: "/tree-sitter/tree-sitter-openedge_abl.wasm",
+  // Novos Wasms integrados
+  c_sharp: "/tree-sitter/tree-sitter-c_sharp.wasm",
+  cs: "/tree-sitter/tree-sitter-c_sharp.wasm",
+  swift: "/tree-sitter/tree-sitter-swift.wasm",
+  kotlin: "/tree-sitter/tree-sitter-kotlin.wasm",
+  actionscript: "/tree-sitter/tree-sitter-actionscript.wasm",
+  applescript: "/tree-sitter/tree-sitter-applescript.wasm",
+  ahk: "/tree-sitter/tree-sitter-ahk.wasm",
+  autoit: "/tree-sitter/tree-sitter-autoit.wasm",
+  bicep: "/tree-sitter/tree-sitter-bicep.wasm",
+  pipeline: "/tree-sitter/tree-sitter-pipeline.wasm",
+  cfml: "/tree-sitter/tree-sitter-cfml.wasm",
+  verse: "/tree-sitter/tree-sitter-verse.wasm",
+  q: "/tree-sitter/tree-sitter-q.wasm",
+  modelica: "/tree-sitter/tree-sitter-modelica.wasm",
+  objectscript: "/tree-sitter/tree-sitter-objectscript.wasm",
+  natural: "/tree-sitter/tree-sitter-natural.wasm",
+  openscad: "/tree-sitter/tree-sitter-openscad.wasm",
+  pawn: "/tree-sitter/tree-sitter-pawn.wasm",
+  apex: "/tree-sitter/tree-sitter-apex.wasm",
+  sas: "/tree-sitter/tree-sitter-sas.wasm",
+  scl: "/tree-sitter/tree-sitter-scl.wasm",
+  vba: "/tree-sitter/tree-sitter-vba.wasm",
+  vhdl: "/tree-sitter/tree-sitter-vhdl.wasm",
+  web3: "/tree-sitter/tree-sitter-web3.wasm",
+  vyper: "/tree-sitter/tree-sitter-web3.wasm",
+  move: "/tree-sitter/tree-sitter-web3.wasm",
 };
 
 export const EXTENSION_TO_LANGUAGE_MAP: Record<string, string> = {
@@ -120,6 +147,83 @@ export const EXTENSION_TO_LANGUAGE_MAP: Record<string, string> = {
   p: "openedge_abl",
   w: "openedge_abl",
   i: "openedge_abl",
+  // C# & Swift & Kotlin
+  cs: "c_sharp",
+  swift: "swift",
+  kt: "kotlin",
+  kts: "kotlin",
+  // ActionScript
+  as: "actionscript",
+  mxml: "actionscript",
+  // AppleScript
+  applescript: "applescript",
+  scpt: "applescript",
+  scptd: "applescript",
+  jxa: "applescript",
+  // AutoHotkey
+  ahk: "ahk",
+  ah2: "ahk",
+  // AutoIt
+  au3: "autoit",
+  // Bicep
+  bicep: "bicep",
+  bicepparam: "bicep",
+  // Jenkinsfile / Pipeline
+  jenkinsfile: "pipeline",
+  // CFML
+  cfm: "cfml",
+  cfc: "cfml",
+  cfs: "cfml",
+  // Verse
+  verse: "verse",
+  // Q / KDB+
+  q: "q",
+  k: "q",
+  // Modelica
+  mo: "modelica",
+  // ObjectScript
+  mac: "objectscript",
+  int: "objectscript",
+  // Natural
+  nsp: "natural",
+  nsn: "natural",
+  nss: "natural",
+  nsa: "natural",
+  nsg: "natural",
+  nspda: "natural",
+  nsl: "natural",
+  nsc: "natural",
+  nsf: "natural",
+  // Pascal extras
+  dpr: "pascal",
+  dpk: "pascal",
+  lpr: "pascal",
+  // OpenSCAD
+  scad: "openscad",
+  // Pawn
+  pwn: "pawn",
+  sma: "pawn",
+  // Apex
+  cls: "apex",
+  trigger: "apex",
+  // SAS
+  sas: "sas",
+  sash: "sas",
+  // Siemens SCL
+  awl: "scl",
+  udt: "scl",
+  db: "scl",
+  // VBA
+  bas: "vba",
+  frm: "vba",
+  ctl: "vba",
+  vbp: "vba",
+  // VHDL
+  vhd: "vhdl",
+  vhdl: "vhdl",
+  // Web3
+  vy: "web3",
+  move: "web3",
 };
 
 let parser: TreeSitterParser | null = null;

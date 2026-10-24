@@ -100,6 +100,80 @@ const EXT_LANG: Record<string, string> = {
   // SAP ABAP & CDS
   abap: "ABAP",
   cds: "CDS",
+  // ActionScript
+  as: "ActionScript",
+  mxml: "ActionScript",
+  // AppleScript
+  applescript: "AppleScript",
+  scpt: "AppleScript",
+  scptd: "AppleScript",
+  jxa: "AppleScript",
+  // AutoHotkey
+  ahk: "AutoHotkey",
+  ah2: "AutoHotkey",
+  // AutoIt
+  au3: "AutoIt",
+  // Bicep
+  bicep: "Bicep",
+  bicepparam: "Bicep",
+  // Jenkins / CI Pipeline
+  jenkinsfile: "JenkinsPipeline",
+  // CFML
+  cfm: "CFML",
+  cfc: "CFML",
+  cfs: "CFML",
+  // Verse
+  verse: "Verse",
+  // Q / KDB+
+  q: "Q",
+  k: "Q",
+  // Kotlin Script
+  kts: "Kotlin",
+  // Modelica
+  mo: "Modelica",
+  // InterSystems ObjectScript
+  mac: "ObjectScript",
+  int: "ObjectScript",
+  // Software AG Natural
+  nsp: "Natural",
+  nsn: "Natural",
+  nss: "Natural",
+  nsa: "Natural",
+  nsg: "Natural",
+  nspda: "Natural",
+  nsl: "Natural",
+  nsc: "Natural",
+  nsf: "Natural",
+  // Pascal extras
+  dpr: "Pascal",
+  dpk: "Pascal",
+  lpr: "Pascal",
+  // OpenSCAD
+  scad: "OpenSCAD",
+  // Pawn
+  pwn: "Pawn",
+  sma: "Pawn",
+  // Salesforce Apex
+  cls: "Apex",
+  trigger: "Apex",
+  // SAS
+  sas: "SAS",
+  sash: "SAS",
+  // Siemens SCL / STEP 7
+  awl: "SCL",
+  udt: "SCL",
+  db: "SCL",
+  // Visual Basic for Applications (VBA)
+  bas: "VBA",
+  frm: "VBA",
+  ctl: "VBA",
+  vbp: "VBA",
+  // VHDL
+  vhd: "VHDL",
+  vhdl: "VHDL",
+  // Web3 (Vyper & Move)
+  vy: "Vyper",
+  move: "Move",
 };
 
 export const SOURCE_EXTS = new Set([
@@ -181,6 +255,79 @@ export const SOURCE_EXTS = new Set([
   "i",
   "abap",
   "cds",
+  // ActionScript
+  "as",
+  "mxml",
+  // AppleScript
+  "applescript",
+  "scpt",
+  "scptd",
+  "jxa",
+  // AutoHotkey
+  "ahk",
+  "ah2",
+  // AutoIt
+  "au3",
+  // Bicep
+  "bicep",
+  "bicepparam",
+  // Pipeline
+  "jenkinsfile",
+  // CFML
+  "cfm",
+  "cfc",
+  "cfs",
+  // Verse
+  "verse",
+  // Q
+  "q",
+  "k",
+  "kts",
+  // Modelica
+  "mo",
+  // ObjectScript
+  "mac",
+  "int",
+  // Natural
+  "nsp",
+  "nsn",
+  "nss",
+  "nsa",
+  "nsg",
+  "nspda",
+  "nsl",
+  "nsc",
+  "nsf",
+  // Pascal extras
+  "dpr",
+  "dpk",
+  "lpr",
+  // OpenSCAD
+  "scad",
+  // Pawn
+  "pwn",
+  "sma",
+  // Apex
+  "cls",
+  "trigger",
+  // SAS
+  "sas",
+  "sash",
+  // SCL
+  "awl",
+  "udt",
+  "db",
+  // VBA
+  "bas",
+  "frm",
+  "ctl",
+  "vbp",
+  // VHDL
+  "vhd",
+  "vhdl",
+  // Web3
+  "vy",
+  "move",
 ]);
 
 export const CONFIG_FILES = new Set([
