@@ -40,6 +40,109 @@ exports.CODE_EXTENSIONS = new Set([
     ".cbl",
     ".cob",
     ".cpy",
+    // Swift & Kotlin
+    ".swift",
+    ".kt",
+    ".kts",
+    // ActionScript
+    ".as",
+    ".mxml",
+    // AppleScript
+    ".applescript",
+    ".scpt",
+    ".scptd",
+    ".jxa",
+    // AutoHotkey
+    ".ahk",
+    ".ah2",
+    // AutoIt
+    ".au3",
+    // Bicep
+    ".bicep",
+    ".bicepparam",
+    // Pipeline
+    ".jenkinsfile",
+    // CFML
+    ".cfm",
+    ".cfc",
+    ".cfs",
+    // Verse
+    ".verse",
+    // Q / KDB+
+    ".q",
+    ".k",
+    // Modelica
+    ".mo",
+    // InterSystems ObjectScript
+    ".mac",
+    ".int",
+    // Software AG Natural
+    ".nsp",
+    ".nsn",
+    ".nss",
+    ".nsa",
+    ".nsg",
+    ".nspda",
+    ".nsl",
+    ".nsc",
+    ".nsf",
+    // Pascal extras
+    ".dpr",
+    ".dpk",
+    ".lpr",
+    // OpenSCAD
+    ".scad",
+    // Pawn
+    ".pwn",
+    ".sma",
+    // Salesforce Apex
+    ".cls",
+    ".trigger",
+    // SAS
+    ".sas",
+    ".sash",
+    // Siemens SCL / STEP 7
+    ".scl",
+    ".awl",
+    ".udt",
+    ".db",
+    // Structured Text
+    ".st",
+    ".pou",
+    ".exp",
+    // MQL5
+    ".mq5",
+    ".mqh",
+    // RPGLE
+    ".rpgle",
+    ".rpg",
+    ".sqlrpgle",
+    // Pine Script
+    ".pine",
+    // JCL
+    ".jcl",
+    ".job",
+    // Power Query M
+    ".pq",
+    // DAX
+    ".dax",
+    // T-SQL
+    ".tsql",
+    // VBA
+    ".bas",
+    ".frm",
+    ".ctl",
+    ".vbp",
+    // VHDL
+    ".vhd",
+    ".vhdl",
+    // Web3 (Vyper & Move)
+    ".vy",
+    ".move",
+    // OpenEdge ABL
+    ".p",
+    ".w",
+    ".i",
 ]);
 exports.DOC_EXTENSIONS = new Set([
     ".md",
@@ -143,6 +246,107 @@ function getLanguageName(ext) {
         case ".cob":
         case ".cpy":
             return "COBOL";
+        case ".swift":
+            return "Swift";
+        case ".kt":
+        case ".kts":
+            return "Kotlin";
+        case ".as":
+        case ".mxml":
+            return "ActionScript";
+        case ".applescript":
+        case ".scpt":
+        case ".scptd":
+        case ".jxa":
+            return "AppleScript";
+        case ".ahk":
+        case ".ah2":
+            return "AutoHotkey";
+        case ".au3":
+            return "AutoIt";
+        case ".bicep":
+        case ".bicepparam":
+            return "Bicep";
+        case ".jenkinsfile":
+            return "JenkinsPipeline";
+        case ".cfm":
+        case ".cfc":
+        case ".cfs":
+            return "CFML";
+        case ".verse":
+            return "Verse";
+        case ".q":
+        case ".k":
+            return "Q";
+        case ".mo":
+            return "Modelica";
+        case ".mac":
+        case ".int":
+            return "ObjectScript";
+        case ".nsp":
+        case ".nsn":
+        case ".nss":
+        case ".nsa":
+        case ".nsg":
+        case ".nspda":
+        case ".nsl":
+        case ".nsc":
+        case ".nsf":
+            return "Natural";
+        case ".scad":
+            return "OpenSCAD";
+        case ".pwn":
+        case ".sma":
+            return "Pawn";
+        case ".cls":
+        case ".trigger":
+            return "Apex";
+        case ".sas":
+        case ".sash":
+            return "SAS";
+        case ".scl":
+        case ".awl":
+        case ".udt":
+        case ".db":
+            return "SCL";
+        case ".st":
+        case ".pou":
+        case ".exp":
+            return "Structured Text";
+        case ".mq5":
+        case ".mqh":
+            return "MQL5";
+        case ".rpgle":
+        case ".rpg":
+        case ".sqlrpgle":
+            return "RPGLE";
+        case ".pine":
+            return "PineScript";
+        case ".jcl":
+        case ".job":
+            return "JCL";
+        case ".pq":
+            return "PowerQuery";
+        case ".dax":
+            return "DAX";
+        case ".tsql":
+            return "TSQL";
+        case ".bas":
+        case ".frm":
+        case ".ctl":
+        case ".vbp":
+            return "VBA";
+        case ".vhd":
+        case ".vhdl":
+            return "VHDL";
+        case ".vy":
+            return "Vyper";
+        case ".move":
+            return "Move";
+        case ".p":
+        case ".w":
+        case ".i":
+            return "OpenEdge ABL";
         default:
             return "Other";
     }

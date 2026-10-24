@@ -2,12 +2,12 @@
   "name": "mrcp-vscode",
   "displayName": "MRCP Engine — Deterministic AI Context & Code Health Cockpit",
   "description": "Deterministic repository intelligence, ultra-lean LLM context packing (95% token savings), AST security audit, cyclomatic health scoring, and architecture graph visualization.",
-  "version": "2.7.3",
+  "version": "2.7.5",
   "publisher": "mrcp-engine",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/scarpatoweb/mrcp-engine.git"
+    "url": "https://github.com/faelscarpato/mrcp-engine.git"
   },
   "engines": {
     "vscode": "^1.90.0"
