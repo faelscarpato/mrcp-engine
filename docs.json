@@ -22,7 +22,8 @@
         "group": "Guias práticos",
         "icon": "route",
         "pages": [
-          "docs/guides/use-cases"
+          "docs/guides/use-cases",
+          "docs/troubleshooting"
         ]
       },
       {

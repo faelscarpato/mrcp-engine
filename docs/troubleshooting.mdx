@@ -1,0 +1,39 @@
+---
+title: "Solução de problemas"
+description: "Diagnostique problemas comuns ao usar a API, o MCP e o CLI do MRCP Engine."
+sidebarTitle: "Solução de problemas"
+---
+
+# Solução de problemas
+
+## A API informa que falta o repositório
+
+Inclua o parâmetro `repo` na URL. Use `curl --get` e `--data-urlencode` para codificar corretamente o endereço do GitHub.
+
+## A API não encontra um caminho local
+
+O serviço hospedado não acessa arquivos do seu computador. Para analisar a pasta atual, execute localmente:
+
+```bash
+npx -y mrcp-engine .
+```
+
+Se estiver trabalhando no checkout do código-fonte e o pacote core não estiver compilado, rode `pnpm install` e `pnpm --filter @mrcp/core build` antes da análise.
+
+## O repositório não é encontrado
+
+Confira proprietário, nome e branch padrão. Para repositórios privados, o serviço precisa ter acesso próprio. Um token existente apenas no seu terminal não é enviado automaticamente. Nunca coloque tokens em URLs.
+
+## O cliente MCP não mostra o MRCP
+
+Confira o endpoint HTTP `https://mrcp-engine.vercel.app/api/mcp` ou o comando stdio `npx -y mrcp-engine@latest`, adapte a configuração ao formato do cliente e reinicie-o. O processo stdio é local, mas algumas ferramentas ainda podem usar a API hospedada.
+
+## O resultado contém `null` ou parece parcial
+
+Consulte `pipelineStatus`, `unavailableSteps`, `limitations` e `warnings`. `null` significa que aquela etapa não produziu um valor, não que o risco seja zero ou que houve aprovação.
+
+## A extensão mostra resultados diferentes
+
+A extensão, o CLI, a API e o MCP têm escopos diferentes. Reabra o workspace, atualize a análise e confira o limite `mrcp.maxFiles`. Veja [Extensão para VS Code](/docs/integrations/vscode).
+
+Para comparar os modos de execução, consulte [Integrações MCP e CLI](/docs/guides/integrations).
