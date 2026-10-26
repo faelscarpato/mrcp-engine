@@ -1,0 +1,58 @@
+---
+title: "Extensão para VS Code"
+description: "Instale a extensão MRCP Engine, execute análises do workspace e use o Cockpit e os comandos do editor."
+sidebarTitle: "VS Code"
+---
+
+# Extensão para VS Code
+
+A extensão analisa o workspace no editor e expõe resultados em uma Activity Bar, no Cockpit e em comandos da paleta. A análise do workspace acontece no ambiente local do editor; ela não é o mesmo fluxo que enviar uma URL à API hospedada.
+
+## Instalação
+
+Instale [MRCP Engine no Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=mrcp-engine.mrcp-vscode). O manifesto do projeto declara VS Code 1.90 ou superior e também lista compatibilidade com Cursor e Windsurf; a disponibilidade e a instalação podem variar conforme o editor.
+
+Depois da instalação, abra uma pasta ou workspace. A extensão agenda uma análise inicial do workspace. Para atualizar manualmente, use **MRCP: Atualizar Análise** ou **MRCP: Executar Diagnóstico Completo (Full Suite)** na Command Palette (`Ctrl+Shift+P` no Windows/Linux ou `Cmd+Shift+P` no macOS).
+
+## Onde encontrar os resultados
+
+A Activity Bar **MRCP Engine** reúne visualizações para:
+
+- ações rápidas e execução da suíte;
+- saúde e métricas do código;
+- segurança e variáveis de ambiente;
+- arquitetura e dependências;
+- lacunas de testes e código não utilizado;
+- inteligência documental.
+
+O comando **MRCP: Abrir Cockpit Interativo & Grafo AST** abre o painel visual. Outros comandos permitem copiar contexto otimizado ou o contexto do arquivo ativo, executar uma auditoria de segurança, detectar código morto e exportar um relatório Markdown.
+
+## Configurações
+
+Abra **Settings** e pesquise por `MRCP Engine`:
+
+| Configuração | Padrão | Efeito |
+| --- | --- | --- |
+| `mrcp.autoAnalyzeOnSave` | `false` | Ativa uma análise incremental leve ao salvar arquivos. |
+| `mrcp.enableCodeLens` | `true` | Mostra indicações de complexidade e atalhos sobre símbolos reconhecidos. |
+| `mrcp.enableNativeDiagnostics` | `true` | Publica alertas no painel Problems do editor. |
+| `mrcp.maxFiles` | `2000` | Limita o número de arquivos incluídos no escaneamento. |
+
+Exemplo de configuração no `settings.json`:
+
+```json
+{
+  "mrcp.autoAnalyzeOnSave": false,
+  "mrcp.enableCodeLens": true,
+  "mrcp.enableNativeDiagnostics": true,
+  "mrcp.maxFiles": 2000
+}
+```
+
+## Limites a considerar
+
+A extensão, o CLI, a API e o servidor MCP não têm necessariamente os mesmos recursos nem a mesma cobertura por linguagem. A disponibilidade de indicadores visuais depende dos símbolos e idiomas reconhecidos pela extensão; não assuma que cada analisador do núcleo aparece como CodeLens ou diagnóstico no editor.
+
+As métricas ajudam a priorizar revisão. Elas não substituem leitura do código, testes ou validação independente de segurança. Se uma análise parecer incompleta, confira os avisos no relatório e ajuste `mrcp.maxFiles` conforme o tamanho do workspace e os recursos disponíveis.
+
+Para os outros caminhos, veja [Integrações MCP e CLI](/docs/guides/integrations) ou [Primeiros passos](/getting-started).

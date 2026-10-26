@@ -1,0 +1,48 @@
+---
+title: "Documentação do MRCP Engine"
+description: "Guias para conectar o MRCP Engine, analisar repositórios e integrar seus resultados ao fluxo de desenvolvimento."
+---
+
+# Contexto estrutural para decisões melhores
+
+O MRCP Engine analisa código e documentos para produzir sinais estruturados sobre arquitetura, saúde do código, segurança e contratos. Você pode consumi-lo pela API REST, por ferramentas MCP, pelo CLI ou pela extensão de IDE — cada caminho tem um comportamento diferente.
+
+<CardGroup cols={2}>
+  <Card title="Começar em poucos minutos" icon="rocket" href="/getting-started">
+    Escolha entre API hospedada, integração MCP ou análise local pelo CLI.
+  </Card>
+  <Card title="Escolher um caso de uso" icon="route" href="/docs/guides/use-cases">
+    Veja qual ferramenta usar para diagnóstico, segurança, contexto de IA ou impacto de mudanças.
+  </Card>
+  <Card title="Conectar uma ferramenta" icon="plug" href="/docs/guides/integrations">
+    Compare MCP remoto, servidor stdio e execução local — sem confundir transporte com privacidade.
+  </Card>
+  <Card title="Consultar a API" icon="braces" href="/docs/reference/rest-api">
+    Encontre endpoints, métodos HTTP, parâmetros e exemplos de chamadas.
+  </Card>
+  <Card title="Usar no editor" icon="code-xml" href="/docs/integrations/vscode">
+    Instale a extensão e conheça o Cockpit, os comandos e as configurações disponíveis.
+  </Card>
+  <Card title="Entender a arquitetura" icon="workflow" href="/architecture">
+    Veja como o núcleo, os analisadores e as interfaces se encaixam.
+  </Card>
+</CardGroup>
+
+## Escolha o caminho certo
+
+| Se você quer… | Comece por… | O que considerar |
+| --- | --- | --- |
+| Fazer uma chamada sem instalar nada | [API REST](/docs/reference/rest-api) | O serviço hospedado precisa conseguir acessar o repositório informado. |
+| Dar ferramentas ao seu agente de código | [Integrações MCP](/docs/guides/integrations) | MCP remoto e MCP stdio são transportes diferentes; stdio não significa que toda ferramenta rode offline. |
+| Inspecionar uma pasta privada sem enviá-la ao serviço hospedado | [CLI local](/getting-started#analisar-uma-pasta-local) | A análise local executa a suíte completa no computador e requer o core disponível. |
+| Obter sinais no fluxo do editor | [Extensão VS Code](/docs/integrations/vscode) | A extensão analisa o workspace e oferece comandos e visualizações próprios. |
+
+<Note>
+Os relatórios descrevem o que cada etapa conseguiu medir. Verifique avisos, limitações e etapas indisponíveis antes de tratar uma pontuação como conclusão; uma etapa sem dados não equivale a resultado zero nem a aprovação.
+</Note>
+
+## Próximos passos
+
+- [Primeira análise passo a passo](/getting-started)
+- [Guias por objetivo](/docs/guides/use-cases)
+- [Perguntas e solução de problemas](/docs/troubleshooting)

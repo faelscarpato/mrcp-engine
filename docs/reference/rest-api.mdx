@@ -1,0 +1,88 @@
+---
+title: "Referência da API REST"
+description: "Endpoints REST do MRCP Engine, parâmetros principais e exemplos de chamadas HTTP."
+sidebarTitle: "API REST"
+---
+
+# Referência da API REST
+
+A URL base hospedada é `https://mrcp-engine.vercel.app`. A maioria das rotas de análise recebe o alvo por `repo`; prefira `curl --get` com `--data-urlencode` para escapar corretamente a URL do repositório.
+
+```bash
+curl --get 'https://mrcp-engine.vercel.app/api/code-health' \
+  --data-urlencode 'repo=https://github.com/SEU_USUARIO/SEU_REPOSITORIO'
+```
+
+## Análises de repositório
+
+| Método e rota | Parâmetros principais | Uso |
+| --- | --- | --- |
+| `GET /api/analyze` | `repo` | Grafo estrutural e métricas do repositório. |
+| `GET /api/full-suite` | `repo`; opcional: `task`, `stubs` | Executa a suíte de diagnóstico; `stubs=false` desativa a geração de stubs de teste. |
+| `GET /api/code-health` | `repo` | Índice de saúde e prioridades de manutenção. |
+| `GET /api/security-audit` | `repo`; opcional: `severity` | Auditoria estática de segurança. |
+| `GET /api/architecture-drift` | `repo`; opcional: `arch` | Procura ciclos e desvios arquiteturais. |
+| `GET /api/test-gap-analysis` | `repo`; opcional: `stubs=false` | Identifica lacunas de teste e, por padrão, permite gerar stubs. |
+| `GET /api/context-pack` | `repo`; opcional: `task` | Monta contexto focado para uma tarefa. |
+| `GET /api/api-contract` | `repo`; opcional: `framework` | Analisa rotas e contratos de API. |
+| `GET /api/env-validator` | `repo` | Compara variáveis de ambiente usadas e declaradas e procura riscos de exposição. |
+| `GET /api/monorepo-graph` | `repo`; opcional: `changedFiles` | Analisa a topologia do monorepo. |
+| `GET /api/doc-generator` | `repo`; opcional: `file`, `format` | Gera documentação a partir de símbolos públicos. |
+| `GET /api/document-analyzer` | `repo`; opcional: `ext`, `maxFiles` | Analisa documentos e formatos tabulares encontrados no repositório. |
+| `GET /api/dead-code-pruner` | `repo` | Procura símbolos, exports e imports sem uso. |
+| `GET /api/sql-orm-contract` | opcional: `repo`, `schema` | Analisa esquemas SQL e ORM. |
+| `GET /api/skills` | `repo` | Gera contratos de refatoração para arquivos de maior risco. |
+| `POST /api/impact-analysis` | JSON: `repo`, `modifiedFiles`; opcional: `diffContent` | Estima o raio de impacto das alterações informadas. |
+| `POST /api/refactor-applier` | JSON: `action`, `targetSymbol`, `targetFilePath`; pode incluir `newSymbolName`, `repoUrl` | Executa o fluxo de refatoração AST; confirme o comportamento da versão antes de esperar gravação em disco. |
+
+`/api/full-analysis` e `/api/deep-analysis` são aliases de `/api/full-suite`.
+
+### Exemplo: analisar impacto
+
+```bash
+curl -sS -X POST 'https://mrcp-engine.vercel.app/api/impact-analysis' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "repo": "https://github.com/SEU_USUARIO/SEU_REPOSITORIO",
+    "modifiedFiles": ["src/auth/session.ts"]
+  }'
+```
+
+### Exemplo: limitar a análise de documentos
+
+```bash
+curl --get 'https://mrcp-engine.vercel.app/api/document-analyzer' \
+  --data-urlencode 'repo=https://github.com/SEU_USUARIO/SEU_REPOSITORIO' \
+  --data-urlencode 'ext=md,csv,pdf' \
+  --data-urlencode 'maxFiles=100'
+```
+
+## Ferramentas MCP
+
+`GET /api/mcp` retorna informações de descoberta, versão e o catálogo publicado. Chamadas MCP são feitas por `POST /api/mcp` com mensagens JSON-RPC 2.0; o método `tools/list` descobre ferramentas e `tools/call` executa uma delas.
+
+```bash
+curl -sS 'https://mrcp-engine.vercel.app/api/mcp'
+```
+
+Consulte a [referência de ferramentas MCP](/docs/reference/mcp-tools) para a seleção de ferramentas do pacote e seus argumentos mais comuns.
+
+## Outras rotas
+
+| Método e rota | Parâmetros | Uso |
+| --- | --- | --- |
+| `GET /api/web-search` | `q` | Pesquisa na web. |
+| `GET /api/scrape` | `url` | Extrai conteúdo de uma página. |
+| `GET /api/smart-search` | `q`; opcional: `topN` | Combina busca e extração dos resultados principais. |
+| `GET /api/search` | `repo`, `q` | Busca por nomes de símbolos e caminhos na análise do repositório. |
+| `GET` ou `POST /api/clone` | `url` ou `html`; opcional: `format` | Analisa a estrutura de uma página para apoiar sua reconstrução. |
+| `GET /api/guidelines` | — | Retorna as diretrizes de IA do projeto. |
+| `GET /api/report` | opcional: `repo` | Retorna o relatório consolidado; `local` refere-se ao diretório do servidor, não ao computador do cliente. |
+
+## Acesso e interpretação
+
+- A API hospedada não tem acesso ao disco do cliente. Enviar `.` ou um caminho local para ela não faz a análise local; use `npx -y mrcp-engine .` no [CLI local](/docs/guides/integrations).
+- Repositórios privados dependem das credenciais disponíveis no serviço que executa a análise. Não envie tokens como parâmetros de URL.
+- Chamadas ao GitHub podem falhar por acesso, repositório/branch inexistente ou limite de requisições. Confira o corpo de erro e as limitações do relatório.
+- Respostas podem conter etapas não medidas ou análises parciais. Leia `pipelineStatus`, `limitations`, `warnings` e `unavailableSteps` quando existirem.
+- O núcleo inclui um modo de simulação para refatorações, mas os campos aceitos variam por interface e a rota REST encaminha um subconjunto do corpo. Confira a saída e o comportamento da versão conectada antes de esperar uma gravação. Não trate uma ferramenta de refatoração como somente leitura.
