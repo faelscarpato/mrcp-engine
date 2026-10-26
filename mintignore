@@ -1,0 +1,5 @@
+# Mintlify ignores CHANGELOG.md by default; publish it because it is in docs.json.
+!CHANGELOG.md
+
+# TypeScript configuration is JSONC, not a documentation page.
+tsconfig.json
