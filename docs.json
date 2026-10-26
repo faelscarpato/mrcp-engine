@@ -13,27 +13,38 @@
       {
         "group": "Comece aqui",
         "pages": [
+          "index",
+          "getting-started",
           "README.pt-BR"
         ]
       },
       {
         "group": "Guias práticos",
         "icon": "route",
-        "pages": []
+        "pages": [
+          "docs/guides/use-cases"
+        ]
       },
       {
         "group": "Integrações",
         "icon": "plug",
-        "pages": []
+        "pages": [
+          "docs/guides/integrations",
+          "docs/integrations/vscode"
+        ]
       },
       {
         "group": "API e ferramentas",
         "icon": "braces",
-        "pages": []
+        "pages": [
+          "docs/reference/rest-api",
+          "docs/reference/mcp-tools"
+        ]
       },
       {
         "group": "Arquitetura e governança",
         "pages": [
+          "architecture",
           "docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS",
           "MRCP_AI_GUIDELINES"
         ]

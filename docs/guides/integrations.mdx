@@ -1,0 +1,90 @@
+---
+title: "Integrações MCP e CLI"
+description: "Configure o MRCP Engine em clientes MCP ou use o CLI para análises remotas e locais."
+sidebarTitle: "MCP e CLI"
+---
+
+# Integrações MCP e CLI
+
+O MRCP pode aparecer para um cliente como um servidor MCP remoto ou como um processo `stdio`. Também é possível executar análises diretamente pelo CLI. São formas de conexão distintas, não promessas equivalentes de execução local.
+
+## MCP remoto por HTTP
+
+Use o endpoint hospedado:
+
+```text
+https://mrcp-engine.vercel.app/api/mcp
+```
+
+Exemplo de entrada de configuração:
+
+```json
+{
+  "mcpServers": {
+    "mrcp-engine": {
+      "url": "https://mrcp-engine.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+O endpoint implementa chamadas MCP sobre HTTP e oferece descoberta de ferramentas por `tools/list`. A estrutura exata do arquivo de configuração varia entre clientes; adapte o exemplo ao formato documentado pelo seu editor ou agente.
+
+## MCP via `stdio`
+
+Um cliente que inicia servidores por processo local pode usar:
+
+```json
+{
+  "mcpServers": {
+    "mrcp-engine": {
+      "command": "npx",
+      "args": ["-y", "mrcp-engine@latest"]
+    }
+  }
+}
+```
+
+O processo local fala MCP por entrada e saída padrão. No pacote atual, o servidor stdio funciona como uma ponte para ferramentas e vários handlers encaminham chamadas à API hospedada. Portanto, **stdio descreve o transporte; não significa que todas as análises sejam offline**. Para analisar uma pasta local com fluxo explicitamente local, use `npx -y mrcp-engine .`.
+
+## Configuração automática
+
+O comando abaixo procura caminhos conhecidos de alguns clientes, adiciona a entrada MCP e grava regras de uso em arquivos locais:
+
+```bash
+npx -y mrcp-engine setup
+```
+
+> **Atenção:** `setup` altera arquivos de configuração e regras no computador. Antes de executá-lo, revise o que será alterado e faça cópias dos arquivos importantes. Ele pode também iniciar o painel interativo ao terminar.
+
+Se preferir não permitir alterações automáticas, copie manualmente o exemplo remoto ou stdio e edite apenas a configuração do cliente desejado.
+
+## CLI: repositório remoto ou pasta local
+
+### Repositório GitHub
+
+```bash
+npx -y mrcp-engine https://github.com/SEU_USUARIO/SEU_REPOSITORIO
+```
+
+A CLI envia a solicitação de um repositório remoto à API hospedada e grava relatórios no diretório de trabalho. Para evitar essa gravação, acrescente `--no-save`.
+
+### Pasta local
+
+```bash
+npx -y mrcp-engine .
+```
+
+Esse comando roda a suíte completa com o core local e sem enviar o alvo local à API hospedada. Ao executar a partir do código-fonte, o core precisa estar compilado (`pnpm --filter @mrcp/core build`). A análise local gera os relatórios mesmo que `--no-save` seja informado.
+
+## Escolha rápida
+
+| Necessidade | Caminho recomendado |
+| --- | --- |
+| Usar um agente com ferramentas MCP hospedadas | MCP remoto em `/api/mcp` |
+| Cliente só aceita iniciar servidor MCP local | MCP `stdio`; confira quais handlers usam a API hospedada |
+| Analisar uma pasta no computador sem enviar o alvo local ao serviço | CLI local com `mrcp-engine .` |
+| Integrar um pipeline ou script | [API REST](/docs/reference/rest-api) |
+| Ver análises no editor | [Extensão VS Code](/docs/integrations/vscode) |
+
+Para consultar nomes e argumentos das ferramentas, veja [Referência MCP](/docs/reference/mcp-tools).

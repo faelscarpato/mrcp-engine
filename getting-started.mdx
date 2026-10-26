@@ -1,0 +1,92 @@
+---
+title: "Primeiros passos"
+description: "Faça sua primeira análise com a API hospedada, conecte ferramentas MCP ou rode o CLI localmente."
+sidebarTitle: "Primeiros passos"
+---
+
+# Primeiros passos
+
+Você pode testar uma análise sem instalar o pacote ou integrar o MRCP ao seu fluxo de trabalho. Escolha o caminho de acordo com o local do código e com a ferramenta que deseja usar.
+
+## 1. Consultar a API hospedada
+
+Para um repositório GitHub acessível ao serviço, faça uma análise de saúde do código:
+
+```bash
+curl --get 'https://mrcp-engine.vercel.app/api/code-health' \
+  --data-urlencode 'repo=https://github.com/SEU_USUARIO/SEU_REPOSITORIO'
+```
+
+Para a suíte completa, troque o endpoint por `/api/full-suite`. Ela combina análises de estrutura, saúde, segurança, arquitetura, testes, variáveis de ambiente, APIs, monorepos, documentação, SQL e documentos quando as etapas e os arquivos aplicáveis estão disponíveis.
+
+A API hospedada não enxerga arquivos no seu computador. Repositórios privados também dependem das credenciais configuradas no serviço; não coloque tokens em URLs ou exemplos de terminal compartilhados.
+
+## 2. Conectar um agente via MCP
+
+O endpoint MCP hospedado é:
+
+```text
+https://mrcp-engine.vercel.app/api/mcp
+```
+
+Adicione-o à configuração MCP do cliente, seguindo o formato exigido por esse cliente. Um exemplo de entrada HTTP é:
+
+```json
+{
+  "mcpServers": {
+    "mrcp-engine": {
+      "url": "https://mrcp-engine.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+Para conferir se o endpoint responde e descobrir a versão e as ferramentas expostas:
+
+```bash
+curl -sS 'https://mrcp-engine.vercel.app/api/mcp'
+```
+
+Veja [Integrações MCP e CLI](/docs/guides/integrations) para a opção stdio e para entender o que é executado localmente.
+
+## 3. Usar o CLI em um repositório GitHub
+
+Com Node.js 18 ou superior, você pode chamar o pacote sem instalá-lo globalmente:
+
+```bash
+npx -y mrcp-engine https://github.com/SEU_USUARIO/SEU_REPOSITORIO
+```
+
+Para um alvo remoto, esse comando solicita a suíte à API hospedada e grava os resultados no diretório de trabalho, incluindo `mrcp-analysis.json` e a pasta `reports/`. Use `--no-save` para não gravar esses arquivos nesse modo.
+
+Para pedir uma análise remota específica, a CLI também aceita comandos como:
+
+```bash
+npx -y mrcp-engine health https://github.com/SEU_USUARIO/SEU_REPOSITORIO
+npx -y mrcp-engine security https://github.com/SEU_USUARIO/SEU_REPOSITORIO
+npx -y mrcp-engine docs https://github.com/SEU_USUARIO/SEU_REPOSITORIO
+```
+
+## Analisar uma pasta local
+
+Para executar a suíte completa sobre a pasta atual:
+
+```bash
+npx -y mrcp-engine .
+```
+
+Esse caminho usa o core local e não envia o alvo local à API hospedada. A execução grava relatórios localmente; `--json` envia o resultado JSON para a saída padrão. Se estiver rodando a partir do código-fonte do repositório e o core ainda não foi compilado, prepare-o primeiro:
+
+```bash
+pnpm install
+pnpm --filter @mrcp/core build
+```
+
+A CLI não oferece seus subcomandos seletivos para um caminho local: a análise local é a suíte completa.
+
+## O que fazer depois
+
+- [Escolher um caso de uso](/docs/guides/use-cases)
+- [Conectar MCP, CLI e API](/docs/guides/integrations)
+- [Consultar endpoints REST](/docs/reference/rest-api)
+- [Resolver erros comuns](/docs/troubleshooting)

@@ -1,0 +1,50 @@
+---
+title: "Referência de ferramentas MCP"
+description: "Ferramentas MCP do pacote MRCP Engine, argumentos frequentes e cuidados antes de aplicar refatorações."
+sidebarTitle: "Ferramentas MCP"
+---
+
+# Referência de ferramentas MCP
+
+O servidor MCP do pacote expõe ferramentas para análise de repositórios, geração de contexto e operações relacionadas. Os argumentos abaixo são os campos principais; consulte o schema da ferramenta no seu cliente MCP para ver opções e valores padrão da versão em execução.
+
+## Diagnóstico de repositório
+
+| Ferramenta | Argumentos principais | Resultado esperado |
+| --- | --- | --- |
+| `analyze_repository` | `repo`; opcional: `raw` | Grafo estrutural, relações e métricas. |
+| `mrcp_run_full_repository_suite` | `repo`; opcional: `taskContext` | Relatório de diagnóstico com várias etapas. |
+| `mrcp_code_metrics_health_scorer` | `repo` | Métricas de saúde e prioridades de manutenção. |
+| `mrcp_security_compliance_audit` | `repo` | Alertas de análise estática de segurança. |
+| `mrcp_architectural_drift_detector` | `repo` | Indícios de ciclos e violações de fronteira. |
+| `mrcp_auto_test_coverage_gap_finder` | `repo` | Lacunas de teste e possíveis stubs. |
+| `mrcp_env_secret_contract_validator` | `repo` | Contrato de variáveis de ambiente e possíveis exposições. |
+| `mrcp_monorepo_package_graph_analyzer` | `repo`; opcional: `changedFiles` | Grafo dos pacotes e dependências de monorepo. |
+| `mrcp_document_analyzer` | `repo`; opções de filtro e limite de arquivos | Análise de documentos e estruturas tabulares suportados. |
+
+## Contexto, dependências e contratos
+
+| Ferramenta | Argumentos principais | Uso |
+| --- | --- | --- |
+| `mrcp_context_pruning_pack` | `repo`, `taskDescription` | Selecionar contexto relacionado a uma tarefa. |
+| `get_repository_skills_contract` | `repo` | Obter contratos de refatoração para hotspots. |
+| `mrcp_impact_analysis` | `repo`, `modifiedFiles` | Investigar arquivos e símbolos potencialmente afetados. |
+| `mrcp_type_signature_extractor` | `repo` | Extrair assinaturas e tipos sem corpos de implementação. |
+| `mrcp_api_contract_generator` | `repo` | Analisar rotas e gerar contratos de API. |
+| `mrcp_sql_schema_orm_contract_generator` | `repo` opcional | Extrair estruturas de esquemas SQL e ORM. |
+| `mrcp_docstring_api_doc_generator` | `repo` | Gerar documentação para símbolos públicos. |
+| `mrcp_dead_code_pruner` | `repo` | Procurar exports, variáveis ou imports sem uso. |
+| `mrcp_dependency_compatibility_resolver` | `packageName`; opções de versão e manifesto | Consultar compatibilidade e riscos SemVer. |
+| `mrcp_git_diff_semantic_summarizer` | `diffContent` | Resumir mudanças semânticas de um diff. |
+
+## Refatoração: leia antes de executar
+
+`mrcp_ast_refactor_applier` é uma ferramenta sensível. O schema do servidor stdio do pacote anuncia `action`, `targetSymbol` e `newSymbolName`; o schema MCP hospedado também apresenta `targetFilePath` e `dryRun` (padrão `true`). Os handlers e os campos disponíveis podem variar entre essas interfaces.
+
+A implementação do núcleo pode gravar alterações quando a simulação é desativada. Antes de executar, confira o schema realmente conectado, confirme qual arquivo será alvo e valide se a chamada está em modo de simulação. Não permita gravações sem revisar a ação e a saída simulada.
+
+## Catálogo ativo e diferenças entre interfaces
+
+A tabela acima resume o catálogo stdio do pacote. Ele e o endpoint hospedado não necessariamente expõem catálogos idênticos. O endpoint `GET /api/mcp` informa a versão e as ferramentas publicadas; um cliente MCP pode solicitar a lista ativa usando `tools/list`. Use essa descoberta como fonte definitiva para a instalação em execução.
+
+Para exemplos de chamadas e combinações por objetivo, veja [Guias por caso de uso](/docs/guides/use-cases). Para transporte e configuração, consulte [Integrações MCP e CLI](/docs/guides/integrations).

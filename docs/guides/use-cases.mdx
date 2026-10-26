@@ -1,0 +1,75 @@
+---
+title: "Guias por caso de uso"
+description: "Fluxos práticos para entender um repositório, investigar riscos e fornecer contexto mais focado a agentes de código."
+sidebarTitle: "Casos de uso"
+---
+
+# Guias por caso de uso
+
+A forma mais simples de escolher uma ferramenta é começar pela pergunta que você precisa responder. Faça uma análise ampla no primeiro contato com o repositório; depois, prefira chamadas específicas para perguntas pontuais.
+
+## Entender um repositório antes de começar
+
+Use a suíte completa para criar uma visão inicial de estrutura, saúde, segurança e contratos. Ela informa quais etapas foram concluídas e quais dados ficaram indisponíveis.
+
+**Via MCP:** chame `mrcp_run_full_repository_suite` com `repo` e, opcionalmente, `taskContext`.
+
+**Via REST:**
+
+```bash
+curl --get 'https://mrcp-engine.vercel.app/api/full-suite' \
+  --data-urlencode 'repo=https://github.com/SEU_USUARIO/SEU_REPOSITORIO'
+```
+
+Para uma pergunta mais estreita sobre módulos, arquivos e dependências, use `analyze_repository` ou `GET /api/analyze`.
+
+## Verificar riscos de segurança
+
+Use `mrcp_security_compliance_audit` ou `GET /api/security-audit?repo=...` para procurar padrões estáticos, como possíveis segredos expostos e construções de código de risco.
+
+```bash
+curl --get 'https://mrcp-engine.vercel.app/api/security-audit' \
+  --data-urlencode 'repo=https://github.com/SEU_USUARIO/SEU_REPOSITORIO'
+```
+
+O resultado é uma análise estática: não substitui revisão humana, testes dinâmicos, análise de dependências dedicada nem um teste de invasão. Confira o escopo e os avisos retornados.
+
+## Dar à IA apenas o contexto relacionado à tarefa
+
+Quando o agente precisa trabalhar em uma mudança delimitada, `mrcp_context_pruning_pack` seleciona contexto do repositório com base na descrição da tarefa. No MCP, informe `repo` e `taskDescription`.
+
+```bash
+curl --get 'https://mrcp-engine.vercel.app/api/context-pack' \
+  --data-urlencode 'repo=https://github.com/SEU_USUARIO/SEU_REPOSITORIO' \
+  --data-urlencode 'task=Adicionar paginação ao endpoint de pedidos sem alterar o contrato atual'
+```
+
+Descreva o objetivo e as restrições relevantes — por exemplo, interfaces públicas que não devem mudar. Revise o pacote antes de usá-lo como especificação de implementação.
+
+## Estimar o impacto de arquivos alterados
+
+Antes de uma refatoração ou de um commit, informe quais arquivos mudaram. A análise de impacto percorre relações do repositório e retorna os elementos potencialmente afetados.
+
+```bash
+curl -sS -X POST 'https://mrcp-engine.vercel.app/api/impact-analysis' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "repo": "https://github.com/SEU_USUARIO/SEU_REPOSITORIO",
+    "modifiedFiles": ["src/orders/service.ts", "src/orders/routes.ts"]
+  }'
+```
+
+O corpo aceita `repo` e `modifiedFiles`; também pode incluir `diffContent`. Trate a lista como apoio à revisão, não como garantia de que todo efeito foi detectado.
+
+## Analisar documentos junto com o código
+
+Use `mrcp_document_analyzer` ou `GET /api/document-analyzer` para repositórios com arquivos como Markdown, CSV/TSV, JSON/YAML, DOCX, XLSX e PDF com conteúdo textual extraível. A ferramenta também aceita filtros de extensões e limite de arquivos.
+
+Documentos PDF digitalizados como imagem podem não conter camada de texto aproveitável: o analisador não deve ser tratado como OCR.
+
+## Ler corretamente o resultado
+
+- Consulte `pipelineStatus`, `warnings`, `limitations` e `unavailableSteps` quando estiverem presentes.
+- Um valor `null` significa que uma etapa não produziu aquele dado; não interprete como zero, aprovação ou ausência de risco.
+- Em repositórios muito grandes, o serviço pode analisar somente parte dos arquivos por limites de volume ou tempo.
+- Para chamadas hospedadas, confirme que o serviço consegue ler o repositório. Para uma pasta local, use o [CLI local](/getting-started#analisar-uma-pasta-local).
