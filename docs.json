@@ -1,0 +1,42 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "MRCP Engine",
+  "theme": "mint",
+  "description": "Documentação do MRCP Engine: inteligência de código determinística baseada em AST, servidor MCP, API REST e integrações para IDEs.",
+  "colors": {
+    "primary": "#8A2BE2",
+    "light": "#A78BFA",
+    "dark": "#6D28D9"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Comece aqui",
+        "pages": [
+          "README.pt-BR"
+        ]
+      },
+      {
+        "group": "Arquitetura e governança de IA",
+        "pages": [
+          "docs/ORCHESTRATOR_ARCHITECTURE_AND_SPECS",
+          "MRCP_AI_GUIDELINES"
+        ]
+      },
+      {
+        "group": "Projeto e segurança",
+        "pages": [
+          "CODE_OF_CONDUCT",
+          "SECURITY"
+        ]
+      },
+      {
+        "group": "Referência",
+        "pages": [
+          "Whitepaper",
+          "CHANGELOG"
+        ]
+      }
+    ]
+  }
+}
